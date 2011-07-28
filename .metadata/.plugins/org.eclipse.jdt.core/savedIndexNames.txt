@@ -1,0 +1,3 @@
+INDEX VERSION 1.126+/home/mazzzy/AndroidWS/.metadata/.plugins/org.eclipse.jdt.core
+884758432.index
+207530435.index
