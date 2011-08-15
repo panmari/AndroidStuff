@@ -1,5 +1,4 @@
 package sm.connectFour;
-// BG.java
 
 import ch.aplu.android.Actor;
 
@@ -7,7 +6,7 @@ public class BG extends Actor
 {
   public BG()
   {
-    super(false, "sprites/4inARowBG.png");
+    super(false, "bg");
   }
 
   public void reset()
