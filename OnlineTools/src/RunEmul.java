@@ -23,7 +23,8 @@ public class RunEmul
     mop.setTitle("Android Emulator Starter V" + VERSION + " (www.aplu.ch)");
     mop.setText("Starting emulator now...", false);
     String startFolder = userHome + fs + ".jdroidemul" + fs + "tools";
-    String cmd = "cmd /c " + startFolder + fs + "a_startemul.bat";
+    //String cmd = "cmd /c " + startFolder + fs + "a_startemul.bat";
+    String cmd = startFolder + fs + "emulator @Slim-Emulator";
     System.out.println("exec: " + cmd);
     try
     {

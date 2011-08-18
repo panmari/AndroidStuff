@@ -1,7 +1,6 @@
 // InstallEmul.java
 // Installs Android Emulator
 
-import ch.aplu.util.ProgressPane;
 import java.util.*;
 import java.util.zip.*;
 import javax.swing.*;
@@ -15,30 +14,39 @@ public class InstallEmul
   private final String fs = System.getProperty("file.separator");
   private static String zipUrl; 
   private final String iconResourcePath = "res/android.png";
-  private ProgressPane mop = null;
+  //private ProgressPane //mop = null;
   private static URL iconUrl;
   private final int zipFileSize = 58000000; // in bytes
+  private final String os = System.getProperty("os.name");
 
   public InstallEmul()
   {
     String tmpDir = System.getProperty("java.io.tmpdir");
-    final String zipPath = tmpDir + "jdroidemul.zip";
+    final String zipPath;
+    if (os.equals("Linux")) {
+    	//change download path:
+    	 zipUrl = zipUrl.replace(".zip", "_linux.zip");
+    	 //Linux braucht hier noch ein fs:
+    	 zipPath = tmpDir + fs + "jdroidemul.zip";
+    }
+    else zipPath = tmpDir + "jdroidemul.zip";
+    
     ClassLoader loader = getClass().getClassLoader();
     iconUrl = loader.getResource(iconResourcePath);
     String emptyMsg = "                                                     "
       + "                                             ";
-    mop = new ProgressPane(50, 50, emptyMsg, iconUrl);
-    mop.setTitle("Android Emulator Installer V" + VERSION + " (www.aplu.ch)");
+    //mop = new ProgressPane(50, 50, emptyMsg, iconUrl);
+    //mop.setTitle("Android Emulator Installer V" + VERSION + " (www.aplu.ch)");
 
     String emulFolder = userHome + fs + ".jdroidemul";
     if (!createFolder(emulFolder))
     {
-      mop.setText("Can't create folder " + emulFolder);
+      //mop.setText("Can't create folder " + emulFolder);
       return;
     }
 
     String msg = "Downloading distribution zip.  Be patient...";
-    mop.setText(msg, false);
+    //mop.setText(msg, false);
     System.out.println("Downloading distribution zip " + zipUrl + "...");
     Thread t = new Thread()
     {
@@ -55,7 +63,7 @@ public class InstallEmul
     catch (InterruptedException ex)
     {}
     System.out.println("Done. Installing now...");
-    mop.setText("Download finished. Installing now...", false);
+    //mop.setText("Download finished. Installing now...", false);
     try
     {
       unzip(zipPath, emulFolder);
@@ -63,21 +71,21 @@ public class InstallEmul
     catch (IOException ex)
     {
       System.out.println("Installation failed");
-      mop.setText("Installation failed", false);
+      //mop.setText("Installation failed", false);
       return;
     }
 
     String folder = userHome + fs + ".android";
     if (!createFolder(folder))
     {
-      mop.setText("Can't create folder " + folder);
+      //mop.setText("Can't create folder " + folder);
       return;
     }
 
     folder = userHome + fs + ".android" + fs + "avd";
     if (!createFolder(folder))
     {
-      mop.setText("Can't create folder " + folder);
+      //mop.setText("Can't create folder " + folder);
       return;
     }
 
@@ -85,11 +93,12 @@ public class InstallEmul
       + "avd" + fs + "Slim-Emulator.avd";
     if (!createFolder(folder))
     {
-      mop.setText("Can't create folder " + folder);
+      //mop.setText("Can't create folder " + folder);
       return;
     }
 
     // Create Slim-Emulator.ini
+    // SM: only needed on Linux
     String slimEmulator_ini = userHome + fs + ".android"
       + fs + "avd" + fs + "Slim-Emulator.ini";
 
@@ -150,7 +159,7 @@ public class InstallEmul
     {
     }
     System.out.println("Done");
-    mop.setText("Installation successful...", false);
+    //mop.setText("Installation successful...", false);
     delay(2000);
   }
 
@@ -201,6 +210,12 @@ public class InstallEmul
           File destFile = new File(destFolder + fs + zipEntry.getName());
           inputStream = zipFile.getInputStream(zipEntry);
           write(inputStream, destFile);
+          //set executable permission on Linux:
+          if (os.equals("Linux")) {
+	          if (zipEntry.getName().contains("emulator") ||
+	        		  zipEntry.getName().contains("adb"))
+	        	  destFile.setExecutable(true);
+          }
         }
       }
     }
@@ -244,7 +259,7 @@ public class InstallEmul
   // copy file 'srcUrl' to local file 'dstFile'
   // e.g. getFile("http://clab1.phbern.ch/Ex1.bin", "c:\scratch\Ex1.bin")
   {
-    //   System.out.println("Src: " + srcUrl + " Dst: " + dstFile);
+       System.out.println("Src: " + srcUrl + " Dst: " + dstFile);
 
     File fdstFile = new File(dstFile);
     if (fdstFile.exists())
@@ -267,7 +282,7 @@ public class InstallEmul
       {
         out.write(buff, 0, count);
         value += count;
-        mop.setBarValue((int)(100.0 * value / size));
+        //mop.setBarValue((int)(100.0 * value / size));
       }
     }
     catch (IOException ex)
@@ -303,12 +318,16 @@ public class InstallEmul
 
   public static void main(String[] args)
   {
+	  /*
     if (args.length != 1)
     {
       System.out.println("Provide one argument: Url to the zip file");
       return;
     }
-    zipUrl = args[0];
+    */
+    //zipUrl = args[0];
+    //SM debug:
+    zipUrl = "http://clab1.phbern.ch/jOnline/jdroidemul/jdroidemul.zip";
     new InstallEmul();
   }
 }
