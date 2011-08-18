@@ -2,7 +2,7 @@ package sm.connectFour;
 
 public class MMBot extends ComputerPlayer {
 
-	private final int searchDepth = 9;
+	private final int searchDepth = 7;
 	private final int VALUE_QUAD = 10000, VALUE_TRIPPLE = 100, 
 			VALUE_PAIR = 20, VALUE_MIDDLE = 1;
 	//columns left of the array get evaluated first:

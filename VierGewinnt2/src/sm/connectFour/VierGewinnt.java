@@ -18,7 +18,7 @@ public class VierGewinnt extends GameGrid implements GGTouchListener {
 	private static final int nbVertCells = 7, nbHorzCells = 7;
 
 	public VierGewinnt() {
-		super(nbHorzCells, nbVertCells, 0);
+		super(nbHorzCells, nbVertCells, 0, Color.RED);
 	}
 
 	public void setComputerPlayer(ComputerPlayer cp) {
@@ -209,12 +209,12 @@ public class VierGewinnt extends GameGrid implements GGTouchListener {
 	}
 
 	public void main() {
-		addTouchListener(this, GGTouch.click | GGTouch.press);
+		addTouchListener(this, GGTouch.release | GGTouch.press);
 		// this.getBg().setBgColor(Color.WHITE);
 		activeToken = new Token(currentPlayer, this);
 		addActor(activeToken, new Location(0, 0), Location.SOUTH);
 		// outside of grid, so it doesn't disturb game:
-		addActor(new BG(), new Location(3, -1));
+		//addActor(new BG(), new Location(3, -1));
 		// getBg().setFont(new Font("SansSerif", Font.BOLD, 48));
 		// getBg().setPaintColor(Color.red);
 		setSimulationPeriod(30);
@@ -223,6 +223,6 @@ public class VierGewinnt extends GameGrid implements GGTouchListener {
 		setStatusText(moveInfo);
 		setTitle("Four In A Row (against Computer)");
 		arrayManager = new ArrayManager(getNbHorzCells(), getNbVertCells() - 1);
-		setComputerPlayer(new DBot(arrayManager, 1));
+		setComputerPlayer(new MMBot(arrayManager, 1));
 	}
 }

@@ -1,5 +1,7 @@
 package sm.connectFour;
 
+import ch.aplu.android.L;
+
 public abstract class ComputerPlayer {
 
 	private final  boolean debug = true;
@@ -150,7 +152,7 @@ public abstract class ComputerPlayer {
 	}
 	
    	protected void debugInfo(String info) {
-		if (debug) System.out.println(info);		
+		if (debug) L.i(info);		
 	}
    	
    	protected void reset() {
