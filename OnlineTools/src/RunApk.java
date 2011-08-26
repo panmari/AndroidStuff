@@ -104,7 +104,9 @@ public class RunApk implements Cleanable
 
     try
     {
-      runCommand(command, fabsToolDir);
+        if (os.equals("Linux"))
+        	runCommand(fabsToolDir + fs + command, fabsToolDir);
+        else runCommand(command, fabsToolDir);
     }
     catch (IOException ex)
     {
@@ -119,7 +121,9 @@ public class RunApk implements Cleanable
     System.out.println("command: " + command + " in directory: " + fabsToolDir);
     try
     {
-      runCommand(command, fabsToolDir);
+    	 if (os.equals("Linux"))
+         	runCommand(fabsToolDir + fs + command, fabsToolDir);
+         else runCommand(command, fabsToolDir);
     }
     catch (IOException ex)
     {
