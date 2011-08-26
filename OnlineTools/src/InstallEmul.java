@@ -3,8 +3,6 @@
 
 import java.util.*;
 import java.util.zip.*;
-import javax.swing.*;
-
 import ch.aplu.util.ProgressPane;
 
 import java.io.*;
