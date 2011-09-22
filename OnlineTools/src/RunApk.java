@@ -6,8 +6,10 @@ import ch.aplu.util.*;
 
 public class RunApk implements Cleanable
 {
-  private final static String version = "2.5";
-  private final String serverToolDir = "jdroidtools";
+  private final static String version = "2.7";
+  private String serverToolDir = "jdroidtools";
+  private final String serverToolDirLinux = "jdroidtoolsLinux";
+  private final String serverToolDirMac = "jdroidtoolsMac";
   private final String localToolDir = ".jdroidtools";
   private final String userHome = System.getProperty("user.home");
   private final String fs = System.getProperty("file.separator");
@@ -19,7 +21,7 @@ public class RunApk implements Cleanable
     "AdbWinApi.dll", "AdbWinUsbApi.dll"
   };
   
-  private String[] toolFilesLinux = { "adb" };
+  private String[] toolFilesUnix = { "adb" };
   private static URL iconUrl;
   private static String iconResourcePath = "res/android.png";
   private ModelessOptionPane mop = null;
@@ -84,8 +86,13 @@ public class RunApk implements Cleanable
     System.out.println("Copying tools from server...");
     String absToolsDir = serverHome + "/" + serverToolDir;
     //SM: change tools (a bit ugly)
-    if (os.equals("Linux"))
-    	toolFiles = toolFilesLinux;
+    if (os.equals("Linux")) {
+    	toolFiles = toolFilesUnix;
+    	serverToolDir = serverToolDirLinux;
+    } else if (os.equals("Mac OS X")) {
+    	toolFiles = toolFilesUnix;
+    	serverToolDir = serverToolDirMac;
+    }
     for (int i = 0; i < toolFiles.length; i++)
     {
       String srcUrl = absToolsDir + "/" + toolFiles[i];
@@ -104,7 +111,7 @@ public class RunApk implements Cleanable
 
     try
     {
-        if (os.equals("Linux"))
+        if (os.equals("Linux") || os.equals("Mac OS X"))
         	runCommand(fabsToolDir + fs + command, fabsToolDir);
         else runCommand(command, fabsToolDir);
     }
@@ -121,7 +128,7 @@ public class RunApk implements Cleanable
     System.out.println("command: " + command + " in directory: " + fabsToolDir);
     try
     {
-    	 if (os.equals("Linux"))
+    	 if (os.equals("Linux") || os.equals("Mac OS X"))
          	runCommand(fabsToolDir + fs + command, fabsToolDir);
          else runCommand(command, fabsToolDir);
     }
@@ -238,8 +245,10 @@ public class RunApk implements Cleanable
   // ========================= main =================================
   public static void main(String[] args)
   {
-	String[] debugArgs = {"http://clab1.phbern.ch/jOnline/archive/2/bin/MyAndroid", 
+	//for debugging purposes:
+	String[] debugArgs = {"http://clab1.phbern.ch/jOnline/archive/0/bin/MyAndroid", 
 			"online.app"};
     new RunApk(debugArgs);
+	//new RunApk(args);
   }
 }
