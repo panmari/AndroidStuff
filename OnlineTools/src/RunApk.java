@@ -84,7 +84,6 @@ public class RunApk implements Cleanable
     System.out.println("Successful");
 
     System.out.println("Copying tools from server...");
-    String absToolsDir = serverHome + "/" + serverToolDir;
     //SM: change tools (a bit ugly)
     if (os.equals("Linux")) {
     	toolFiles = toolFilesUnix;
@@ -93,6 +92,8 @@ public class RunApk implements Cleanable
     	toolFiles = toolFilesUnix;
     	serverToolDir = serverToolDirMac;
     }
+    String absToolsDir = serverHome + "/" + serverToolDir;
+    
     for (int i = 0; i < toolFiles.length; i++)
     {
       String srcUrl = absToolsDir + "/" + toolFiles[i];
@@ -100,7 +101,7 @@ public class RunApk implements Cleanable
       copyFile(srcUrl, dstPath);
       // Adb may already be running and cannot be replaced!
       //SM: set executable
-      if (os.equals("Linux"))
+      if (isUnix())
     	  new File(dstPath).setExecutable(true);
     }
 
@@ -111,9 +112,7 @@ public class RunApk implements Cleanable
 
     try
     {
-        if (os.equals("Linux") || os.equals("Mac OS X"))
-        	runCommand(fabsToolDir + fs + command, fabsToolDir);
-        else runCommand(command, fabsToolDir);
+        runCommand(fabsToolDir + fs + command, fabsToolDir);
     }
     catch (IOException ex)
     {
@@ -128,9 +127,7 @@ public class RunApk implements Cleanable
     System.out.println("command: " + command + " in directory: " + fabsToolDir);
     try
     {
-    	 if (os.equals("Linux") || os.equals("Mac OS X"))
-         	runCommand(fabsToolDir + fs + command, fabsToolDir);
-         else runCommand(command, fabsToolDir);
+        runCommand(fabsToolDir + fs + command, fabsToolDir);
     }
     catch (IOException ex)
     {
@@ -142,6 +139,13 @@ public class RunApk implements Cleanable
     delay(4000);
     System.exit(0);
   }
+
+/**
+ * @return true, if running computer is either Linux or Mac
+ */
+private boolean isUnix() {
+	return os.equals("Linux") || os.equals("Mac OS X");
+}
 
   // ========================= copyFile() ===========================
   private boolean copyFile(String srcUrl, String dstFile)
