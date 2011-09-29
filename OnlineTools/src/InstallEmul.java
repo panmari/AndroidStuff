@@ -275,7 +275,7 @@ public class InstallEmul {
 		 */
 		// zipUrl = args[0];
 		// SM debug:
-		zipUrl = "http://clab1.phbern.ch/jOnline/jdroidemul/jdroidemul.zip";
+		zipUrl = "http://clab1.phbern.ch/jOnline/usbInstallLinux.zip";
 		new InstallEmul();
 	}
 }

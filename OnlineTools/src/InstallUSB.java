@@ -1,6 +1,7 @@
 
 import java.net.URL;
 import java.io.*;
+
 import ch.aplu.util.ModelessOptionPane;
 
 public class InstallUSB
@@ -19,7 +20,9 @@ public class InstallUSB
   private final String TITLE = "Android USB configurator V" + version
     + " (www.aplu.ch)";
   private final String os = System.getProperty("os.name");
-  private final String scriptPath = tempDir + fs + "_android_usb.sh";
+  private final String zipPath = tempDir + fs + "android_usb_Linux.zip";
+  private final String scriptPath = tempDir + fs + "android_usb.sh";
+  private static String dlURL; 
 
   public InstallUSB()
   {
@@ -37,6 +40,15 @@ public class InstallUSB
     if (!os.equals("Linux"))
       System.exit(0);
 
+    try {
+    	Downloader.copyFile(dlURL, zipPath);
+		Unzipper.unzip(zipPath, tempDir);
+	} catch (IOException e) {
+		 mop.setText("Download/Extracting failed. \nTerminating now...", false);
+		 System.out.println(e.getMessage());
+	     delay(4000);
+	     System.exit(0);
+	}
     if (!new File(scriptPath).exists())
     {
       mop.setText("Can't find shell script to execute.\nTerminating now...", false);
@@ -46,7 +58,7 @@ public class InstallUSB
     mop.setText("Installing now. Please wait...\n(Click cancel to quit.)", false);
     try
     {
-      runCommand("gksudo ./usb.sh", new File(tempDir));
+      runCommand("gksudo " + scriptPath, new File(tempDir));
     }
     catch (IOException ex)
     {
@@ -147,8 +159,15 @@ public class InstallUSB
     }
   }
 
-  public static void main(String[] args)
-  {
-    new InstallUSB();
-  }
+	public static void main(String[] args) {
+		/*
+		 * if (args.length != 1) {
+		 * System.out.println("Provide one argument: Url to the zip file");
+		 * return; }
+		 */
+		// zipUrl = args[0];
+		// SM debug:
+		dlURL = "http://clab1.phbern.ch/jOnline/jdroidtoolsLinux/android_usb_Linux.zip";
+		new InstallUSB();
+	}
 }
