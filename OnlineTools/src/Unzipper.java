@@ -13,7 +13,7 @@ import java.util.zip.ZipFile;
  * unpacked file.
  */
 public class Unzipper {
-	public static void unzip(String zipFileName, String destFolder)
+	public static void unzip(String zipFileName, File destFolder)
 			throws IOException
 	// Precondition: root must contain at least one file
 	{
