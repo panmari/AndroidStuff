@@ -48,7 +48,7 @@ public class udevConfig implements Cleanable {
 
 		String tempFile = tempDir + fs + ruleName;
 		String finalFile = udevPath + fs + ruleName;
-		writeToFile(tempFile, rules);
+		writeToFile(finalFile, rules);
 		mop.setText("Please enter your password when prompted");
 		String[] cmds = { "gksudo mv " + tempFile + " " + finalFile,
 				"gksudo chown root:root " + finalFile,

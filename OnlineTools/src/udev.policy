@@ -1,4 +1,0 @@
-// grant all classes loaded from java-online.ch the ability to write udev-rules
-grant codeBase "http://www.java-online.ch/-" {
-    permission java.io.FilePermission "/etc/udev/rules.d/-", "write";
-};
