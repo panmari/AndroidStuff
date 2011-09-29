@@ -12,7 +12,7 @@ public class InstallUSB
   }
   private Status state = Status.INSTALLING;
   private final String fs = System.getProperty("file.separator");
-  private final String version = "0.90";
+  private final String version = "1.0";
   private URL iconUrl;
   private final String tempDir = System.getProperty("java.io.tmpdir");
   private ModelessOptionPane mop = null;
@@ -30,8 +30,8 @@ public class InstallUSB
     iconUrl = loader.getResource(iconResourcePath);
     String msg;
     if (os.equals("Linux"))
-      msg = "Installing USB devices requires administrator rights.\n"
-        + "You will be asked for the administrator password...";
+      msg = "Installing USB devices requires sudo rights.\n"
+        + "You will be asked for your sudo password...";
     else
       msg = "Installation for Linux platform only.";
     mop = new ModelessOptionPane(50, 50, msg, iconUrl);

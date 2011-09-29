@@ -6,12 +6,11 @@ import java.net.URL;
 
 /**
  * Version without progress bar
- *
+ * copy file 'srcUrl' to local file 'dstFile'
+ *	e.g. getFile("http://clab1.phbern.ch/Ex1.bin", "c:\scratch\Ex1.bin")
  */
 public class Downloader {
 	public static void copyFile(String srcUrl, String dstFile) throws IOException
-	// copy file 'srcUrl' to local file 'dstFile'
-	// e.g. getFile("http://clab1.phbern.ch/Ex1.bin", "c:\scratch\Ex1.bin")
 	{
 		System.out.println("Src: " + srcUrl + " Dst: " + dstFile);
 

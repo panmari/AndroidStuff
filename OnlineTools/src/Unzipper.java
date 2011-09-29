@@ -8,12 +8,15 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+/**
+ * Careful, this Version of Unzipper gives execute permission to every
+ * unpacked file.
+ */
 public class Unzipper {
 	public static void unzip(String zipFileName, String destFolder)
 			throws IOException
 	// Precondition: root must contain at least one file
 	{
-		String os = System.getProperty("os.name");
 		String fs = System.getProperty("file.separator");
 
 		System.out.println("Unzipping " + zipFileName);
