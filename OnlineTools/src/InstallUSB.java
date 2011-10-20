@@ -1,5 +1,9 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
-import java.io.*;
 
 import ch.aplu.util.ModelessOptionPane;
 
@@ -10,16 +14,17 @@ public class InstallUSB {
 
 	private Status state = Status.INSTALLING;
 	private final String fs = System.getProperty("file.separator");
-	private final String version = "1.1";
+	private final String version = "1.2";
 	private URL iconUrl;
 	private ModelessOptionPane mop = null;
 	private final String iconResourcePath = "res/android.png";
 	private final String TITLE = "Android USB configurator V" + version
 			+ " (www.aplu.ch)";
 	private final String os = System.getProperty("os.name");
-	private final String zipName = "android_usb_Linux.zip";
+	private final String zipName = "android_usb_linux.zip";
 	private final String scriptName = "android_usb.sh";
 	private static String dlURL;
+	private File tempDir = null;
 
 	public InstallUSB() {
 		ClassLoader loader = getClass().getClassLoader();
@@ -36,7 +41,6 @@ public class InstallUSB {
 		if (!os.equals("Linux"))
 			System.exit(0);
 
-		File tempDir = null;
 		String zipPath = "", scriptPath = "";
 		
 		try {
@@ -68,10 +72,11 @@ public class InstallUSB {
 			mop.setText("Can't install.\nPossibly wrong administrator password.", false);
 		else
 			mop.setText("Installation successful. Please reconnect\nyour smartphone to the USB port.");
-		if(SystemTools.deleteDir(tempDir))
-			System.out.println("Cleanup successful");
 		SystemTools.delay(6000);
 		System.exit(0);
+		
+		if(SystemTools.deleteDir(tempDir))
+			System.out.println("Cleanup successful");
 	}
 	
 	
@@ -132,9 +137,9 @@ public class InstallUSB {
 		 * System.out.println("Provide one argument: Url to the zip file");
 		 * return; }
 		 */
-		// zipUrl = args[0];
+		// dlUrl = args[0];
 		// SM debug:
-		dlURL = "http://clab1.phbern.ch/jOnline/jdroidtoolsLinux/android_usb_Linux.zip";
+		dlURL = "http://clab1.phbern.ch/jOnline/android_usb_linux.zip";
 		new InstallUSB();
 	}
 }

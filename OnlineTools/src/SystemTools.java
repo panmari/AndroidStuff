@@ -13,7 +13,7 @@ public class SystemTools {
 	public static File createTempDirectory() throws IOException {
 		final File temp;
 
-		temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
+		temp = File.createTempFile("android_usb_install_", Integer.toString((int)(Math.random()*1000)));
 
 		if (!(temp.delete())) {
 			throw new IOException("Could not delete temp file: "
