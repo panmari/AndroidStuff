@@ -2,53 +2,56 @@
 
 package ch.mazzzy.nimAndroid;
 
-import ch.aplu.android.*;
 import android.graphics.Color;
-
+import ch.aplu.android.Actor;
+import ch.aplu.android.GGNavigationEvent;
+import ch.aplu.android.GGNavigationListener;
+import ch.aplu.android.GGTouch;
+import ch.aplu.android.GGTouchListener;
+import ch.aplu.android.GameGrid;
+import ch.aplu.android.Location;
 public class nimAndroid extends GameGrid implements GGTouchListener,
 	GGNavigationListener {
 private int nbPearl = 0;
 private int nbTakenPearl;
 private int nbRows;
 private int activeRow;
-private GGBackground bg;
 private ComputerPlayer cp;
 private final boolean misereMode = true;
 
 public nimAndroid() {
 	//size decides how many pearls are placed
-	super(7,8,60);
+	super(5,5,60);
 }
 
 public void main() {
-	//getBg().clear(Color.rgb(80, 15, 247));
-	getBg().clear(Color.BLUE);
+	getBg().clear(Color.rgb(80, 15, 247));
+	//getBg().clear(Color.BLUE);
 	addTouchListener(this, GGTouch.click);
 	addNavigationListener(this);
 	cp = new ComputerPlayer(this, misereMode);
-	nbRows = getNbVertCells() - 2;
+	nbRows = getNbVertCells();
 	init();
 }
 
 public void init() {
 	nbPearl = 0;
 	removeActors(Pearl.class);
-	int nb = getNbHorzCells() - 2;
+	int nb = getNbHorzCells();
 	cp.reset();
-	bg.clear();
 	for (int k = 0; k < nbRows; k++) {
 		for (int i = 0; i < nb; i++) {
 			Pearl pearl = new Pearl();
-			addActor(pearl, new Location(1 + i, 1 + k));
-			cp.updatePearlArrangement(k + 1, +1);
+			addActor(pearl, new Location(i, k));
+			cp.updatePearlArrangement(k, +1);
 			nbPearl++;
 		}
 		nb--;
 	}
 	prepareNextHumanMove(); // human starts
 	refresh();
-	setTitle(nbPearl
-			+ " Pearls. Remove any number of pearls from same row and press OK.");
+	setStatusText(nbPearl + " Pearls. Remove any number of pearls " +
+			"from same row and press the menu-Button to continue..");
 }
 
 public boolean touchEvent(GGTouch touch) {
@@ -58,12 +61,12 @@ public boolean touchEvent(GGTouch touch) {
 		int y = pearlAtClick.getY();
 
 		if (activeRow != 0 && activeRow != y)
-			setTitle("You must remove pearls from the same row.");
+			showToast("You must remove pearls from the same row.");
 		else {
 			activeRow = y;
 			pearlAtClick.removeSelf();
 			nbPearl--;
-			setTitle(nbPearl + " Pearls remaining. Click 'OK' to continue.");
+			setStatusText(nbPearl + " pearls. Menu-Button to continue.");
 			nbTakenPearl++;
 			cp.updatePearlArrangement(y, -1);
 			if (nbPearl == 0) {
@@ -78,17 +81,13 @@ public boolean touchEvent(GGTouch touch) {
 }
 
 public void gameOver(String msg) {
-	setTitle("Press 'new Game' to play again."); /*
-	bg.setPaintColor(Color.yellow);
-	bg.setFont(new Font("Arial", Font.BOLD, 32));
-	bg.drawText(msg, new Point(toPoint(new Location(2, 5))));
-	*/
-	refresh();
+	setStatusText("Press return-button to play again."); 
+	showToast(msg);
 }
 
 private void prepareNextHumanMove() {
 	nbTakenPearl = 0;
-	setTitle(nbPearl + " pearls remaining. Your move now.");
+	setStatusText(nbPearl + " pearls remaining. Your move now.");
 	activeRow = 0; // Spieler darf neue "Ziehreihe" bestimmen		
 }
 
@@ -97,7 +96,7 @@ public void navigationEvent(GGNavigationEvent event) {
     {
       case MENU_DOWN:
     	  if (nbTakenPearl == 0)
-  			setTitle("You have to remove at least 1 Pearl!");
+  			setStatusText("You have to remove at least 1 Pearl!");
   		else {
   			cp.makeMove();
   			refresh();
