@@ -18,7 +18,7 @@ public class FourInARow extends GameGrid implements GGTouchListener
 
   public FourInARow()
   {
-    super(nbHorzCells, nbVertCells, 40, Color.TRANSPARENT, null, false, false);
+    super(nbHorzCells, nbVertCells, 40, Color.TRANSPARENT);
   }
 
   public void main()

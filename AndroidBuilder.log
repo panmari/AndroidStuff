@@ -1,0 +1,6 @@
+Log started at 2011-10-27 11:22:00
+AndroidBuilder V 2.01 (www.aplu.ch). Arguments error.
+
+Usage:
+java -jar AndroidBuilder.jar <source_path> <project_root> <targetId> <android_lib> <library_path;library_path;...> <sprites_folder> <media_folder>
+AndroidBuilder terminated.
