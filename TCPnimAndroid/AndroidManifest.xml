@@ -5,7 +5,7 @@
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="8" />
     <application android:label="TCPnim" android:icon="@drawable/jdroid_gglogo">
-        <activity android:name=".TCPnim"
+        <activity android:name=".TcpPearl"
                   android:configChanges="orientation"
                   android:label="TCPnim">
             <intent-filter>
