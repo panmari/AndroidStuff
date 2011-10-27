@@ -11,6 +11,7 @@ import ch.aplu.android.GGTouch;
 import ch.aplu.android.GGTouchListener;
 import ch.aplu.android.GameGrid;
 import ch.aplu.android.Location;
+import ch.aplu.android.TextActor;
 import ch.aplu.tcp.TcpNode;
 import ch.aplu.tcp.TcpNodeListener;
 import ch.aplu.tcp.TcpNodeState;
@@ -19,7 +20,9 @@ import ch.aplu.util.Monitor;
 public class TcpPearl extends GameGrid implements TcpNodeListener,
 		GGTouchListener, GGNavigationListener {
 	private final String myNodeName = "Luka";
-	private TcpNode node;
+	private String roomID = "";
+	private String sessionID = "awq";
+	private TcpNode node = new TcpNode();
 	private final static int size = 6;
 	private boolean isMyMove = false;
 	private int activeRow;
@@ -27,12 +30,13 @@ public class TcpPearl extends GameGrid implements TcpNodeListener,
 	private int nbTakenPearl;
 
 	public TcpPearl() {
-		super(size, size, 60);
+		super(size, size, 52);
 	}
 
 	public void main() {
 		getBg().clear(Color.rgb(80, 15, 247));
 		setTitle("Remove any number of pearls from same row and right click if finish");
+		addNavigationListener(this);
 		init();
 	}
 
@@ -51,12 +55,10 @@ public class TcpPearl extends GameGrid implements TcpNodeListener,
 		activeRow = -1;
 		nbTakenPearl = 0;
 		refresh();
-
-		node = new TcpNode();
-		String sessionID = requestEntry("Enter unique room name");
+		System.out.println(node.getVersion());
 		node.addTcpNodeListener(this);
-		setStatusText("Connecting to relay '" + node.getRelay() + "'...");
-		node.connect("awq" + sessionID, myNodeName);
+		showToast("Connecting to  relay...");
+		connect();
 		Monitor.putSleep(4000);
 		if (node.getNodeState() == TcpNodeState.CONNECTED) {
 			setStatusText("Connection established.");
@@ -64,13 +66,18 @@ public class TcpPearl extends GameGrid implements TcpNodeListener,
 			setStatusText("Connection failed");
 	}
 
+	private void connect() {
+		while (roomID.length() < 3)
+			roomID = requestEntry("Enter unique game room name (more than 2 characters):");
+		sessionID = sessionID + roomID;
+		node.connect(sessionID, myNodeName);
+	}
+
 	private String requestEntry(String prompt) {
 		return new GGInputDialog("TCPnim", prompt, "n44").show();
 	}
 
 	public void nodeStateChanged(TcpNodeState state) {
-		if (state == TcpNodeState.CONNECTED)
-			Monitor.wakeUp();
 		if (state == TcpNodeState.DISCONNECTED)
 			setStatusText("Connection broken.");
 	}
@@ -83,7 +90,7 @@ public class TcpPearl extends GameGrid implements TcpNodeListener,
 		int x = loc.x;
 		int y = loc.y;
 		if (activeRow != -1 && activeRow != y)
-			setStatusText("You mus remove pearls from the same row");
+			showToast("You must remove pearls from the same row");
 		else {
 			Actor actor = getOneActorAt(loc);
 			if (actor != null) {
@@ -94,7 +101,7 @@ public class TcpPearl extends GameGrid implements TcpNodeListener,
 				nbTakenPearl++;
 				System.out.println("nbPearl " + nbPearl);
 				if (nbPearl == 0) {
-					setStatusText("You lost!");
+					showToast("You lost!");
 					isMyMove = false;
 				}
 			}
@@ -109,24 +116,29 @@ public class TcpPearl extends GameGrid implements TcpNodeListener,
 		int y = text.charAt(1) - 48;
 		if (x == 8) {
 			isMyMove = true;
-			setStatusText("It's your turn");
+			showToast("It's your turn");
 		} else {
 			Location loc = new Location(x, y);
 			Actor actor = getOneActorAt(loc);
 			actor.removeSelf();
 			nbPearl--;
 			if (nbPearl == 0)
-				setStatusText("You won!");
+				showToast("You won!");
 			refresh();
 		}
 	}
 
 	public void statusReceived(String text) {
 		System.out.println("Status: " + text);
-		if (text.contains("(0)"))
+		if (text.contains("(0)")) {
+			showToast("Connected. Waiting for a partner...");
+			addActor(new TextActor("Waiting in room " + roomID, Color.BLACK,
+					Color.TRANSPARENT, 18), new Location(0, 0));
 			isMyMove = true;
-		if (text.contains("(1)"))
-			setStatusText("Partner connected" + (isMyMove ? " Play" : " Wait"));
+		} else if (text.contains("(1)")) {
+			showToast("Partner connected" + (isMyMove ? " Play" : " Wait"));
+			removeActors(TextActor.class);
+		}
 	}
 
 	public void navigationEvent(GGNavigationEvent event) {

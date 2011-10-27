@@ -4,10 +4,10 @@
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="8" />
-    <application android:label="TCPnim" android:icon="@drawable/jdroid_gglogo">
+    <application android:label="TcpPearl" android:icon="@drawable/jdroid_gglogo">
         <activity android:name=".TcpPearl"
                   android:configChanges="orientation"
-                  android:label="TCPnim">
+                  android:label="TcpPearl">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -17,4 +17,5 @@
            android:configChanges="keyboardHidden|orientation">
       </activity>
     </application>
+    <uses-permission android:name="android.permission.INTERNET"> </uses-permission>
 </manifest> 

@@ -14,7 +14,7 @@ public class InstallUSB {
 
 	private Status state = Status.INSTALLING;
 	private final String fs = System.getProperty("file.separator");
-	private final String version = "1.2";
+	private final String version = "1.3";
 	private URL iconUrl;
 	private ModelessOptionPane mop = null;
 	private final String iconResourcePath = "res/android.png";
@@ -53,8 +53,9 @@ public class InstallUSB {
 			mop.setText("Download/Extracting failed. \nTerminating now...",
 					false);
 			System.out.println(e.getMessage());
+			cleanUp();
 			SystemTools.delay(4000);
-			System.exit(0);
+			System.exit(1);
 		}
 		mop.setText("Installing now. Please wait...\n(Click cancel to quit.)",
 				false);
@@ -62,7 +63,8 @@ public class InstallUSB {
 			runCommand("gksudo " + scriptPath, tempDir);
 		} catch (IOException ex) {
 			System.out.println("Failed to spawn script '" + scriptPath + "'");
-			return;
+			cleanUp();
+			System.exit(1);
 		}
 
 		while (state == Status.INSTALLING) {
@@ -72,14 +74,24 @@ public class InstallUSB {
 			mop.setText("Can't install.\nPossibly wrong administrator password.", false);
 		else
 			mop.setText("Installation successful. Please reconnect\nyour smartphone to the USB port.");
+		cleanUp();
 		SystemTools.delay(6000);
 		System.exit(0);
-		
+	}
+	
+	private void cleanUp() {
 		if(SystemTools.deleteDir(tempDir))
 			System.out.println("Cleanup successful");
 	}
-	
-	
+
+	/**
+	 * Returns the exit value of the spawned command.
+	 * Usually, 0 means successful.
+	 * @param cmd
+	 * @param fwrkDir
+	 * @return
+	 * @throws IOException
+	 */
 	public void runCommand(String cmd, File fwrkDir) throws IOException {
 		final Process proc = Runtime.getRuntime().exec(cmd, null, fwrkDir);
 
@@ -130,6 +142,8 @@ public class InstallUSB {
 			proc.waitFor();
 		} catch (InterruptedException ex) {
 		}
+		if (proc.exitValue() != 0)
+			throw new IOException();
 	}
 	public static void main(String[] args) {
 		/*
