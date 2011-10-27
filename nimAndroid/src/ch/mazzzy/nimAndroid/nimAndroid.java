@@ -12,8 +12,8 @@ import ch.aplu.android.GameGrid;
 import ch.aplu.android.Location;
 public class nimAndroid extends GameGrid implements GGTouchListener,
 	GGNavigationListener {
-private int nbPearl = 0;
-private int nbTakenPearl;
+private int nbPearls = 0;
+private int nbTakenPearls;
 private int nbRows;
 private int activeRow;
 private ComputerPlayer cp;
@@ -26,7 +26,6 @@ public nimAndroid() {
 
 public void main() {
 	getBg().clear(Color.rgb(80, 15, 247));
-	//getBg().clear(Color.BLUE);
 	addTouchListener(this, GGTouch.click);
 	addNavigationListener(this);
 	cp = new ComputerPlayer(this, misereMode);
@@ -35,8 +34,8 @@ public void main() {
 }
 
 public void init() {
-	nbPearl = 0;
-	removeActors(Pearl.class);
+	nbPearls = 0;
+	removeAllActors();
 	int nb = getNbHorzCells();
 	cp.reset();
 	for (int k = 0; k < nbRows; k++) {
@@ -44,13 +43,13 @@ public void init() {
 			Pearl pearl = new Pearl();
 			addActor(pearl, new Location(i, k));
 			cp.updatePearlArrangement(k, +1);
-			nbPearl++;
+			nbPearls++;
 		}
 		nb--;
 	}
 	prepareNextHumanMove(); // human starts
 	refresh();
-	setStatusText(nbPearl + " Pearls. Remove any number of pearls " +
+	setStatusText(nbPearls + " Pearls. Remove any number of pearls " +
 			"from same row and press the menu-Button to continue..");
 }
 
@@ -65,14 +64,14 @@ public boolean touchEvent(GGTouch touch) {
 		else {
 			activeRow = y;
 			pearlAtClick.removeSelf();
-			nbPearl--;
-			setStatusText(nbPearl + " pearls. Menu-Button to continue.");
-			nbTakenPearl++;
+			nbPearls--;
+			setStatusText(nbPearls + " pearls. Menu-Button to continue.");
+			nbTakenPearls++;
 			cp.updatePearlArrangement(y, -1);
-			if (nbPearl == 0) {
+			if (nbPearls == 0) {
 				if (misereMode)
-					gameOver("You lost!");
-				else gameOver("You won!");
+					gameOver(false);
+				else gameOver(true);
 			}
 			refresh();
 		}
@@ -80,14 +79,17 @@ public boolean touchEvent(GGTouch touch) {
 	return true;
 }
 
-public void gameOver(String msg) {
-	setStatusText("Press return-button to play again."); 
-	showToast(msg);
+public void gameOver(boolean humanWins) {
+	setStatusText("Press return to play again."); 
+	if (humanWins) {
+		showToast("You won!");
+		addActor(new YouWin(), new Location(2, 2));
+	} else showToast("You lost!");
 }
 
 private void prepareNextHumanMove() {
-	nbTakenPearl = 0;
-	setStatusText(nbPearl + " pearls remaining. Your move now.");
+	nbTakenPearls = 0;
+	setStatusText(nbPearls + " pearls remaining. Your move now.");
 	activeRow = 0; // Spieler darf neue "Ziehreihe" bestimmen		
 }
 
@@ -95,16 +97,18 @@ public void navigationEvent(GGNavigationEvent event) {
 	switch (event)
     {
       case MENU_DOWN:
-    	  if (nbTakenPearl == 0)
+    	if (nbPearls == 0){
+    		showToast("Game Over! Press return to play again");
+    	} else if (nbTakenPearls == 0)
   			setStatusText("You have to remove at least 1 Pearl!");
   		else {
   			cp.makeMove();
   			refresh();
-  			nbPearl = getNumberOfActors(Pearl.class);
-  			if (nbPearl == 0) {
+  			nbPearls = getNumberOfActors(Pearl.class);
+  			if (nbPearls == 0) {
   				if (misereMode)
-  					gameOver("You won!");
-  				else gameOver("You lost!");
+  					gameOver(true);
+  				else gameOver(false);
   			}
   			else prepareNextHumanMove();
   		}
@@ -119,9 +123,15 @@ public void navigationEvent(GGNavigationEvent event) {
 }
 
 class Pearl extends Actor {
-public Pearl() {
-	super("pearl");
+	public Pearl() {
+		super("pearl");
+	}
 }
+class YouWin extends Actor {
+	public YouWin() {
+		super("you_win");
+	}
+
 }
 
 
