@@ -1,10 +1,11 @@
 package ch.mazzzy.TcpPearls;
-
+/*
+ * TcpPearls compatible with the one found on clab2,
+ * just for android!
+ */
 import android.graphics.Color;
 import ch.aplu.android.Actor;
 import ch.aplu.android.GGInputDialog;
-import ch.aplu.android.GGNavigationEvent;
-import ch.aplu.android.GGNavigationListener;
 import ch.aplu.android.GGSoftButtonListener;
 import ch.aplu.android.GGTouch;
 import ch.aplu.android.GGTouchListener;
@@ -34,7 +35,7 @@ public class TcpPearls extends GameGrid implements TcpNodeListener,
 	private boolean isMyMove = false;
 	private int activeRow;
 	private int nbPearl = 0;
-	private String sessionID = "PearlGame: &41*()";
+	private String sessionID = "PearlGameTCP12";
 	private final String nickname = "tic";
 	private int nbTakenPearl = 0;
 	private int nbRows = 4;
@@ -44,7 +45,7 @@ public class TcpPearls extends GameGrid implements TcpNodeListener,
 		super(size, size, 52);
 		setScreenOrientation(PORTRAIT);
 		addSoftButton(0, "Ok"); // Must be done in ctor
-		addSoftButton(1, "New Game");
+		addSoftButton(1, "New");
 	}
 
 	public void main() {
@@ -78,8 +79,14 @@ public class TcpPearls extends GameGrid implements TcpNodeListener,
 	}
 
 	private void connect() {
-		while (roomID.length() < 3)
+		while (roomID.length() < 3) {
 			roomID = requestEntry("Enter unique game room name (more than 2 characters):");
+			if (roomID == null) {
+				showToast("User canceled");
+				TcpTools.delay(4000);
+				System.exit(1);
+			}
+		}
 		sessionID = sessionID + roomID;
 		node.connect(sessionID, nickname);
 	}
@@ -141,6 +148,7 @@ public class TcpPearls extends GameGrid implements TcpNodeListener,
 			System.exit(0);
 			break;
 		case Command.move:
+			removeActors(TextActor.class);
 			// -1 adapt to android version
 			int x = text.charAt(1) - 48 - 1; // We get ASCII code of number
 			int y = text.charAt(2) - 48;
@@ -166,11 +174,11 @@ public class TcpPearls extends GameGrid implements TcpNodeListener,
 
 	public void statusReceived(String text) {
 		System.out.println("Status: " + text);
-		if (text.contains("(0)")) {
+		if (text.contains("In session:--- (0)")) {
 			showToast("Connected. Waiting for a partner...");
 			addActor(new TextActor("Waiting in room " + roomID, Color.BLACK,
 					Color.TRANSPARENT, 18), new Location(0, 0));
-		} else if (text.contains("(1)")) {
+		} else if (text.contains("In session:--- (1)")) {
 			isMyMove = true; // Second player starts
 			showToast("Partner connected" + (isMyMove ? " Play" : " Wait"));
 			removeActors(TextActor.class);
@@ -188,29 +196,29 @@ public class TcpPearls extends GameGrid implements TcpNodeListener,
 			return;
 		}
 		switch (button) {
-		case 0: // ok button
-
-			if (nbTakenPearl == 0)
-				setStatusText("You must remove at least 1 pearl.");
-			else {
-				isMyMove = false;
-				node.sendMessage("" + Command.change);
-				setStatusText(nbPearl
-						+ " pearls remaining. Wait for the partner's move.");
-			}
-			break;
-		case 1: // new game button
-			if (nbPearl > 0) {
-				showToast("You must first finish this game!");
-			}
-			init();
-			if (isMyMove) {
-				setStatusText("Game started. " + moveInfo);
-			} else {
-				setStatusText("Game started. Wait for the partner's move.");
-			}
-			node.sendMessage("" + Command.start);
-			break;
+			case 0: // ok button
+				if (nbTakenPearl == 0)
+					showToast("You must remove at least 1 pearl.");
+				else {
+					isMyMove = false;
+					node.sendMessage("" + Command.change);
+					setStatusText(nbPearl
+							+ " pearls remaining.");
+				}
+				break;
+			case 1: // new game button
+				if (nbPearl > 0) {
+					showToast("You must first finish this game!");
+					return;
+				}
+				init();
+				if (isMyMove) {
+					setStatusText("Game started. " + moveInfo);
+				} else {
+					setStatusText("Game started. Wait for the partner's move.");
+				}
+				node.sendMessage("" + Command.start);
+				break;
 		}
 	}
 
