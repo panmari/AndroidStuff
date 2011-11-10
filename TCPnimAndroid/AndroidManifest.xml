@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="ch.mazzzy.TCPnim"
+      package="ch.mazzzy.TcpPearls"
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="8" />
     <application android:label="TcpPearl" android:icon="@drawable/jdroid_gglogo">
-        <activity android:name=".TcpPearl"
+        <activity android:name=".TcpPearls"
                   android:configChanges="orientation"
                   android:label="TcpPearl">
             <intent-filter>
