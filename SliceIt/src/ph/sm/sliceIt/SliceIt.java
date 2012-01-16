@@ -15,15 +15,19 @@ import android.graphics.Point;
  */
 public class SliceIt extends GameGrid implements GGTouchListener {
 	private Point sliceStart;
+	private GGPanel p;
 
 	public SliceIt() {
-		super(0, 0, 1, Color.RED);
+		super(0, 0, 1);
 	}
 
 	public void main() {
 		setStatusText("SliceIt started");
 		addTouchListener(this, GGTouch.release | GGTouch.press);
 		addActor(new Fruit(), new Location(10, 10));
+		this.p = getPanel();
+		p.setPaintColor(Color.BLUE);
+		doRun();
 	}
 
 	public boolean touchEvent(GGTouch touch) {
@@ -31,16 +35,18 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 		case GGTouch.press:
 			sliceStart = getTouchPoint(touch);
 			break;
+		case GGTouch.drag:
+			slicedLocations.add(toLocation)
 		case GGTouch.release:
-			this.getCanvas().drawLine(sliceStart.x, sliceStart.y, touch.getX(),
-					touch.getY(), new Paint());
+			this.toLocation(sliceStart).
+			p.drawLine(sliceStart, getTouchPoint(touch));
 			break;
 		}
-
+		refresh();
 		return false;
 	}
 
-	private Point getTouchPoint(GGTouch touch) {
-		return new Point(touch.getX(), touch.getY());
+	private Location getTouchPoint(GGTouch touch) {
+		return toLocation(new Point(touch.getX(), touch.getY()));
 	}
 }

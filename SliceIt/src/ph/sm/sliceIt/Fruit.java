@@ -8,12 +8,12 @@ public class Fruit extends Actor {
 	final double acc = 9.81;
 	public Fruit() {
 		super("fruit");
-		this.x = getPixelLocation().x;
-		this.y = getPixelLocation().y;
 	}
 	
 	public void reset() {
 		this.setDirection(Location.SOUTH);
+		this.x = getPixelLocation().x;
+		this.y = getPixelLocation().y;
 	}
 	public void act() {
 		move();
