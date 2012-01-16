@@ -6,8 +6,8 @@ import ch.aplu.android.Actor;
 import ch.aplu.android.Location;
 
 public class Fruit extends Actor {
-	private double x,y;
-	private final double acc = 9.81;
+	private float x,y, yVel;
+	private final float acc = 9.81F;
 	private SliceIt gg;
 	private final int SIZE = 5;
 	
@@ -22,9 +22,19 @@ public class Fruit extends Actor {
 		this.y = getPixelLocation().y;
 	}
 	public void act() {
-		move();
+		fallPhysically();
 		if (isSliced())
 			splatter();
+	}
+
+	private void fallPhysically() {
+	    float dt = 2 * gg.getSimulationPeriod() / 1000F;
+	    yVel = yVel + acc * dt;
+	    y = y + yVel*dt;
+	    setLocation(new Location(Math.round(x), Math.round(y)));
+	    //TODO: make neater
+	    if (!isInGrid())
+	    	removeSelf();
 	}
 
 	private boolean isSliced() {
