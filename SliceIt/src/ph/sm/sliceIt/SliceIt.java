@@ -14,8 +14,9 @@ import android.graphics.Point;
  * 
  */
 public class SliceIt extends GameGrid implements GGTouchListener {
-	private Point sliceStart;
+	private Location sliceStart;
 	private GGPanel p;
+	private Location sliceLoc;
 
 	public SliceIt() {
 		super(0, 0, 1);
@@ -24,7 +25,7 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 	public void main() {
 		setStatusText("SliceIt started");
 		addTouchListener(this, GGTouch.release | GGTouch.press);
-		addActor(new Fruit(), new Location(10, 10));
+		addActor(new Fruit(this), new Location(50, 10));
 		this.p = getPanel();
 		p.setPaintColor(Color.BLUE);
 		doRun();
@@ -36,10 +37,10 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 			sliceStart = getTouchPoint(touch);
 			break;
 		case GGTouch.drag:
-			slicedLocations.add(toLocation)
+			sliceLoc = getTouchPoint(touch);
+			break;
 		case GGTouch.release:
-			this.toLocation(sliceStart).
-			p.drawLine(sliceStart, getTouchPoint(touch));
+			p.drawLine(toPoint(sliceStart), toPoint(getTouchPoint(touch)));
 			break;
 		}
 		refresh();
@@ -48,5 +49,9 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 
 	private Location getTouchPoint(GGTouch touch) {
 		return toLocation(new Point(touch.getX(), touch.getY()));
+	}
+	
+	public Location getSliceLoc() {
+		return sliceLoc;
 	}
 }
