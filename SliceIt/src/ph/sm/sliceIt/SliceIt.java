@@ -16,7 +16,6 @@ import android.graphics.Point;
  * 
  */
 public class SliceIt extends GameGrid implements GGTouchListener {
-	private Location sliceStart;
 	private GGPanel p;
 	private Location prevTouchLoc;
 	private ArrayList<Location> sliceLocs;
@@ -38,7 +37,7 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 	public boolean touchEvent(GGTouch touch) {
 		switch (touch.getEvent()) {
 		case GGTouch.press:
-			sliceStart = toLocation(touch);
+			prevTouchLoc = toLocation(touch);
 			break;
 		case GGTouch.drag:
 			sliceLocs = getLocationsInbetween(prevTouchLoc, toLocation(touch));
