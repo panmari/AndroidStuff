@@ -22,9 +22,9 @@ public class Fruit extends Actor {
 		this.y = getPixelLocation().y;
 	}
 	public void act() {
-		fallPhysically();
 		if (isSliced())
 			splatter();
+		else fallPhysically();
 	}
 
 	private void fallPhysically() {
@@ -39,7 +39,7 @@ public class Fruit extends Actor {
 
 	private boolean isSliced() {
 		ArrayList<Location> fruitLocs = getLocation().getNeighbourLocations(SIZE);
-		return fruitLocs.contains(gg.getSliceLoc());
+		return fruitLocs.contains(gg.getSliceLocs());
 	}
 	
 	/**
