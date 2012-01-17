@@ -3,10 +3,8 @@
 package ph.sm.sliceIt;
 
 import java.util.ArrayList;
-
 import ch.aplu.android.*;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 
 /**
@@ -27,7 +25,7 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 	public void main() {
 		setStatusText("SliceIt started");
 		addTouchListener(this, GGTouch.release | GGTouch.press | GGTouch.drag);
-		addActor(new Fruit(this), new Location(50, 10));
+		addActor(new FruitShooter(this, 100), new Location(0,0));
 		this.p = getPanel();
 		p.setPaintColor(Color.BLUE);
 		setSimulationPeriod(30);
@@ -46,7 +44,8 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 				p.drawPoint(l.getX(), l.getY());
 			break;
 		case GGTouch.release:
-			// p.drawLine(toPoint(sliceStart), toPoint(getTouchPoint(touch)));
+			//needs manual reset
+			sliceLocs = null;
 			break;
 		}
 		refresh();
@@ -88,6 +87,8 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 	}
 
 	public ArrayList<Location> getSliceLocs() {
+		if (sliceLocs == null)
+			return new ArrayList<Location>(); //return empty list
 		return sliceLocs;
 	}
 }

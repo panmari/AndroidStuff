@@ -3,17 +3,20 @@ package ph.sm.sliceIt;
 import java.util.ArrayList;
 
 import ch.aplu.android.Actor;
+import ch.aplu.android.L;
 import ch.aplu.android.Location;
 
 public class Fruit extends Actor {
 	private float x,y, yVel;
 	private final float acc = 9.81F;
 	private SliceIt gg;
-	private final int SIZE = 5;
+	private final int SIZE = 20;
+	private float xVel;
 	
-	public Fruit(SliceIt gg) {
+	public Fruit(SliceIt gg, float xVel) {
 		super("fruit");
 		this.gg = gg;
+		this.xVel = xVel;
 	}
 	
 	public void reset() {
@@ -30,6 +33,7 @@ public class Fruit extends Actor {
 	private void fallPhysically() {
 	    float dt = 2 * gg.getSimulationPeriod() / 1000F;
 	    yVel = yVel + acc * dt;
+	    x = x + xVel*dt;
 	    y = y + yVel*dt;
 	    setLocation(new Location(Math.round(x), Math.round(y)));
 	    //TODO: make neater
@@ -39,7 +43,12 @@ public class Fruit extends Actor {
 
 	private boolean isSliced() {
 		ArrayList<Location> fruitLocs = getLocation().getNeighbourLocations(SIZE);
-		return fruitLocs.contains(gg.getSliceLocs());
+		//L.d("fruit locs: " + fruitLocs);
+		//L.d("Slice locs: " + gg.getSliceLocs());
+		for (Location l: gg.getSliceLocs())
+			if (fruitLocs.contains(l))
+				return true;
+		return false;
 	}
 	
 	/**
