@@ -27,24 +27,27 @@ public class Fruit extends Actor {
 	public void act() {
 		if (isSliced())
 			splatter();
-		else fallPhysically();
+		else movePhysically();
 	}
 
-	private void fallPhysically() {
+	private void movePhysically() {
 	    float dt = 2 * gg.getSimulationPeriod() / 1000F;
 	    yVel = yVel + acc * dt;
 	    x = x + xVel*dt;
 	    y = y + yVel*dt;
 	    setLocation(new Location(Math.round(x), Math.round(y)));
 	    //TODO: make neater
-	    if (!isInGrid())
+	    if (!isInGrid()) {
 	    	removeSelf();
+	    	gg.showToast("You missed one!");
+	    }
 	}
 
 	private boolean isSliced() {
 		ArrayList<Location> fruitLocs = getLocation().getNeighbourLocations(SIZE);
 		//L.d("fruit locs: " + fruitLocs);
 		//L.d("Slice locs: " + gg.getSliceLocs());
+		//TODO: apply better algorithm
 		for (Location l: gg.getSliceLocs())
 			if (fruitLocs.contains(l))
 				return true;
