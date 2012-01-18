@@ -23,7 +23,7 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 	public void main() {
 		setStatusText("SliceIt started");
 		addTouchListener(this, GGTouch.release | GGTouch.press | GGTouch.drag);
-		addActor(new FruitFactory(this, 100), new Location(0,0));
+		addActor(new FruitFactory(this, 10), new Location(0,0));
 		this.p = getPanel();
 		p.setPaintColor(Color.RED);
 		setSimulationPeriod(30);
