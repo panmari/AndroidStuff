@@ -23,30 +23,43 @@ public class FruitFactory extends Actor{
 	
 	public void act() {
 		if (counter > intervall) {
-			float velX = rnd.nextFloat()*20F + 50F;
-			Fruit f = new Fruit("fruit", gg, velX);
-			int y = rnd.nextInt(yMax-yMin) + yMin;
-			L.d("" + velX);
-			gg.addActor(f, new Location(0, y));
-			counter = 0;
+			createRandomFruit();
 		} else counter++;
+	}
+
+	private void createRandomFruit() {
+		float velX = rnd.nextFloat()*20F + 50F;
+		Fruit f;
+		int fruitInt = rnd.nextInt(100);
+		if (fruitInt < 30)
+			f = new Melon(gg, velX);
+		else if (fruitInt < 60)
+			f = new Orange(gg, velX);
+		else f = new Strawberry(gg, velX);
+		int y = rnd.nextInt(yMax-yMin) + yMin;
+		L.d("" + velX);
+		gg.addActor(f, new Location(0, y));
+		counter = 0;
 	}
 }
 
 class Melon extends Fruit {
 	public Melon(SliceIt gg, float xVel) {
 		super("melon", gg, xVel);
+		setSize(40);
 	}
 }
 
 class Orange extends Fruit {
 	public Orange(SliceIt gg, float xVel) {
 		super("orange", gg, xVel);
+		setSize(20);
 	}	
 }
 
 class Strawberry extends Fruit {
 	public Strawberry(SliceIt gg, float xVel) {
 		super("strawberry", gg, xVel);
+		setSize(15);
 	}	
 }

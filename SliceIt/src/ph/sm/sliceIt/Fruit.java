@@ -3,18 +3,17 @@ package ph.sm.sliceIt;
 import java.util.ArrayList;
 
 import ch.aplu.android.Actor;
-import ch.aplu.android.L;
 import ch.aplu.android.Location;
 
 public class Fruit extends Actor {
 	private float x,y, yVel;
 	private final float acc = 9.81F;
 	private SliceIt gg;
-	private final int SIZE = 20;
+	private int size = 20;
 	private float xVel;
 	
 	public Fruit(String sprite, SliceIt gg, float xVel) {
-		super(sprite);
+		super(true, sprite);
 		this.gg = gg;
 		this.xVel = xVel;
 	}
@@ -28,6 +27,7 @@ public class Fruit extends Actor {
 		if (isSliced())
 			splatter();
 		else movePhysically();
+		turn(10); //for fun effects!
 	}
 
 	private void movePhysically() {
@@ -44,7 +44,7 @@ public class Fruit extends Actor {
 	}
 
 	private boolean isSliced() {
-		ArrayList<Location> fruitLocs = getLocation().getNeighbourLocations(SIZE);
+		ArrayList<Location> fruitLocs = getLocation().getNeighbourLocations(size);
 		//L.d("fruit locs: " + fruitLocs);
 		//L.d("Slice locs: " + gg.getSliceLocs());
 		//TODO: apply better algorithm
@@ -60,5 +60,9 @@ public class Fruit extends Actor {
 	private void splatter() {
 		System.out.println("boom!");
 		removeSelf();
+	}
+	
+	protected void setSize(int size) {
+		this.size = size;
 	}
 }
