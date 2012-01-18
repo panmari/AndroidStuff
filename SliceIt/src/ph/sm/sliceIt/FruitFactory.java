@@ -24,11 +24,29 @@ public class FruitFactory extends Actor{
 	public void act() {
 		if (counter > intervall) {
 			float velX = rnd.nextFloat()*20F + 50F;
-			Fruit f = new Fruit(gg, velX);
+			Fruit f = new Fruit("fruit", gg, velX);
 			int y = rnd.nextInt(yMax-yMin) + yMin;
 			L.d("" + velX);
 			gg.addActor(f, new Location(0, y));
 			counter = 0;
 		} else counter++;
 	}
+}
+
+class Melon extends Fruit {
+	public Melon(SliceIt gg, float xVel) {
+		super("melon", gg, xVel);
+	}
+}
+
+class Orange extends Fruit {
+	public Orange(SliceIt gg, float xVel) {
+		super("orange", gg, xVel);
+	}	
+}
+
+class Strawberry extends Fruit {
+	public Strawberry(SliceIt gg, float xVel) {
+		super("strawberry", gg, xVel);
+	}	
 }

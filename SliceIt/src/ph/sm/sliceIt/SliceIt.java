@@ -7,9 +7,7 @@ import ch.aplu.android.*;
 import android.graphics.Color;
 import android.graphics.Point;
 
-/**
- * For now: only slicing direct line between press and release!
- * 
+/** 
  * @author panmari
  * 
  */
@@ -27,7 +25,7 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 		addTouchListener(this, GGTouch.release | GGTouch.press | GGTouch.drag);
 		addActor(new FruitFactory(this, 100), new Location(0,0));
 		this.p = getPanel();
-		p.setPaintColor(Color.BLUE);
+		p.setPaintColor(Color.RED);
 		setSimulationPeriod(30);
 		doRun();
 	}
@@ -44,7 +42,7 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 				p.drawPoint(l.getX(), l.getY());
 			break;
 		case GGTouch.release:
-			//needs manual reset
+			getBg().clear();
 			sliceLocs = null;
 			break;
 		}

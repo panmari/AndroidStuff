@@ -13,8 +13,8 @@ public class Fruit extends Actor {
 	private final int SIZE = 20;
 	private float xVel;
 	
-	public Fruit(SliceIt gg, float xVel) {
-		super("fruit");
+	public Fruit(String sprite, SliceIt gg, float xVel) {
+		super(sprite);
 		this.gg = gg;
 		this.xVel = xVel;
 	}
