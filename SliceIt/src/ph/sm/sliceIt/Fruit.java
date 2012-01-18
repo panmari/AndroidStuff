@@ -19,7 +19,6 @@ public abstract class Fruit extends Actor {
 	}
 	
 	public void reset() {
-		this.setDirection(Location.SOUTH);
 		this.x = getPixelLocation().x;
 		this.y = getPixelLocation().y;
 	}
@@ -28,7 +27,7 @@ public abstract class Fruit extends Actor {
 		if (isSliced())
 			splatter();
 		movePhysically();
-		turn(10); //for fun effects!
+		turn(10); //for pretty effects!
 	}
 
 	private void movePhysically() {
@@ -37,21 +36,19 @@ public abstract class Fruit extends Actor {
 	    x = x + xVel*dt;
 	    y = y + yVel*dt;
 	    setLocation(new Location(Math.round(x), Math.round(y)));
-	    //TODO: make neater
 	    if (!isInGrid()) {
+	    	if (!isAlreadySliced())
+	    		gg.showToast("You missed one!");
 	    	removeSelf();
-	    	gg.showToast("You missed one!");
 	    }
 	}
 
 	private boolean isSliced() {
-		if (isAlreadySliced())
+		if (isAlreadySliced() || gg.getSliceLoc() == null)
 			return false;
+		//TODO: this might be very ineffective
 		ArrayList<Location> fruitLocs = getLocation().getNeighbourLocations(size);
-		for (Location l: gg.getSliceLocs())
-			if (fruitLocs.contains(l))
-				return true;
-		return false;
+		return fruitLocs.contains(gg.getSliceLoc());
 	}
 	
 	private boolean isAlreadySliced() {
@@ -63,6 +60,7 @@ public abstract class Fruit extends Actor {
 	 */
 	private void splatter() {
 		showNextSprite();
+		gg.increasePoints();
 	}
 	
 	protected void setSize(int size) {

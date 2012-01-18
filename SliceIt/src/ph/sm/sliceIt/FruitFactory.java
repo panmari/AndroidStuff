@@ -15,6 +15,12 @@ public class FruitFactory extends Actor{
 	private Random rnd = new Random();
 	private int counter;
 	
+	/**
+	 * A factory utility that produces random fruits
+	 * in the gamegrid it is added.
+	 * @param gg GameGrid it belongs too
+	 * @param intervall between two created fruits (in SimulationCycles)
+	 */
 	public FruitFactory(SliceIt gg, int intervall) {
 		this.gg = gg;
 		this.intervall = intervall;
@@ -37,7 +43,6 @@ public class FruitFactory extends Actor{
 			f = new Orange(gg, velX);
 		else f = new Strawberry(gg, velX);
 		int y = rnd.nextInt(yMax-yMin) + yMin;
-		L.d("" + velX);
 		gg.addActor(f, new Location(0, y));
 		counter = 0;
 	}
