@@ -39,7 +39,6 @@ public class SliceIt extends GameGrid implements GGTouchListener {
 			sliceLoc = null;
 			break;
 		}
-		refresh();
 		return false;
 	}
 
