@@ -1,7 +1,4 @@
 package ph.sm.sliceIt;
-
-import java.util.ArrayList;
-
 import ch.aplu.android.Actor;
 import ch.aplu.android.Location;
 
@@ -9,7 +6,6 @@ public abstract class Fruit extends Actor {
 	private float x,y, yVel;
 	private final float acc = 9.81F;
 	private SliceIt gg;
-	private int size = 20;
 	private float xVel;
 	
 	public Fruit(String sprite, SliceIt gg, float xVel) {
@@ -24,8 +20,6 @@ public abstract class Fruit extends Actor {
 	}
 	
 	public void act() {
-		if (isSliced())
-			splatter();
 		movePhysically();
 		turn(10); //for pretty effects!
 	}
@@ -37,33 +31,23 @@ public abstract class Fruit extends Actor {
 	    y = y + yVel*dt;
 	    setLocation(new Location(Math.round(x), Math.round(y)));
 	    if (!isInGrid()) {
-	    	if (!isAlreadySliced())
+	    	if (!isSliced())
 	    		gg.showToast("You missed one!");
 	    	removeSelf();
 	    }
 	}
-
-	private boolean isSliced() {
-		if (isAlreadySliced() || gg.getSliceLoc() == null)
-			return false;
-		//TODO: this might be very ineffective
-		ArrayList<Location> fruitLocs = getLocation().getNeighbourLocations(size);
-		return fruitLocs.contains(gg.getSliceLoc());
-	}
 	
-	private boolean isAlreadySliced() {
+	private boolean isSliced() {
 		return getIdVisible() == 1;
 	}
 
 	/**
 	 * Name is subject to change...
 	 */
-	private void splatter() {
-		showNextSprite();
-		gg.increasePoints();
-	}
-	
-	protected void setSize(int size) {
-		this.size = size;
-	}
+	public void splatter() {
+		if (!isSliced()) {
+			show(1);
+			gg.increasePoints();
+		}
+	}	
 }
