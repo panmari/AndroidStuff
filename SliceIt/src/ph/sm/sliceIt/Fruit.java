@@ -41,9 +41,6 @@ public abstract class Fruit extends Actor {
 		return getIdVisible() == 1;
 	}
 
-	/**
-	 * Name is subject to change...
-	 */
 	public void splatter() {
 		if (!isSliced()) {
 			show(1);

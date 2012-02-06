@@ -23,9 +23,9 @@ public class SliceIt extends GameGrid implements GGActorTouchListener {
 	}
 
 	public void main() {
-		setStatusText("SliceIt started, GG v " + getVersion());
+		setStatusText("FruitSmasher started, GG v " + getVersion());
 		addActor(ff, new Location(0,0));
-		setSimulationPeriod(20);
+		setSimulationPeriod(30);
 		doRun();
 	}
 	
@@ -40,7 +40,7 @@ public class SliceIt extends GameGrid implements GGActorTouchListener {
 	}
 	
 	public void gameOver() {
-		TextActor text = new TextActor("You sliced " + points + " out of " + FRUITSNR);
+		TextActor text = new TextActor("You smashed " + points + " out of " + FRUITSNR + " fruits");
 		TextActor perfect = new TextActor("Perfect round!");
 		addActor(text, new Location(10, 10));
 		if (points == FRUITSNR)
