@@ -3,7 +3,6 @@ package ph.sm.sliceIt;
 import java.util.Random;
 
 import ch.aplu.android.Actor;
-import ch.aplu.android.GGTouch;
 import ch.aplu.android.Location;
 
 public class FruitFactory extends Actor{

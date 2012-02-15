@@ -7,7 +7,6 @@ import ch.aplu.android.GGActorCollisionListener;
 import ch.aplu.android.GGTouch;
 import ch.aplu.android.GGTouchListener;
 import ch.aplu.android.GameGrid;
-import ch.aplu.android.L;
 import ch.aplu.android.Location;
 import ch.aplu.android.TextActor;
 
@@ -22,10 +21,10 @@ public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisi
 	}
 
 	public void main() {
-		setStatusText("FruitSmasher started, GG v " + getVersion());
+		setStatusText("FruitSlicer started, GG v " + getVersion());
 		sword = new Sword();
 		addActor(ff, new Location(0,0));
-		addActor(sword, new Location(-20, -20));
+		addActor(sword, new Location(-100, -100));
 		addTouchListener(this, GGTouch.drag | GGTouch.release);
 		setSimulationPeriod(30);
 		doRun();
@@ -46,7 +45,7 @@ public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisi
 	}
 	
 	public void gameOver() {
-		TextActor text = new TextActor("You smashed " + points + " out of " + FRUITSNR + " fruits");
+		TextActor text = new TextActor("You sliced " + points + " out of " + FRUITSNR + " fruits");
 		TextActor perfect = new TextActor("Perfect round!");
 		addActor(text, new Location(10, 10));
 		if (points == FRUITSNR)
@@ -61,13 +60,12 @@ public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisi
 			sword.setLocation(loc);
 			break;
 		case GGTouch.release:
-			sword.setLocation(new Location(-20,-20));
+			sword.setLocation(new Location(-100,-100)); //out of sight
 		}
 		return true;
 	}
 	
 	public int collide(Actor actor1, Actor actor2) {
-		L.v("collision between " + actor1 +" and "+ actor2 );
 		((Fruit) actor1).splatter();
 		return 1000;
 	}
