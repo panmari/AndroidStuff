@@ -2,10 +2,8 @@
 
 package ph.sm.sliceIt;
 
-import android.graphics.Point;
-import ch.aplu.android.Actor;
-import ch.aplu.android.GGActorTouchListener;
 import ch.aplu.android.GGTouch;
+import ch.aplu.android.GGTouchListener;
 import ch.aplu.android.GameGrid;
 import ch.aplu.android.Location;
 import ch.aplu.android.TextActor;
@@ -13,10 +11,11 @@ import ch.aplu.android.TextActor;
 /** 
  * 
  */
-public class SliceIt extends GameGrid implements GGActorTouchListener {
+public class SliceIt extends GameGrid implements GGTouchListener {
 	private int points;
 	private final int FRUITSNR = 100;
 	private final FruitFactory ff = new FruitFactory(this, 35, FRUITSNR);
+	private Sword sword;
 
 	public SliceIt() {
 		super();
@@ -24,7 +23,10 @@ public class SliceIt extends GameGrid implements GGActorTouchListener {
 
 	public void main() {
 		setStatusText("FruitSmasher started, GG v " + getVersion());
+		sword = new Sword();
 		addActor(ff, new Location(0,0));
+		addActor(sword, new Location(-20, -20));
+		addTouchListener(this, GGTouch.drag | GGTouch.release);
 		setSimulationPeriod(30);
 		doRun();
 	}
@@ -39,6 +41,10 @@ public class SliceIt extends GameGrid implements GGActorTouchListener {
 			gameOver();
 	}
 	
+	public Sword getSword() {
+		return this.sword;
+	}
+	
 	public void gameOver() {
 		TextActor text = new TextActor("You smashed " + points + " out of " + FRUITSNR + " fruits");
 		TextActor perfect = new TextActor("Perfect round!");
@@ -47,8 +53,15 @@ public class SliceIt extends GameGrid implements GGActorTouchListener {
 			addActor(perfect, new Location(10, 33));
 		doPause();
 	}
-	
-	public void actorTouched(Actor actor, GGTouch touch, Point spot) {
-		((Fruit)actor).splatter();
+
+	public boolean touchEvent(GGTouch touch) {
+		switch (touch.getEvent()) {
+		case GGTouch.drag:
+			sword.setLocation(new Location(touch.getX(),touch.getY()));
+			break;
+		case GGTouch.release:
+			sword.setLocation(new Location(-20,-20));
+		}
+		return true;
 	}
 }

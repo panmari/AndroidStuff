@@ -49,7 +49,7 @@ public class FruitFactory extends Actor{
 			f = new Orange(gg, velX);
 		else f = new Strawberry(gg, velX);
 		int y = rnd.nextInt(yMax-yMin) + yMin;
-		f.addActorTouchListener(gg, GGTouch.press);
+		f.addCollisionActor(gg.getSword());
 		gg.addActor(f, new Location(0, y));
 		counter = 0;
 	}

@@ -10,6 +10,13 @@ public class Sword extends Actor{
 	}
 	
 	public void reset() {
+		addActorCollisionListener(this);
 		this.setCollisionLine(new Point(0,10), new Point(0,-10));
+	}
+	
+	@Override
+	public int collide(Actor actor1, Actor actor2) {
+		((Fruit) actor2).splatter();
+		return 20;
 	}
 }
