@@ -50,6 +50,7 @@ public class FruitFactory extends Actor{
 		else f = new Strawberry(gg, velX);
 		int y = rnd.nextInt(yMax-yMin) + yMin;
 		f.addCollisionActor(gg.getSword());
+		f.addActorCollisionListener(gg);
 		gg.addActor(f, new Location(0, y));
 		counter = 0;
 	}
