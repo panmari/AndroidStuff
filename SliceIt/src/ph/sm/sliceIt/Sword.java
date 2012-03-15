@@ -3,6 +3,10 @@ package ph.sm.sliceIt;
 import android.graphics.Point;
 import ch.aplu.android.Actor;
 
+/**
+ * The Actor used to slice the fruit with.
+ * @author panmari
+ */
 public class Sword extends Actor{
 	
 	public Sword() {

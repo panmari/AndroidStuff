@@ -10,6 +10,10 @@ import ch.aplu.android.GameGrid;
 import ch.aplu.android.Location;
 import ch.aplu.android.TextActor;
 
+/**
+ * 
+ * @author panmari
+ */
 public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisionListener{
 	private int points;
 	private final int FRUITSNR = 100;

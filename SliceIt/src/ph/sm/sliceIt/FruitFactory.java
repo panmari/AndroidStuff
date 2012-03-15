@@ -17,7 +17,7 @@ public class FruitFactory extends Actor{
 	
 	/**
 	 * A factory utility that produces random fruits
-	 * in the gamegrid it is added.
+	 * in the gamegrid it is added to.
 	 * @param gg GameGrid it belongs too
 	 * @param intervall between two created fruits (in SimulationCycles)
 	 * @param amount number of fruits produced

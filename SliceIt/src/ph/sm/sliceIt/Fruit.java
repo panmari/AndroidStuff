@@ -2,6 +2,12 @@ package ph.sm.sliceIt;
 import ch.aplu.android.Actor;
 import ch.aplu.android.Location;
 
+/**
+ * A fruit has a initial x and y coordinate and x velocity.
+ * The velocity in y direction starts at zero and accelerates more or less
+ * physically correct through the method movePhysically()
+ * @author panmari
+ */
 public abstract class Fruit extends Actor {
 	private float x,y, yVel;
 	private final float acc = 9.81F;
@@ -30,19 +36,27 @@ public abstract class Fruit extends Actor {
 	    x = x + xVel*dt;
 	    y = y + yVel*dt;
 	    setLocation(new Location(Math.round(x), Math.round(y)));
-	    if (!isInGrid()) {
-	    	if (!isSliced())
+	    cleanUp();
+	}
+
+	/**
+	 * Removes itself if it's outside of the grid,
+	 * showing a message if it wasn't sliced until then.
+	 */
+	private void cleanUp() {
+		if (!isInGrid()) {
+	    	if (isNotSliced())
 	    		gg.showToast("You missed one!");
 	    	removeSelf();
 	    }
 	}
 	
-	private boolean isSliced() {
-		return getIdVisible() == 1;
+	private boolean isNotSliced() {
+		return getIdVisible() == 0;
 	}
 
 	public void splatter() {
-		if (!isSliced()) {
+		if (isNotSliced()) {
 			show(1);
 			gg.increasePoints();
 		}
