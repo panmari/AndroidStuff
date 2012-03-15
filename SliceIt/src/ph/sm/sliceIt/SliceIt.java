@@ -11,7 +11,10 @@ import ch.aplu.android.Location;
 import ch.aplu.android.TextActor;
 
 /**
+ * A simple clone of the well known app "fruit ninja"
  * 
+ * This class puts together all elements of the app, manages the points, the end of the game, 
+ * the collisions, and the mouse events.
  * @author panmari
  */
 public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisionListener{
@@ -34,29 +37,6 @@ public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisi
 		doRun();
 	}
 	
-	public void increasePoints() {
-		points++;
-		setStatusText(points + " Points!");
-	}
-	
-	public void act() {
-		if (ff.outOfFruits() && getActors(Fruit.class).isEmpty())
-			gameOver();
-	}
-	
-	public Sword getSword() {
-		return this.sword;
-	}
-	
-	public void gameOver() {
-		TextActor text = new TextActor("You sliced " + points + " out of " + FRUITSNR + " fruits");
-		TextActor perfect = new TextActor("Perfect round!");
-		addActor(text, new Location(10, 10));
-		if (points == FRUITSNR)
-			addActor(perfect, new Location(10, 33));
-		doPause();
-	}
-
 	public boolean touchEvent(GGTouch touch) {
 		switch (touch.getEvent()) {
 		case GGTouch.drag:
@@ -72,5 +52,28 @@ public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisi
 	public int collide(Actor actor1, Actor actor2) {
 		((Fruit) actor1).splatter();
 		return 1000;
+	}
+
+	public void act() {
+		if (ff.outOfFruits() && getActors(Fruit.class).isEmpty())
+			gameOver();
+	}
+
+	public void increasePoints() {
+		points++;
+		setStatusText(points + " Points!");
+	}
+
+	public void gameOver() {
+		TextActor text = new TextActor("You sliced " + points + " out of " + FRUITSNR + " fruits");
+		TextActor perfect = new TextActor("Perfect round!");
+		addActor(text, new Location(10, 10));
+		if (points == FRUITSNR)
+			addActor(perfect, new Location(10, 33));
+		doPause();
+	}
+
+	public Sword getSword() {
+		return this.sword;
 	}
 }
