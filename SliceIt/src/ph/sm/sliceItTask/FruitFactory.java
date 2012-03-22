@@ -1,4 +1,4 @@
-package ph.sm.sliceIt;
+package ph.sm.sliceItTask;
 
 import java.util.Random;
 
@@ -28,10 +28,12 @@ public class FruitFactory extends Actor{
 		this.counter = 0;
 		this.FruitsNr = amount;
 		this.setActEnabled(false);
-		this.setSlowDown(intervall);
 	}
 	
 	public void act() {
+		/* TODO: 
+		 * 
+		 */
 		if (FruitsNr > 0) {
 			createRandomFruit();
 			FruitsNr--;
