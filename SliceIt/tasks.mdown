@@ -1,7 +1,7 @@
 # Tasks #
 
 * `act()` in FruitFactory.java
-	- Alle "intervall" viele perioden eine Frucht erstellen (nichts anderes als 
+	- Alle "intervall" viele Perioden eine Frucht erstellen (nichts anderes als 
 	`createRandomFruit()` aufrufen...)
 * `touchEvent(..)` in SliceIt.java
 	- Simpel, einfach nur Actor einfügen, collision wird hier NICHT behandelt.

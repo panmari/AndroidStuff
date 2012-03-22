@@ -27,6 +27,7 @@ public class FruitFactory extends Actor{
 		this.intervall = intervall;
 		this.counter = 0;
 		this.FruitsNr = amount;
+		this.setActEnabled(false);
 	}
 	
 	public void act() {
@@ -52,6 +53,14 @@ public class FruitFactory extends Actor{
 		f.addActorCollisionListener(gg);
 		gg.addActor(f, new Location(0, y));
 		counter = 0;
+	}
+	
+	public void enable() {
+		this.setActEnabled(true);
+		}
+	
+	public void disable() {
+		this.setActEnabled(false);
 	}
 	
 	public boolean outOfFruits() {

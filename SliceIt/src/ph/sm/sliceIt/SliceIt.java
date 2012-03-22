@@ -35,6 +35,7 @@ public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisi
 		addTouchListener(this, GGTouch.drag | GGTouch.release);
 		setSimulationPeriod(30);
 		doRun();
+		ff.enable();
 	}
 	
 	public boolean touchEvent(GGTouch touch) {
