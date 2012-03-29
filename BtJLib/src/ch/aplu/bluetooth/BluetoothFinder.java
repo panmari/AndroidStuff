@@ -10,7 +10,6 @@ It is Open Source Free Software, so you may
 - improve the code and release your improvements to the public
 However the use of the code is entirely your responsibility.
  */
-
 package ch.aplu.bluetooth;
 
 import javax.bluetooth.*;
@@ -71,13 +70,14 @@ public class BluetoothFinder implements DiscoveryListener
           Thread.currentThread().sleep(period);
         }
         catch (InterruptedException ex)
-        {}
+        {
+        }
         time += period;
       }
       if (serviceSearchDone)
       {
-       if (isVerbose)
-         VerboseWriter.out.println("Service thread terminated");
+        if (isVerbose)
+          VerboseWriter.out.println("Service thread terminated");
       }
       else
       {
@@ -88,30 +88,8 @@ public class BluetoothFinder implements DiscoveryListener
         serviceSearchCompleted(transID, SERVICE_SEARCH_ERROR);
       }
     }
-
-    // ================= Search services of a single device ========
-    private void searchForService(RemoteDevice dev, int[] attrSet, javax.bluetooth.UUID[] uuidSet)
-    {
-      if (isVerbose)
-        VerboseWriter.out.println("\nSearching services of device: " + getDeviceName(dev));
-
-      // non-blocking search
-      try
-      {
-        transID = agent.searchServices(attrSet, uuidSet, dev, bf);
-      }
-      catch (BluetoothStateException ex)
-      {
-        String msg = "Bluetooth service search failed.";
-        if (isVerbose)
-          VerboseWriter.out.println(msg);
-      }
-      if (isVerbose)
-        VerboseWriter.out.println("searchServices() returned transID: " + transID);
-    }
   }
   // ------------------- End of inner class -------------------------
-
   private BluetoothResponder bluetoothResponder = null;
   private DiscoveryAgent agent;
   private boolean isVerbose = false;
@@ -122,14 +100,14 @@ public class BluetoothFinder implements DiscoveryListener
   private volatile boolean serviceSearchDone;
   private SearchThread st;
   volatile int nbCalls = 1;
-
+  private RemoteDevice remoteDevice;
   // Table of found devices, stored as DeviceInfo, which are
   //  pairs of the form {RemoteDevice, DeviceClass}
   private Vector deviceTable = new Vector();
-
   // Table of found services, stored as ServiceInfo, which are
   // pairs of the form {RemoteDevice, ServiceRecord}
   private Vector serviceTable = new Vector();
+  private boolean isServiceSearchOnly = false;
 
   /**
    * Same as Bluetoothfinder(int[] uuids, boolean isVerbose), but search
@@ -173,7 +151,7 @@ public class BluetoothFinder implements DiscoveryListener
    * @see VerboseWriter
    */
   public BluetoothFinder(int[] uuids, int[] attrSet,
-                         boolean isVerbose, BluetoothResponder responder)
+    boolean isVerbose, BluetoothResponder responder)
   {
     this("", uuids, attrSet, isVerbose, responder);
   }
@@ -206,13 +184,13 @@ public class BluetoothFinder implements DiscoveryListener
     this("", uuids, isVerbose, responder);
   }
 
-/**
-   * Same as Bluetoothfinder(int[] uuids, int[] attrSet, boolean isVerbose), but search
+  /**
+   * Same as BluetoothFinder(int[] uuids, int[] attrSet, boolean isVerbose), but search
    * only for the given deviceName. If deviceName is empty or null, the search
    * is done for all devices.
    */
   public BluetoothFinder(String deviceName, int[] uuids, int[] attrSet,
-                         boolean isVerbose, BluetoothResponder responder)
+    boolean isVerbose, BluetoothResponder responder)
   {
     bluetoothResponder = responder;
     if (deviceName == null)
@@ -223,6 +201,105 @@ public class BluetoothFinder implements DiscoveryListener
     this.attrSet = attrSet;
     this.isVerbose = isVerbose;
     init();
+  }
+
+  /** 
+   * Same as BluetoothFinder(RemoteDevice remoteDevice, int[] uuids, 
+   * int[] attrSet,  boolean isVerbose, BluetoothResponder responder),
+   * but only the following service attributes are retrieved:<br>
+   *   ServiceRecordHandle    (id: 0x0000)<br>
+   *   ServiceClassIDlist     (id: 0x0001)<br>
+   *   ServiceRecordState     (id: 0x0002)<br>
+   *   ServiceID              (id: 0x0003)<br>
+   *   ProtocolDescriptorList (id: 0x0004)<br>
+   *   Service Name           (id: 0x0100)<br>
+   * Response will trigger the callback methods declared
+   * in the given BluetoothResponder.
+   * @see ch.aplu.bluetooth.BluetoothResponder
+   * @see javax.bluetooth.UUID
+   * @see VerboseWriter
+   */
+  public BluetoothFinder(RemoteDevice remoteDevice, int[] uuids,
+    boolean isVerbose, BluetoothResponder responder)
+  {
+    this(remoteDevice, uuids, new int[]
+      {
+        0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0100
+      },
+      isVerbose, responder);
+  }
+
+  /**
+   * Initiates <b>service</b> inquiry (no prior device inquiry) from given 
+   * remote device with given UUIP integer values.
+   * Typical 16-bit integer UUIDs of common services
+   *   SDP     0x0001<br>
+   *   RFCOMM  0x0003<br>
+   *   OBEX    0x0008<br>
+   *   HTTP    0x000C<br>
+   *   L2CAP   0x0100<br>
+   * Searches only services with attribute IDs given in attrSet.
+   * Set isVerbose = true to enable status information via VerboseWriter.
+   * Response will trigger the callback methods declared
+   * in the given BluetoothResponder.
+   * @see ch.aplu.bluetooth.BluetoothResponder
+   * @see javax.bluetooth.UUID
+   * @see VerboseWriter
+   */
+  public BluetoothFinder(RemoteDevice remoteDevice, int[] uuids, int[] attrSet,
+    boolean isVerbose, BluetoothResponder responder)
+  {
+    isServiceSearchOnly = true;
+    bluetoothResponder = responder;
+    remoteDevice = remoteDevice;
+    if (deviceName == null)
+      this.deviceName = "";
+    else
+      this.deviceName = deviceName;
+    this.uuids = uuids;
+    this.attrSet = attrSet;
+    this.isVerbose = isVerbose;
+    javax.bluetooth.UUID[] uuidSet = new javax.bluetooth.UUID[uuids.length];
+    for (int k = 0; k < uuids.length; k++)
+    {
+      uuidSet[k] = new javax.bluetooth.UUID(uuids[k]);
+      if (isVerbose)
+        VerboseWriter.out.println("Search for uuid " + uuids[k] + "...");
+    }
+    try
+    {
+      LocalDevice local = LocalDevice.getLocalDevice();
+      agent = local.getDiscoveryAgent();
+    }
+    catch (Exception ex)
+    {
+      VerboseWriter.out.println(ex);
+      return;
+    }
+
+    searchForService(remoteDevice, attrSet, uuidSet);
+  }
+
+  // ================= Search services of a single device ========
+  private void searchForService(RemoteDevice dev, int[] attrSet, javax.bluetooth.UUID[] uuidSet)
+  {
+    if (isVerbose)
+      VerboseWriter.out.println("\nSearching services of device: " + getDeviceName(dev));
+
+    // non-blocking search
+    int transID = 0;
+    try
+    {
+      transID = agent.searchServices(attrSet, uuidSet, dev, this);
+    }
+    catch (BluetoothStateException ex)
+    {
+      String msg = "Bluetooth service search failed.";
+      if (isVerbose)
+        VerboseWriter.out.println(msg);
+    }
+    if (isVerbose)
+      VerboseWriter.out.println("searchServices() returned transID: " + transID);
   }
 
   private void init()
@@ -262,8 +339,8 @@ public class BluetoothFinder implements DiscoveryListener
     int majorDC = deviceClass.getMajorDeviceClass();
     int minorDC = deviceClass.getMinorDeviceClass();
     if (isVerbose)
-      VerboseWriter.out.println("Major Device Class: " + majorDC +
-                "; Minor Device Class: " + minorDC);
+      VerboseWriter.out.println("Major Device Class: " + majorDC
+        + "; Minor Device Class: " + minorDC);
 
     if (deviceName.trim().equals("")) // All devices requested
       deviceTable.addElement(new BtDeviceInfo(remoteDevice, deviceClass));
@@ -292,7 +369,7 @@ public class BluetoothFinder implements DiscoveryListener
       return;
 
     if (isVerbose)
-      VerboseWriter.out.println("# of devices found: " +  deviceTable.size());
+      VerboseWriter.out.println("# of devices found: " + deviceTable.size());
 
     // Invoke notification
     if (bluetoothResponder != null)
@@ -306,27 +383,25 @@ public class BluetoothFinder implements DiscoveryListener
       if (isVerbose)
         VerboseWriter.out.println("\nSearching for services...");
 
-       // Start the services search
-       st = new SearchThread(this);
-       st.start();
+      // Start the services search
+      st = new SearchThread(this);
+      st.start();
     }
   }
 
- // ================ Show response code of device search ===========
-   private void showInquiryCode(int inqCode)
+  // ================ Show response code of device search ===========
+  private void showInquiryCode(int inqCode)
   {
     if (!isVerbose)
       return;
     if (inqCode == INQUIRY_COMPLETED)
       VerboseWriter.out.println("Device search completed");
+    else if (inqCode == INQUIRY_TERMINATED)
+      VerboseWriter.out.println("Device search terminated");
+    else if (inqCode == INQUIRY_ERROR)
+      VerboseWriter.out.println("Device search error");
     else
-      if(inqCode == INQUIRY_TERMINATED)
-        VerboseWriter.out.println("Device search terminated");
-      else
-        if (inqCode == INQUIRY_ERROR)
-          VerboseWriter.out.println("Device search error");
-        else
-          VerboseWriter.out.println("Unknown device search status: " + inqCode);
+      VerboseWriter.out.println("Unknown device search status: " + inqCode);
   }
 
   // ================ Callback when service is found ====================
@@ -337,8 +412,8 @@ public class BluetoothFinder implements DiscoveryListener
   {
     if (isVerbose)
     {
-       VerboseWriter.out.println("Service found. Transaction ID " + transID);
-       VerboseWriter.out.println("Length of service record: " + serviceRecords.length);
+      VerboseWriter.out.println("Service found. Transaction ID " + transID);
+      VerboseWriter.out.println("Length of service record: " + serviceRecords.length);
     }
 
     for (int i = 0; i < serviceRecords.length; i++)
@@ -378,6 +453,12 @@ public class BluetoothFinder implements DiscoveryListener
   public void serviceSearchCompleted(int transID, int respCode)
   {
     showResponseCode(transID, respCode);
+    if (isServiceSearchOnly)
+    {
+      if (bluetoothResponder != null)
+        bluetoothResponder.notifyBluetoothServiceSearch(serviceTable);
+      return;
+    }
 
     serviceSearchDone = true;
     st.interrupt();
@@ -386,7 +467,8 @@ public class BluetoothFinder implements DiscoveryListener
       st.join();
     }
     catch (InterruptedException ex)
-    {}
+    {
+    }
 
     devIndex++;
     if (devIndex < deviceTable.size())
@@ -397,14 +479,15 @@ public class BluetoothFinder implements DiscoveryListener
         Thread.currentThread().sleep(1000);
       }
       catch (InterruptedException ex)
-      {}
+      {
+      }
       st = new SearchThread(this);
       st.start();
     }
     else // end of all service requests
-      // Invoke notification
-      if (bluetoothResponder != null)
-         bluetoothResponder.notifyBluetoothServiceSearch(serviceTable);
+    // Invoke notification
+    if (bluetoothResponder != null)
+      bluetoothResponder.notifyBluetoothServiceSearch(serviceTable);
   }
 
   // ================ Show response code of service search ===========
@@ -427,9 +510,7 @@ public class BluetoothFinder implements DiscoveryListener
       VerboseWriter.out.println("Unknown service search status. Code: " + respCode);
   }
 
-
   // ==================== Helper methods ================
-
   /**
    * Returns device name from given device using RemoteDevice.getFriendlyName().
    * Returns null if fails.
@@ -483,6 +564,7 @@ public class BluetoothFinder implements DiscoveryListener
    */
   public static RemoteDevice searchPreknownDevice(String deviceName)
   {
+
     DiscoveryAgent agent = BluetoothFinder.getDiscoveryAgent();
     RemoteDevice[] devs = agent.retrieveDevices(DiscoveryAgent.PREKNOWN);
     if (devs == null || devs.length == 0)
@@ -530,8 +612,8 @@ public class BluetoothFinder implements DiscoveryListener
     String localName = "";
     try
     {
-       LocalDevice local = LocalDevice.getLocalDevice();
-       localName = local.getFriendlyName();
+      LocalDevice local = LocalDevice.getLocalDevice();
+      localName = local.getFriendlyName();
     }
     catch (BluetoothStateException ex)
     {
@@ -548,12 +630,29 @@ public class BluetoothFinder implements DiscoveryListener
     String localAddress = "";
     try
     {
-       LocalDevice local = LocalDevice.getLocalDevice();
-       localAddress = local.getBluetoothAddress();;
+      LocalDevice local = LocalDevice.getLocalDevice();
+      localAddress = local.getBluetoothAddress();;
     }
     catch (BluetoothStateException ex)
     {
     }
     return localAddress;
+  }
+  
+  /**
+  * Returns state of local Bluetooth device.
+  * @return true, if Bluetooth device is installed and enabled; otherwise false
+  */
+  public static boolean isBluetoothSupported()
+  {
+    try
+    {
+      LocalDevice.getLocalDevice();
+    }
+    catch (Exception ex)
+    {
+      return false;
+    }
+    return true;
   }
 }

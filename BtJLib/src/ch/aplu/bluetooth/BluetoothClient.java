@@ -91,6 +91,7 @@ public class BluetoothClient
             try
             {
               channel = Integer.parseInt(channelStr);
+              detectedServerChannel = channel;
             }
             catch (NumberFormatException ex)
             {
@@ -106,7 +107,8 @@ public class BluetoothClient
         }
       }
       if (isVerbose)
-        VerboseWriter.out.println("Client: Service " + serviceName + " on server " + serverName + " not found");
+        VerboseWriter.out.println("Client: Service " + serviceName + 
+          " not found");
       wakeUp();
     }
   }
@@ -116,6 +118,7 @@ public class BluetoothClient
   private BluetoothFinder btf;
   private BtDeviceInfo di;
   private RemoteDevice dev;
+  private RemoteDevice remoteDevice;
   private String serverName = null;
   private long serverAddressLong = 0;
   private String serverAddressStr = "";
@@ -123,9 +126,11 @@ public class BluetoothClient
   private InputStream is = null;
   private OutputStream os = null;
   private int channel;
+  private int detectedServerChannel = -1;
   private String serviceName = null;
   private StreamConnection conn = null;
   private boolean isVerbose = false;
+  private volatile boolean isConnectionSuccessful;
 
   /**
    * Creates a BluetoothClient instance for the given server's Bluetooth name
@@ -193,20 +198,52 @@ public class BluetoothClient
   }
 
   /**
-   * Creates a BluetoothClient instance for the given Bluetooth address
+   * Creates a BluetoothClient instance for the given remote device
    * that will connect using the given service name.
    * connect() may take some time, because the channel number has
    * to be retrieved from the server by a Bluetooth service search.<br><br>
    * No connection is established a this time.
    */
-  public BluetoothClient(long serverAddress, String serviceName)
+  public BluetoothClient(RemoteDevice remoteDevice, String serviceName)
   {
-    serverAddressLong = serverAddress;
-    serverAddressStr = Long.toString(serverAddress, 16).toUpperCase();
+    this.remoteDevice = remoteDevice;
+    serverAddressStr = remoteDevice.getBluetoothAddress();
+    serverAddressLong = Long.valueOf(serverAddressStr, 16);
     this.serviceName = serviceName;
     channel = -1;
   }
 
+  /**
+   * Attemps to connect the client to the host with given timeout.
+   * @return true, if successful; false, if connection cannot be established
+   * within the given timemout or already connected
+   * @param timeout in seconds
+   */
+  public boolean connect(int timeout)
+  {
+    final Thread currentThread = Thread.currentThread();
+    Thread t = new Thread()
+    {
+      public void run()
+      {
+        isConnectionSuccessful = connect();
+        currentThread.interrupt();
+      }
+    };
+    t.start();
+    try
+    {
+      Thread.currentThread().sleep(1000 * timeout);
+    }
+    catch (InterruptedException ex)
+    {
+       return isConnectionSuccessful;  // connect() returned with return code
+    }
+    // connect() hangs
+    disconnect();  // Hopefully connect() is deblocked
+    return false;
+  }
+  
   /**
    * Attemps to connect the client to the host.
    * @return true, if successful; false, if connection cannot be established or already connected
@@ -215,7 +252,7 @@ public class BluetoothClient
   {
     if (isConnected)
       return false;
-
+    
     if (serverName != null) // Name given
     {
       if (isVerbose)
@@ -239,9 +276,16 @@ public class BluetoothClient
         return false;
       }
     }
-    else // Address given
+    else // Remote device given
     {
-      doConnect();
+      System.out.println("Must get the channel by a service search...");
+      int uuid_RFCOMM = 0x0003;
+      int[] uuids =
+      {
+        uuid_RFCOMM
+      };
+      btf = new BluetoothFinder(remoteDevice, uuids, isVerbose, new MyBluetoothResponder()); 
+      putSleep();  // Wait for notification from callback
       if (!isConnected)
       {
         if (isVerbose)
@@ -385,6 +429,15 @@ public class BluetoothClient
       return -1;
 
     return serverAddressLong;
+  }
+  
+  /**
+   * Returns the channel number returned by the server after a service search.
+   * @return Detected server channel number, -1 if no service search was performed
+  */
+  public int getDetectedServerChannel()
+  {
+    return detectedServerChannel;
   }
 
   /**

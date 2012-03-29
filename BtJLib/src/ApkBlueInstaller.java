@@ -183,7 +183,10 @@ public class ApkBlueInstaller implements ExitListener
     mop.setTitle("ApkBlueInstaller V" + VERSION + " (www.aplu.ch)");
    
     // Try to get device from paired devices database
-    RemoteDevice rd = BluetoothFinder.searchPreknownDevice(serverName);
+    //NEW: HACKICKS WAY TO GET REMOTE DEVICE
+    RemoteDevice rd = new MyRemoteDevice("549B12E61FF8");
+    //BluetoothFinder.searchPreknownDevice(serverName);
+    
     if (rd == null)
     {  
       mop.setText("Sorry. Device '"
@@ -196,7 +199,7 @@ public class ApkBlueInstaller implements ExitListener
         "Device pairing OK. Searching service now...", false);
 
     bc = new BluetoothClient(rd, serviceName);
-  //  bc.setVerbose(true);
+    bc.setVerbose(true);
     
     // Connect with timeout
     if (!bc.connect(50))

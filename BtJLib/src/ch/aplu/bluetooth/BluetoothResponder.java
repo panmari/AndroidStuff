@@ -11,7 +11,6 @@ It is Open Source Free Software, so you may
 However the use of the code is entirely your responsibility.
  */
 
-
 package ch.aplu.bluetooth;
 
 import java.util.*;

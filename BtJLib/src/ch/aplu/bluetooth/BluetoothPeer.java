@@ -224,6 +224,7 @@ public class BluetoothPeer
       {
         if (isVerbose)
           VerboseWriter.out.println("Peer: Connection as client failed. Starting as server");
+        bc = null;
         bs = new BluetoothServer(serviceName, new MyBtListener(), isVerbose);
       }
     }
