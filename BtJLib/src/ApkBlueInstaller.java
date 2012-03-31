@@ -183,9 +183,7 @@ public class ApkBlueInstaller implements ExitListener
     mop.setTitle("ApkBlueInstaller V" + VERSION + " (www.aplu.ch)");
    
     // Try to get device from paired devices database
-    //NEW: HACKICKS WAY TO GET REMOTE DEVICE
-    RemoteDevice rd = new MyRemoteDevice("549B12E61FF8");
-    //BluetoothFinder.searchPreknownDevice(serverName);
+    RemoteDevice rd = BluetoothFinder.searchPreknownDevice(serverName);
     
     if (rd == null)
     {  

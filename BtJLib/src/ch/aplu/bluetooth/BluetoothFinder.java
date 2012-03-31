@@ -564,9 +564,28 @@ public class BluetoothFinder implements DiscoveryListener
    */
   public static RemoteDevice searchPreknownDevice(String deviceName)
   {
-
     DiscoveryAgent agent = BluetoothFinder.getDiscoveryAgent();
-    RemoteDevice[] devs = agent.retrieveDevices(DiscoveryAgent.PREKNOWN);
+    RemoteDevice[] devs = null;
+    if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+    	File bluetoothFolder = new File("/var/lib/bluetooth");
+    	//We hope there's only one bluetooth device installed:
+    	File[] subfolders = bluetoothFolder.listFiles();
+    	Scanner scan;
+		try {
+			scan = new Scanner(new File(subfolders[0] + "/names"));
+			while (scan.hasNextLine()) {
+				String[] device = scan.nextLine().split(" ", 2);
+				if (device[1].equals(deviceName)) {
+					String adress = device[0].replaceAll(":", "");
+					return new MyRemoteDevice(adress);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			// TODO Make better error handling
+			System.out.println("Couldn't find any installed Bluetooth device");
+		}
+    }
+    else devs = agent.retrieveDevices(DiscoveryAgent.PREKNOWN);
     if (devs == null || devs.length == 0)
       return null;
     else
