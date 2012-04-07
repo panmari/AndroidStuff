@@ -9,6 +9,8 @@ It is Open Source Free Software, so you may
 - redistribute copies of the code
 - improve the code and release your improvements to the public
 However the use of the code is entirely your responsibility.
+
+Hotfix for searchPreknown devices on Linux by Stefan Moser
  */
 package ch.aplu.bluetooth;
 
@@ -36,6 +38,15 @@ import java.io.*;
  */
 public class BluetoothFinder implements DiscoveryListener
 {
+  // --------------- Inner class  MyRemoteDevice ------------------------
+  private static class MyRemoteDevice extends RemoteDevice
+  {
+    public MyRemoteDevice(String macAddress)
+    {
+      super(macAddress);
+    }
+  }
+
   // --------------- Inner class SearchThread ---------------------------
   private class SearchThread extends Thread
   {
@@ -560,32 +571,49 @@ public class BluetoothFinder implements DiscoveryListener
 
   /**
    * Searches for device with given name in the 'preknown' database, and return it.
-   * Returns null, if not found or search fails.
+   * Returns null, if not found or search fails because Bluetooth is not enabled.
+   * <br>(Under Linux searching the search for preknown devices is not supported 
+   * with Bluecove and  DiscoveryAgent.retrieveDevices(DiscoveryAgent.PREKNOWN) 
+   * returns always null. A hotfix by Stefan Moser is applied to read the 
+   *file of preknown devices in the kernel file system.)
    */
   public static RemoteDevice searchPreknownDevice(String deviceName)
   {
     DiscoveryAgent agent = BluetoothFinder.getDiscoveryAgent();
+    if (agent == null)
+      return null;
     RemoteDevice[] devs = null;
-    if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-    	File bluetoothFolder = new File("/var/lib/bluetooth");
-    	//We hope there's only one bluetooth device installed:
-    	File[] subfolders = bluetoothFolder.listFiles();
-    	Scanner scan;
-		try {
-			scan = new Scanner(new File(subfolders[0] + "/names"));
-			while (scan.hasNextLine()) {
-				String[] device = scan.nextLine().split(" ", 2);
-				if (device[1].equals(deviceName)) {
-					String adress = device[0].replaceAll(":", "");
-					return new MyRemoteDevice(adress);
-				}
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Make better error handling
-			System.out.println("Couldn't find any installed Bluetooth device");
-		}
+    if (System.getProperty("os.name").toLowerCase().contains("linux"))
+    {
+      File bluetoothFolder = new File("/var/lib/bluetooth");
+      File[] subfolders = bluetoothFolder.listFiles();
+      Scanner scan;
+      //Solution for multiple bluetooth devices:
+      for (File sf: subfolders) {
+	      try
+	      {
+	        scan = new Scanner(new File(sf + "/names"));
+	        while (scan.hasNextLine())
+	        {
+	          String[] device = scan.nextLine().split(" ", 2);
+	          if (device[1].equals(deviceName))
+	          {
+	            String address = device[0].replaceAll(":", "");
+	            return getRemoteDevice(address);
+	          }
+	        }
+	      }
+	      catch (FileNotFoundException e)
+	      {
+	    	  VerboseWriter.out.println("Found unexpected file in /var/lib/bluetooth, " +
+	    	  		"continuing with next folder");
+	      }
+      }
+      VerboseWriter.out.println("Couldn't find device paired with any receiver.");
+      return null;
     }
-    else devs = agent.retrieveDevices(DiscoveryAgent.PREKNOWN);
+    else
+      devs = agent.retrieveDevices(DiscoveryAgent.PREKNOWN);
     if (devs == null || devs.length == 0)
       return null;
     else
@@ -602,7 +630,9 @@ public class BluetoothFinder implements DiscoveryListener
 
   /**
    * Searches for device with given name in the 'cached' database, and return it.
-   * Returns null, if not found or search fails.
+   * Returns null, if not found or search fails. Under Linux this methods
+   * returns always null, because DiscoveryAgent.retrieveDevices() is not
+   * supported.
    */
   public static RemoteDevice searchCachedDevice(String deviceName)
   {
@@ -623,8 +653,7 @@ public class BluetoothFinder implements DiscoveryListener
   }
 
   /**
-   * Returns the local Bluetooth friendly name.
-   * @return the local Bluetooth name, empty if no Bluetooth available
+   * Returns the local Bluetooth friendly name, empty if no Bluetooth available.
    */
   public static String getLocalBluetoothName()
   {
@@ -641,8 +670,7 @@ public class BluetoothFinder implements DiscoveryListener
   }
 
   /**
-   * Returns the local Bluetooth address.
-   * @return the local Bluetooth address, empty if no Bluetooth available
+   * Returns the local Bluetooth address, empty if no Bluetooth available.
    */
   public static String getLocalBluetoothAddress()
   {
@@ -657,11 +685,11 @@ public class BluetoothFinder implements DiscoveryListener
     }
     return localAddress;
   }
-  
+
   /**
-  * Returns state of local Bluetooth device.
-  * @return true, if Bluetooth device is installed and enabled; otherwise false
-  */
+   * Returns state of local Bluetooth device.
+   * @return true, if Bluetooth device is installed and enabled; otherwise false
+   */
   public static boolean isBluetoothSupported()
   {
     try
@@ -673,5 +701,17 @@ public class BluetoothFinder implements DiscoveryListener
       return false;
     }
     return true;
+  }
+
+  /**
+   * Creates a Bluetooth device based on its MAC address. 
+   * The Bluetooth address must be 12 hex characters long. 
+   * Valid characters are 0-9, a-f, and A-F. There is no preceding "0x" in the 
+   * string. For example, valid Bluetooth addresses include but are not limited to:
+   * 008037144297, 00af8300cd0b, 014bd91DA8FC.
+   */
+  public static RemoteDevice getRemoteDevice(String macAddress)
+  {
+    return new MyRemoteDevice(macAddress);
   }
 }

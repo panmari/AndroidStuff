@@ -11,10 +11,10 @@ public class FindPreknownDevice {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String serverName = "ignix";
+		String serverName = "phPhone";
 		RemoteDevice rd = BluetoothFinder.searchPreknownDevice(serverName);
 		try {
-			System.out.println(rd.getFriendlyName(true));
+			System.out.println("Found and connected to: " + rd.getFriendlyName(true));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
