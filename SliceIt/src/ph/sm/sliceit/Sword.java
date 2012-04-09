@@ -1,4 +1,4 @@
-package ph.sm.sliceIt;
+package ph.sm.sliceit;
 
 import android.graphics.Point;
 import ch.aplu.android.Actor;

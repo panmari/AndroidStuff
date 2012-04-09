@@ -278,7 +278,11 @@ public class BluetoothClient
     }
     else // Remote device given
     {
-      System.out.println("Must get the channel by a service search...");
+      if (isVerbose)
+      {
+        VerboseWriter.out.println("Client: connect() with remoteDevice: " + remoteDevice.getBluetoothAddress());
+        VerboseWriter.out.println("Client: Must get the channel by a service search...");
+      }
       int uuid_RFCOMM = 0x0003;
       int[] uuids =
       {
@@ -372,6 +376,9 @@ public class BluetoothClient
     }
     catch (IOException ex)
     {
+      if (isVerbose)
+        VerboseWriter.out.println("Client: Exception in Connector.open(). " + ex.getMessage());
+
       wakeUp();
       return;
     }

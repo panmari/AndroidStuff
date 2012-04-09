@@ -1,9 +1,8 @@
 // SliceIt.java
 
-package ph.sm.sliceItTask;
+package ph.sm.sliceit;
 
-import ch.aplu.android.Actor;
-import ch.aplu.android.GGActorCollisionListener;
+import ch.aplu.android.GGTextField;
 import ch.aplu.android.GGTouch;
 import ch.aplu.android.GGTouchListener;
 import ch.aplu.android.GameGrid;
@@ -12,26 +11,30 @@ import ch.aplu.android.TextActor;
 
 /**
  * A simple clone of the well known app "fruit ninja"
- * 
- * This class puts together all elements of the app, manages the points, the end of the game, 
- * the collisions, and the mouse events.
  * @author panmari
  */
-public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisionListener{
-	private int points;
-	private final int FRUITSNR = 100;
-	private final FruitFactory ff = new FruitFactory(this, 35, FRUITSNR);
+public class SliceIt extends GameGrid implements GGTouchListener {
+
+	private final int totalNbFruit = 100;
 	private Sword sword;
+	private FruitFactory ff;
+	private GGTextField status;
+	private String oldMsg;
 
 	public SliceIt() {
-		super();
+		super(true);
+		setScreenOrientation(LANDSCAPE);
 	}
 
 	public void main() {
 		setStatusText("FruitSlicer started, GG v " + getVersion());
 		sword = new Sword();
+		ff = new FruitFactory(sword, 35, totalNbFruit);
 		addActor(ff, new Location(0,0));
 		addActor(sword, new Location(-100, -100));
+		int screenHeight = getNbVertCells();
+		status = new GGTextField("", new Location(10, screenHeight - 10), false);
+		status.show();
 		addTouchListener(this, GGTouch.drag | GGTouch.release);
 		setSimulationPeriod(30);
 		doRun();
@@ -49,28 +52,24 @@ public class SliceIt extends GameGrid implements GGTouchListener, GGActorCollisi
 		}
 		return true;
 	}
-	
-	public int collide(Actor actor1, Actor actor2) {
-		((Fruit) actor1).splatter();
-		return 1000;
-	}
 
 	public void act() {
-		if (ff.outOfFruits() && getActors(Fruit.class).isEmpty())
+	    // For performance boost don't show message if same
+	    String msg = "#hit: " + FruitFactory.nbHit
+	      + "     #missed: " + FruitFactory.nbMissed;
+	    if (!msg.equals(oldMsg))
+	    {
+	      status.setText(msg);
+	      oldMsg = msg;
+	    }
+		if (ff.isOutOfFruits() && getActors(Fruit.class).isEmpty())
 			gameOver();
 	}
 
-	public void increasePoints() {
-		points++;
-		setStatusText(points + " Points!");
-	}
-
 	public void gameOver() {
-		TextActor text = new TextActor("You sliced " + points + " out of " + FRUITSNR + " fruits");
-		TextActor perfect = new TextActor("Perfect round!");
-		addActor(text, new Location(10, 10));
-		if (points == FRUITSNR)
-			addActor(perfect, new Location(10, 33));
+		TextActor text = new TextActor("You smashed "
+			      + FruitFactory.nbHit + " out of " + totalNbFruit + " fruits");
+			    addActor(text, new Location(10, 10));
 		doPause();
 	}
 

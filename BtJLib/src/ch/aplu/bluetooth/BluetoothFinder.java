@@ -579,6 +579,8 @@ public class BluetoothFinder implements DiscoveryListener
    */
   public static RemoteDevice searchPreknownDevice(String deviceName)
   {
+    VerboseWriter.out.println("Calling BluetoothFinder.searchPreknownDevice() with device '" +
+            deviceName  + "'...");
     DiscoveryAgent agent = BluetoothFinder.getDiscoveryAgent();
     if (agent == null)
       return null;
@@ -589,27 +591,29 @@ public class BluetoothFinder implements DiscoveryListener
       File[] subfolders = bluetoothFolder.listFiles();
       Scanner scan;
       //Solution for multiple bluetooth devices:
-      for (File sf: subfolders) {
-	      try
-	      {
-	        scan = new Scanner(new File(sf + "/names"));
-	        while (scan.hasNextLine())
-	        {
-	          String[] device = scan.nextLine().split(" ", 2);
-	          if (device[1].equals(deviceName))
-	          {
-	            String address = device[0].replaceAll(":", "");
-	            return getRemoteDevice(address);
-	          }
-	        }
-	      }
-	      catch (FileNotFoundException e)
-	      {
-	    	  VerboseWriter.out.println("Found unexpected file in /var/lib/bluetooth, " +
-	    	  		"continuing with next folder");
-	      }
+      for (File sf : subfolders)
+      {
+        try
+        {
+          scan = new Scanner(new File(sf + "/names"));
+          while (scan.hasNextLine())
+          {
+            String[] device = scan.nextLine().split(" ", 2);
+            if (device[1].equals(deviceName))
+            {
+              String address = device[0].replaceAll(":", "");
+              VerboseWriter.out.println("BluetoothFinder.searchPreknownDevice(): Found paired device address: " + address);
+              return getRemoteDevice(address);
+            }
+          }
+        }
+        catch (FileNotFoundException e)
+        {
+          VerboseWriter.out.println("BluetoothFinder.searchPreknownDevice(): Found unexpected file in /var/lib/bluetooth, "
+            + "continuing with next folder");
+        }
       }
-      VerboseWriter.out.println("Couldn't find device paired with any receiver.");
+      VerboseWriter.out.println("BluetoothFinder.searchPreknownDevice(): Couldn't find device paired with any receiver.");
       return null;
     }
     else
