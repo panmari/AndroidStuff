@@ -2,6 +2,7 @@ package ph.sm.balance;
 
 import android.graphics.Point;
 import ch.aplu.android.Actor;
+import ch.aplu.android.L;
 
 public class Marble extends Actor{
 	
@@ -27,7 +28,8 @@ public class Marble extends Actor{
 		yVelocity += FACTOR*gg.getYSlope();
 		xPos += xVelocity;
 		yPos += yVelocity;
-		setPixelLocation(new Point(Math.round(xPos),Math.round(yPos)));
+		setPixelLocation(new Point(Math.round(xPos), Math.round(yPos)));
+		L.d(isInGrid() + " " + getLocation());
 		if (!isInGrid())
 			gg.gameOver();
 	}

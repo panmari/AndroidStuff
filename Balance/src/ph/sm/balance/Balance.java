@@ -33,7 +33,6 @@ public class Balance extends GameGrid implements SensorEventListener
     addActor(marble, new Location(getNbHorzCells()/2, getNbVertCells()/2));
     setSimulationPeriod(30);
     doRun();
-    addActor(new Actor("marble") { public void act() { getLocation();}}, new Location(0,0));
   }
   
   public void registerSensor()
@@ -61,7 +60,7 @@ public float getYSlope() {
 }
 
 public void gameOver() {
-	//doPause();
+	doPause();
 	showToast("Game over!");
 }
 }
