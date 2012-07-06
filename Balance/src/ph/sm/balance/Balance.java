@@ -5,6 +5,7 @@ package ph.sm.balance;
 import java.util.Arrays;
 
 import ch.aplu.android.*;
+import ch.aplu.android.GGNavigationListener.ScreenOrientation;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -16,19 +17,23 @@ public class Balance extends GameGrid implements SensorEventListener
   private final int sensorType = Sensor.TYPE_ORIENTATION;
   private Marble marble;
   private GGTextField debug;
-	
+  private float[] sensorData;
+  
   public Balance()
   {
     super(10, 10, 0, Color.RED);
+    setScreenOrientation(ScreenOrientation.LANDSCAPE);
   }
 
   public void main()
   {
     setStatusText("Balance started");
     registerSensor();
-    marble = new Marble();
+    marble = new Marble(this);
     addActor(marble, new Location(getNbHorzCells()/2, getNbVertCells()/2));
-    debug = new GGTextField(new Location(2,2), true);
+    setSimulationPeriod(30);
+    doRun();
+    addActor(new Actor("marble") { public void act() { getLocation();}}, new Location(0,0));
   }
   
   public void registerSensor()
@@ -43,10 +48,22 @@ public void onAccuracyChanged(Sensor sensor, int accuracy) {
 }
 
 public void onSensorChanged(SensorEvent event) {
-	if (debug != null)
-		debug.setText(Arrays.toString(event.values));
-	refresh();
-}  
+	L.d(Arrays.toString(event.values));
+	sensorData = event.values;
+}
+
+public float getXSlope() {
+	return -sensorData[2];
+}
+
+public float getYSlope() {
+	return -sensorData[1];
+}
+
+public void gameOver() {
+	//doPause();
+	showToast("Game over!");
+}
 }
 
 
