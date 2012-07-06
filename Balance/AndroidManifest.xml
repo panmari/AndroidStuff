@@ -1,0 +1,27 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="ph.sm.balance"
+      android:versionCode="1"
+      android:versionName="1.0" >
+
+    <uses-sdk 
+            android:minSdkVersion="8"
+            android:targetSdkVersion="15"/>
+
+    <application 
+        android:label="Balance" 
+        android:icon="@drawable/jdroid_gglogo" >
+        <activity 
+            android:name=".Balance"
+            android:configChanges="orientation"
+            android:label="Balance" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="ch.aplu.android.ConsoleActivity"
+           android:configChanges="keyboardHidden|orientation">
+      </activity>
+    </application>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+</manifest> 
