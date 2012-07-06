@@ -6,6 +6,9 @@ import ch.aplu.android.L;
 
 public class Marble extends Actor{
 	
+	/**
+	 * TODO: set FACTOR dependent on device setting/accuracy of sensor?
+	 */
 	private static final float FACTOR = 0.005f;
 	float xVelocity, yVelocity;
 	float xPos, yPos;

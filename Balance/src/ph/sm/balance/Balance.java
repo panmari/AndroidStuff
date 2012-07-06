@@ -16,7 +16,6 @@ public class Balance extends GameGrid implements SensorEventListener
 {
   private final int sensorType = Sensor.TYPE_ORIENTATION;
   private Marble marble;
-  private GGTextField debug;
   private float[] sensorData;
   
   public Balance()
@@ -43,7 +42,7 @@ public class Balance extends GameGrid implements SensorEventListener
   }
 
 public void onAccuracyChanged(Sensor sensor, int accuracy) {
-	
+	//nothing
 }
 
 public void onSensorChanged(SensorEvent event) {
