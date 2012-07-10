@@ -2,9 +2,12 @@
 
 package ph.sm.memory;
 
-import ch.aplu.android.*;
-import ch.aplu.util.Monitor;
-import android.graphics.Color;
+import ch.aplu.android.Actor;
+import ch.aplu.android.GGTouch;
+import ch.aplu.android.GGTouchListener;
+import ch.aplu.android.GameGrid;
+import ch.aplu.android.L;
+import ch.aplu.android.Location;
 
 public class Memory extends GameGrid implements GGTouchListener {
 	private boolean firstCard = true;
@@ -36,11 +39,13 @@ public class Memory extends GameGrid implements GGTouchListener {
 		refresh();
 	}
 
-	public void flipCardsBack() {	
+	public void flipCardsBack() {
+		setTouchEnabled(false); // Disable mouse events
 		delay(1000);
 		card1.show(1); // Flip cards back
 		card2.show(1);
 		refresh();
+		setTouchEnabled(true);
 	}
 
 	public boolean touchEvent(GGTouch mouse) {
@@ -53,15 +58,13 @@ public class Memory extends GameGrid implements GGTouchListener {
 		if (firstCard) {
 			firstCard = false;
 			card1 = card;
-		} else {
-			setTouchEnabled(false); // Disable mouse events
+		} else {	
 			firstCard = true;
 			card2 = card;
 			if (card1.getId() != card2.getId())
 			{	
 				flipCardsBack();
 			}
-			setTouchEnabled(true);
 		}
 		return true;
 	}
