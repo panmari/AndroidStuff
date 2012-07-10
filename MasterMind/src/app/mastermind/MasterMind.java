@@ -20,7 +20,7 @@ public class MasterMind extends GameGrid implements GGTouchListener
   
   public MasterMind()
   {
-    super(5, 8, 0, Color.TRANSPARENT, false);
+    super(5, 8, cellZoom(60), Color.TRANSPARENT, "mastermind", false);
   }
 
   public void main()
@@ -75,8 +75,6 @@ public class MasterMind extends GameGrid implements GGTouchListener
 
   public void reset()
   {
-    double resizeFactor = this.getCellSize()/58.0;
-    setAutoZoom(resizeFactor);
     removeAllActors();
     currentRow = this.getNbVertCells() - 1; 
     roundFinished = false;
@@ -159,14 +157,6 @@ public class MasterMind extends GameGrid implements GGTouchListener
       addActor(peg, new Location(x, 0));
       x++;
     }
-  }
-
-  private String printArray(int[] a)
-  {
-    String result = "";
-    for (int b : a)
-      result += b + ", ";
-    return result;
   }
 }
 

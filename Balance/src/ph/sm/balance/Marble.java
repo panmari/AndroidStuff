@@ -33,7 +33,6 @@ public class Marble extends Actor{
 		xPos += xVelocity;
 		yPos += yVelocity;
 		setPixelLocation(new Point(Math.round(xPos), Math.round(yPos)));
-		L.d(isInGrid() + " " + getLocation());
 		if (!isInGrid())
 			gg.gameOver();
 	}

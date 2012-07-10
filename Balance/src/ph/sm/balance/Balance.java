@@ -62,6 +62,7 @@ public float getYSlope() {
 public void gameOver() {
 	doPause();
 	showToast("Game over!");
+	setStatusText("Game over!");
 }
 }
 
