@@ -3,6 +3,7 @@ package ph.sm.balance;
 import android.graphics.Point;
 import ch.aplu.android.Actor;
 import ch.aplu.android.L;
+import ch.aplu.android.Location;
 
 public class Marble extends Actor{
 	
