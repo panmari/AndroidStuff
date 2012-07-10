@@ -20,12 +20,13 @@ public class Balance extends GameGrid implements SensorEventListener
   
   public Balance()
   {
-    super(10, 10, 0, Color.RED);
+    super(10, 10, 0);
     setScreenOrientation(ScreenOrientation.LANDSCAPE);
   }
 
   public void main()
   {
+	getBg().clear(Color.WHITE);
     setStatusText("Balance started");
     registerSensor();
     marble = new Marble(this);

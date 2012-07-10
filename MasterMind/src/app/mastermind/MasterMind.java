@@ -20,7 +20,7 @@ public class MasterMind extends GameGrid implements GGTouchListener
   
   public MasterMind()
   {
-    super(5, 8, 0, Color.TRANSPARENT, "mastermind", false);
+    super(5, 8, 0, Color.TRANSPARENT, false);
   }
 
   public void main()
@@ -58,6 +58,7 @@ public class MasterMind extends GameGrid implements GGTouchListener
         this.addActor(new Peg(), loc);
         placedPegs++;
         if (placedPegs == 4)
+		
         { // show evaluate button
           addActor(new EvaluateButton(), new Location(0, currentRow));
         }
