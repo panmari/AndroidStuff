@@ -7,7 +7,7 @@ import ch.aplu.util.Monitor;
 import android.graphics.Color;
 
 public class Memory extends GameGrid implements GGTouchListener {
-	private boolean isReady = true;
+	private boolean firstCard = true;
 	private MemoryCard card1;
 	private MemoryCard card2;
 	private MemoryCard[] cards = new MemoryCard[16];
@@ -18,23 +18,13 @@ public class Memory extends GameGrid implements GGTouchListener {
 
 	public void main() {
 
-		for (int i = 0; i < 16; i++) {
-			if (i < 8)
-				cards[i] = new MemoryCard(i);
-			else
-				cards[i] = new MemoryCard(i - 8);
+		for (int i = 0; i < 8; i++) {
+			//add it twice
+			cards[i] = new MemoryCard(i);
+			cards[15-i] = new MemoryCard(i);
 		}
 		addTouchListener(this, GGTouch.click);
-
-		while (true) {
-			Monitor.putSleep(); // Wait until there is something to do
-			delay(1000);
-			card1.show(1); // Flip cards back
-			card2.show(1);
-			isReady = true;
-			setTouchEnabled(true); // Rearm mouse events
-			refresh();
-		}
+		reset();
 	}
 
 	public void reset() {
@@ -42,37 +32,41 @@ public class Memory extends GameGrid implements GGTouchListener {
 			cards[i].show(1);
 			addActorNoRefresh(cards[i], getRandomEmptyLocation());
 		}
+		L.d("reseting");
+		refresh();
+	}
+
+	public void flipCardsBack() {	
+		delay(1000);
+		card1.show(1); // Flip cards back
+		card2.show(1);
 		refresh();
 	}
 
 	public boolean touchEvent(GGTouch mouse) {
 		Location location = toLocation(mouse.getX(), mouse.getY());
 		MemoryCard card = (MemoryCard) getOneActorAt(location);
-		if (card == null || card.getIdVisible() == 0) // Card already
-														// flipped->no action
+		if (card == null || card.getIdVisible() == 0) //Outside of grid or card already flipped->no action
 			return true;
-
 		card.show(0); // Show picture
 		refresh();
-		if (isReady) {
-			isReady = false;
+		if (firstCard) {
+			firstCard = false;
 			card1 = card;
 		} else {
+			setTouchEnabled(false); // Disable mouse events
+			firstCard = true;
 			card2 = card;
-			if (card1.getId() == card2.getId()) // Pair found, let them visible
-				isReady = true;
-			else {
-				setTouchEnabled(false); // Disable mouse events until
-										// application thread flipped back cards
-				Monitor.wakeUp();
+			if (card1.getId() != card2.getId())
+			{	
+				flipCardsBack();
 			}
+			setTouchEnabled(true);
 		}
 		return true;
 	}
 }
 
-// --------------------- class MemoryCard
-// -------------------------------------------
 class MemoryCard extends Actor {
 	private int id;
 
