@@ -1,8 +1,6 @@
 package ph.sm.balance;
 
-import android.graphics.Point;
 import ch.aplu.android.Actor;
-import ch.aplu.android.L;
 import ch.aplu.android.Location;
 
 public class Marble extends Actor{
@@ -13,6 +11,7 @@ public class Marble extends Actor{
 	private static final float FACTOR = 0.005f;
 	float xVelocity, yVelocity;
 	float xPos, yPos;
+	float radius;
 	private Balance gg;
 	
 	public Marble(Balance gg) {
@@ -21,10 +20,12 @@ public class Marble extends Actor{
 	}
 	
 	public void reset() {
-		xPos = getPixelLocation().x;
-		yPos = getPixelLocation().y;
+		setLocation(getLocationStart());
+		xPos = getLocation().x;
+		yPos = getLocation().y;
 		xVelocity = 0;
 		yVelocity = 0;
+		radius = getImage().getWidth()/2.0f - 1;
 	}
 	
 	public void act() {
@@ -32,8 +33,11 @@ public class Marble extends Actor{
 		yVelocity += FACTOR*gg.getYSlope();
 		xPos += xVelocity;
 		yPos += yVelocity;
-		setPixelLocation(new Point(Math.round(xPos), Math.round(yPos)));
-		if (!isInGrid())
+		setLocation(new Location(Math.round(xPos), Math.round(yPos)));
+		if (	xPos < radius || 
+				xPos > getNbHorzCells() - radius ||
+				yPos < radius ||
+				yPos > getNbVertCells() - radius) 
 			gg.gameOver();
 	}
 }
