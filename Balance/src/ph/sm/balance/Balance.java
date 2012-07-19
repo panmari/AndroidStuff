@@ -45,17 +45,15 @@ public class Balance extends GameGrid implements SensorEventListener {
 
 	public void onSensorChanged(SensorEvent event) {
 		L.d(Arrays.toString(event.values));
-		L.d(event.sensor.toString());
-		L.d("" + event.sensor.getMaximumRange());
 		sensorData = event.values;
 	}
 
 	public float getXSlope() {
-		return -sensorData[2];
+		return sensorData[1];
 	}
 
 	public float getYSlope() {
-		return -sensorData[1];
+		return sensorData[2];
 	}
 
 	public void gameOver() {
