@@ -12,36 +12,40 @@ import ch.aplu.android.Location;
 import ch.aplu.util.Monitor;
 
 public class Memory extends GameGrid implements GGTouchListener {
-	private boolean firstCard = true;
+	private boolean firstTime = true, firstCard = true;
 	private MemoryCard card1;
 	private MemoryCard card2;
 	private MemoryCard[] cards = new MemoryCard[16];
 
 	public Memory() {
 		super(4, 4, cellZoom(115));
-		setScreenOrientation(ScreenOrientation.PORTRAIT);
+		setCleanup(false);
 	}
 
 	public void main() {
-		
-		for (int i = 0; i < 8; i++) {
-			//add it twice
-			cards[i] = new MemoryCard(i);
-			cards[15-i] = new MemoryCard(i);
+		if (firstTime) {
+			for (int i = 0; i < 8; i++) {
+				//add it twice
+				cards[i] = new MemoryCard(i);
+				cards[15-i] = new MemoryCard(i);
+			}
+			addTouchListener(this, GGTouch.click);
+			firstTime = false;
+			reset();
+			while (true) {
+				Monitor.putSleep(); // Wait until there is something to do
+				delay(1000);
+				card1.show(1); // Flip cards back
+				card2.show(1);
+				setTouchEnabled(true); // Rearm mouse events
+				refresh();
+			}
 		}
-		addTouchListener(this, GGTouch.click);
-		reset();
-		while (true) {
-			Monitor.putSleep(); // Wait until there is something to do
-			delay(1000);
-			card1.show(1); // Flip cards back
-			card2.show(1);
-			setTouchEnabled(true); // Rearm mouse events
-			refresh();
-		}
+		Monitor.wakeUp();
 	}
 
 	public void reset() {
+		removeAllActors();
 		for (int i = 0; i < 16; i++) {
 			cards[i].show(1);
 			addActorNoRefresh(cards[i], getRandomEmptyLocation());
