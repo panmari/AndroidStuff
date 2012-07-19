@@ -3,11 +3,13 @@
 package ph.sm.memory;
 
 import ch.aplu.android.Actor;
+import ch.aplu.android.GGNavigationListener.ScreenOrientation;
 import ch.aplu.android.GGTouch;
 import ch.aplu.android.GGTouchListener;
 import ch.aplu.android.GameGrid;
 import ch.aplu.android.L;
 import ch.aplu.android.Location;
+import ch.aplu.util.Monitor;
 
 public class Memory extends GameGrid implements GGTouchListener {
 	private boolean firstCard = true;
@@ -17,10 +19,11 @@ public class Memory extends GameGrid implements GGTouchListener {
 
 	public Memory() {
 		super(4, 4, cellZoom(115));
+		setScreenOrientation(ScreenOrientation.PORTRAIT);
 	}
 
 	public void main() {
-
+		
 		for (int i = 0; i < 8; i++) {
 			//add it twice
 			cards[i] = new MemoryCard(i);
@@ -28,6 +31,14 @@ public class Memory extends GameGrid implements GGTouchListener {
 		}
 		addTouchListener(this, GGTouch.click);
 		reset();
+		while (true) {
+			Monitor.putSleep(); // Wait until there is something to do
+			delay(1000);
+			card1.show(1); // Flip cards back
+			card2.show(1);
+			setTouchEnabled(true); // Rearm mouse events
+			refresh();
+		}
 	}
 
 	public void reset() {
@@ -37,15 +48,12 @@ public class Memory extends GameGrid implements GGTouchListener {
 		}
 		L.d("reseting");
 		refresh();
+		Monitor.wakeUp();
 	}
 
 	public void flipCardsBack() {
 		setTouchEnabled(false); // Disable mouse events
-		delay(1000);
-		card1.show(1); // Flip cards back
-		card2.show(1);
-		refresh();
-		setTouchEnabled(true);
+		Monitor.wakeUp();
 	}
 
 	public boolean touchEvent(GGTouch mouse) {
