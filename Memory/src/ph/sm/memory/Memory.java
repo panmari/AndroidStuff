@@ -19,45 +19,29 @@ public class Memory extends GameGrid implements GGTouchListener {
 
 	public Memory() {
 		super(4, 4, cellZoom(115));
-		setCleanup(false);
 	}
-
+	  
 	public void main() {
 		if (firstTime) {
-			for (int i = 0; i < 8; i++) {
-				//add it twice
-				cards[i] = new MemoryCard(i);
-				cards[15-i] = new MemoryCard(i);
-			}
 			addTouchListener(this, GGTouch.click);
+			new FlipBackThread().start();
 			firstTime = false;
-			reset();
-			while (true) {
-				Monitor.putSleep(); // Wait until there is something to do
-				delay(1000);
-				card1.show(1); // Flip cards back
-				card2.show(1);
-				setTouchEnabled(true); // Rearm mouse events
-				refresh();
-			}
 		}
-		Monitor.wakeUp();
+		reset();
 	}
 
 	public void reset() {
-		removeAllActors();
+		for (int i = 0; i < 8; i++) {
+			//add it twice
+			cards[i] = new MemoryCard(i);
+			cards[15-i] = new MemoryCard(i);
+		}
 		for (int i = 0; i < 16; i++) {
 			cards[i].show(1);
 			addActorNoRefresh(cards[i], getRandomEmptyLocation());
 		}
 		L.d("reseting");
 		refresh();
-		Monitor.wakeUp();
-	}
-
-	public void flipCardsBack() {
-		setTouchEnabled(false); // Disable mouse events
-		Monitor.wakeUp();
 	}
 
 	public boolean touchEvent(GGTouch mouse) {
@@ -75,11 +59,28 @@ public class Memory extends GameGrid implements GGTouchListener {
 			card2 = card;
 			if (card1.getId() != card2.getId())
 			{	
-				flipCardsBack();
+				setTouchEnabled(false);
+				Monitor.wakeUp();
 			}
 		}
 		return true;
 	}
+	
+	  private class FlipBackThread extends Thread
+	  {
+	    public void run()
+	    {
+	      while (true)
+	      {
+	        Monitor.putSleep(); // Wait until there is something to do
+	        delay(1000);
+	        card1.show(1); // Flip cards back
+	        card2.show(1);
+	        setTouchEnabled(true); // Rearm mouse events
+	        refresh();
+	      }
+	    }
+	  }
 }
 
 class MemoryCard extends Actor {
