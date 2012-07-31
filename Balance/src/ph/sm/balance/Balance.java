@@ -2,20 +2,19 @@
 
 package ph.sm.balance;
 
-import java.util.Arrays;
-
-import ch.aplu.android.*;
-import ch.aplu.android.GGNavigationListener.ScreenOrientation;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import ch.aplu.android.GGNavigationListener.ScreenOrientation;
+import ch.aplu.android.GameGrid;
+import ch.aplu.android.Location;
 
 public class Balance extends GameGrid implements SensorEventListener {
 	private final int sensorType = Sensor.TYPE_ORIENTATION;
 	private Marble marble;
-	private float[] sensorData;
+	private float[] sensorData = new float[3];
 
 	public Balance() {
 		super(true, windowZoom(600));
@@ -44,18 +43,22 @@ public class Balance extends GameGrid implements SensorEventListener {
 	}
 
 	public void onSensorChanged(SensorEvent event) {
-		L.d(Arrays.toString(event.values));
-		L.d(event.sensor.toString());
-		L.d("" + event.sensor.getMaximumRange());
-		sensorData = event.values;
+		for(int i = 0; i < event.values.length; i++)
+			sensorData[i] = event.values[i];
 	}
 
+	/**
+	 * Has to be adapted to specific phone type/android version
+	 */
 	public float getXSlope() {
-		return -sensorData[2];
+		return -sensorData[1];
 	}
 
+	/**
+	 * Has to be adapted to specific phone type/android version
+	 */
 	public float getYSlope() {
-		return -sensorData[1];
+		return sensorData[2];
 	}
 
 	public void gameOver() {
