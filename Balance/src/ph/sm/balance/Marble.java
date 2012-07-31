@@ -1,5 +1,6 @@
 package ph.sm.balance;
 
+import android.util.FloatMath;
 import ch.aplu.android.Actor;
 import ch.aplu.android.Location;
 
@@ -8,7 +9,7 @@ public class Marble extends Actor{
 	/**
 	 * TODO: set FACTOR dependent on device setting/accuracy of sensor?
 	 */
-	private static final float FACTOR = 0.005f;
+	private static final float FACTOR = 0.1f;
 	float xVelocity, yVelocity;
 	float xPos, yPos;
 	float radius;
@@ -29,8 +30,8 @@ public class Marble extends Actor{
 	}
 	
 	public void act() {
-		xVelocity += FACTOR*gg.getXSlope();
-		yVelocity += FACTOR*gg.getYSlope();
+		xVelocity += FACTOR*FloatMath.cos(gg.getXSlope())*Math.signum(gg.getXSlope());
+		yVelocity += FACTOR*FloatMath.cos(gg.getYSlope())*Math.signum(gg.getYSlope());
 		xPos += xVelocity;
 		yPos += yVelocity;
 		setLocation(new Location(Math.round(xPos), Math.round(yPos)));
