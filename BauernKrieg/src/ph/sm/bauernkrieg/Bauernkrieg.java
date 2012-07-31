@@ -29,7 +29,12 @@ public class Bauernkrieg extends CardGame {
 	private Deck deck;
 	private final int nbPlayers = 2;
 	private final int nbCards = 18;
-	private Location[] stockLocations = new Location[2];
+	private final Location[] handLocations = { new Location(210, 440),
+			new Location(390, 440), };
+	private final Location[] bidLocations = { new Location(210, 200),
+			new Location(390, 200), };
+	private final Location[] stockLocations = { new Location(90, 400),
+			new Location(510, 400), };
 	private Hand[] hands;
 	private Hand[] bids = new Hand[nbPlayers];
 	private Hand[] stocks = new Hand[nbPlayers];
@@ -38,11 +43,12 @@ public class Bauernkrieg extends CardGame {
 	private int targetCount = 0;
 
 	public Bauernkrieg() {
-		super(Color.GREEN, Color.TRANSPARENT, BoardType.HORZ_SQUARE,
+		super(Color.GREEN, Color.TRANSPARENT, BoardType.VERT_FULL,
 				windowZoom(600));
 	}
 
 	public void main() {
+		deck = new Deck(Suit.values(), Rank.values(), "cover");
 		initHands();
 		showToast("Tap to play card" + ". Starting player: "
 				+ currentPlayer);
@@ -52,21 +58,23 @@ public class Bauernkrieg extends CardGame {
 		TextActor player1 = new TextActor("player 1 ", Color.WHITE,
 				Color.TRANSPARENT, 16);
 		addActor(player1, new Location(360, 530));
-		deck = new Deck(Suit.values(), Rank.values(), "cover");
-		initLocations();
 		initBids();
 		initStocks();
 		hands[0].setTouchEnabled(true);
-	}
-
-	private void initLocations() {
-		// TODO Auto-generated method stub
-		
+		while (true) {
+			Monitor.putSleep();
+			delay(1000);
+			Hand eval = new Hand(deck);
+			for (int i = 0; i < nbPlayers; i++)
+				eval.insert(bids[i].getLast(), false);
+			int nbWinner = eval.getMaxPosition(Hand.SortType.RANKPRIORITY);
+			transferToStock(nbWinner);
+			currentPlayer = nbWinner;
+			hands[nbWinner].setTouchEnabled(true);
+		}
 	}
 
 	private void initHands() {
-		Location[] handLocations = { new Location(210, 440),
-				new Location(390, 440), };
 		hands = deck.dealingOut(nbPlayers, nbCards);
 		for (int i = 0; i < nbPlayers; i++) {
 			hands[i].setView(this, new StackLayout(handLocations[i]));
@@ -76,26 +84,24 @@ public class Bauernkrieg extends CardGame {
 	}
 
 	private void initBids() {
-		Location[] bidLocations = { new Location(210, 200),
-				new Location(390, 200), };
 		for (int i = 0; i < nbPlayers; i++) {
 			bids[i] = new Hand(deck);
 			bids[i].setView(this, new RowLayout(bidLocations[i], 130));
 			bids[i].addCardListener(new CardAdapter() {
 				public void atTarget(Card card, Location loc) {
 					targetCount++;
-					if (targetCount == nbPlayers)
-						Monitor.wakeUp(); // All cards in stock->continue
+					//if (targetCount == nbPlayers)
+						//Monitor.wakeUp(); // All cards in stock->continue
 				}
 			});
 
 			hands[i].setTargetArea(new TargetArea(bidLocations[i]));
 			final int k = i;
 			hands[i].addCardListener(new CardAdapter() {
-				public void doubleClicked(Card card) {
+				public void clicked(Card card) {
+					setTouchEnabled(false);
 					card.setVerso(false);
-					card.transfer(bids[k], true);
-					hands[currentPlayer].setTouchEnabled(false);
+					card.transferNonBlocking(bids[k]);
 					currentPlayer = (currentPlayer + 1) % nbPlayers;
 					if (nbMovesInRound % 2 == 1) // only works for two players
 					{
@@ -113,7 +119,7 @@ public class Bauernkrieg extends CardGame {
 						} else {
 							setStatusText("Evaluating round...");
 							nbMovesInRound = 0;
-							currentPlayer = transferToWinner();
+							transferToWinner();
 						}
 					} else
 						nbMovesInRound++;
@@ -155,22 +161,14 @@ public class Bauernkrieg extends CardGame {
 	}
 
 	private void initStocks() {
-		stockLocations[0] = new Location(90, 400);
-		stockLocations[1] = new Location(510, 400);
 		for (int i = 0; i < nbPlayers; i++) {
 			stocks[i] = new Hand(deck);
 			stocks[i].setView(this, new StackLayout(stockLocations[i]));
 		}
 	}
 
-	private int transferToWinner() {
-		delay(1000);
-		Hand eval = new Hand(deck);
-		for (int i = 0; i < nbPlayers; i++)
-			eval.insert(bids[i].getLast(), false);
-		int nbWinner = eval.getMaxPosition(Hand.SortType.RANKPRIORITY);
-		transferToStock(nbWinner);
-		return nbWinner;
+	private void transferToWinner() {
+		Monitor.wakeUp();
 	}
 
 	private void transferToStock(int player) {
@@ -185,7 +183,7 @@ public class Bauernkrieg extends CardGame {
 				bids[i].transferNonBlocking(c, stocks[player]);
 			}
 		}
-		Monitor.putSleep(); // Wait until all cards are transferred to stock
+		//Monitor.putSleep(); // Wait until all cards are transferred to stock
 		stocks[player].draw();
 	}
 }
