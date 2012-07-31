@@ -1,0 +1,191 @@
+// Bauernkrieg.java
+
+package ph.sm.bauernkrieg;
+
+import android.graphics.Color;
+import android.graphics.Point;
+import ch.aplu.android.Location;
+import ch.aplu.android.TextActor;
+import ch.aplu.jcardgame.Card;
+import ch.aplu.jcardgame.CardAdapter;
+import ch.aplu.jcardgame.CardGame;
+import ch.aplu.jcardgame.Deck;
+import ch.aplu.jcardgame.Hand;
+import ch.aplu.jcardgame.RowLayout;
+import ch.aplu.jcardgame.StackLayout;
+import ch.aplu.jcardgame.TargetArea;
+import ch.aplu.util.Monitor;
+
+public class Bauernkrieg extends CardGame {
+
+	public enum Suit {
+		KREUZ, HERZ, KARO, PIK
+	}
+
+	public enum Rank {
+		ASS, KOENIG, DAME, BAUER, ZEHN, NEUN, ACHT, SIEBEN, SECHS
+	}
+
+	private Deck deck;
+	private final int nbPlayers = 2;
+	private final int nbCards = 18;
+	private Location[] stockLocations = new Location[2];
+	private Hand[] hands;
+	private Hand[] bids = new Hand[nbPlayers];
+	private Hand[] stocks = new Hand[nbPlayers];
+	private int currentPlayer = 0;
+	private int nbMovesInRound = 0;
+	private int targetCount = 0;
+
+	public Bauernkrieg() {
+		super(Color.GREEN, Color.TRANSPARENT, BoardType.HORZ_SQUARE,
+				windowZoom(600));
+	}
+
+	public void main() {
+		initHands();
+		showToast("Tap to play card" + ". Starting player: "
+				+ currentPlayer);
+		TextActor player0 = new TextActor("player 0 ", Color.WHITE,
+				Color.TRANSPARENT, 16);
+		addActor(player0, new Location(182, 530));
+		TextActor player1 = new TextActor("player 1 ", Color.WHITE,
+				Color.TRANSPARENT, 16);
+		addActor(player1, new Location(360, 530));
+		deck = new Deck(Suit.values(), Rank.values(), "cover");
+		initLocations();
+		initBids();
+		initStocks();
+		hands[0].setTouchEnabled(true);
+	}
+
+	private void initLocations() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void initHands() {
+		Location[] handLocations = { new Location(210, 440),
+				new Location(390, 440), };
+		hands = deck.dealingOut(nbPlayers, nbCards);
+		for (int i = 0; i < nbPlayers; i++) {
+			hands[i].setView(this, new StackLayout(handLocations[i]));
+			hands[i].setVerso(true);
+			hands[i].draw();
+		}
+	}
+
+	private void initBids() {
+		Location[] bidLocations = { new Location(210, 200),
+				new Location(390, 200), };
+		for (int i = 0; i < nbPlayers; i++) {
+			bids[i] = new Hand(deck);
+			bids[i].setView(this, new RowLayout(bidLocations[i], 130));
+			bids[i].addCardListener(new CardAdapter() {
+				public void atTarget(Card card, Location loc) {
+					targetCount++;
+					if (targetCount == nbPlayers)
+						Monitor.wakeUp(); // All cards in stock->continue
+				}
+			});
+
+			hands[i].setTargetArea(new TargetArea(bidLocations[i]));
+			final int k = i;
+			hands[i].addCardListener(new CardAdapter() {
+				public void doubleClicked(Card card) {
+					card.setVerso(false);
+					card.transfer(bids[k], true);
+					hands[currentPlayer].setTouchEnabled(false);
+					currentPlayer = (currentPlayer + 1) % nbPlayers;
+					if (nbMovesInRound % 2 == 1) // only works for two players
+					{
+						if (isSameRank()) {
+							if (hands[currentPlayer].isEmpty()) {
+								gameOver();
+								return;
+							}
+
+							for (int i = 0; i < nbPlayers; i++) {
+								Card c = hands[i].getLast();
+								c.transfer(bids[i], true);
+							}
+							nbMovesInRound++;
+						} else {
+							setStatusText("Evaluating round...");
+							nbMovesInRound = 0;
+							currentPlayer = transferToWinner();
+						}
+					} else
+						nbMovesInRound++;
+
+					if (!hands[currentPlayer].isEmpty()) {
+						setStatusText("Current player: " + currentPlayer);
+						hands[currentPlayer].setTouchEnabled(true);
+					} else
+						gameOver();
+				}
+
+				private boolean isSameRank() {
+					if (bids[0].getLast() == null || bids[1].getLast() == null)
+						return false;
+					return bids[0].getLast().getRank() == bids[1].getLast()
+							.getRank();
+				}
+			});
+		}
+	}
+
+	private void gameOver() {
+		int nbCard0 = stocks[0].getNumberOfCards();
+		int nbCard1 = stocks[1].getNumberOfCards();
+		TextActor winnerLabel = new TextActor("Winner!", Color.YELLOW,
+				Color.TRANSPARENT, 16);
+		winnerLabel.setLocationOffset(new Point(-30, 90));
+		if (nbCard0 > nbCard1) {
+			setStatusText("Game over. Winner: player 0 (" + nbCard0
+					+ " cards), player 1 (" + nbCard1 + " cards)");
+			addActor(winnerLabel, stockLocations[0]);
+		} else if (nbCard0 < nbCard1) {
+			setStatusText("Game over. Winner: player 1 (" + nbCard1
+					+ " cards), player 0 (" + nbCard0 + " cards)");
+			addActor(winnerLabel, stockLocations[1]);
+		} else
+			setStatusText("Game over. Tie: player 1 (" + nbCard1
+					+ " cards), player 0 (" + nbCard0 + " cards)");
+	}
+
+	private void initStocks() {
+		stockLocations[0] = new Location(90, 400);
+		stockLocations[1] = new Location(510, 400);
+		for (int i = 0; i < nbPlayers; i++) {
+			stocks[i] = new Hand(deck);
+			stocks[i].setView(this, new StackLayout(stockLocations[i]));
+		}
+	}
+
+	private int transferToWinner() {
+		delay(1000);
+		Hand eval = new Hand(deck);
+		for (int i = 0; i < nbPlayers; i++)
+			eval.insert(bids[i].getLast(), false);
+		int nbWinner = eval.getMaxPosition(Hand.SortType.RANKPRIORITY);
+		transferToStock(nbWinner);
+		return nbWinner;
+	}
+
+	private void transferToStock(int player) {
+		targetCount = 0;
+		for (int i = 0; i < nbPlayers; i++) {
+			bids[i].setTargetArea(new TargetArea(stockLocations[player]));
+			while (true) { // moves now multiple cards!
+				Card c = bids[i].getLast();
+				if (c == null)
+					break;
+				c.setVerso(true);
+				bids[i].transferNonBlocking(c, stocks[player]);
+			}
+		}
+		Monitor.putSleep(); // Wait until all cards are transferred to stock
+		stocks[player].draw();
+	}
+}
