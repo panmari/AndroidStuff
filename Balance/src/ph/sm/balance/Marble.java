@@ -9,7 +9,7 @@ public class Marble extends Actor{
 	/**
 	 * TODO: set FACTOR dependent on device setting/accuracy of sensor?
 	 */
-	private static final float FACTOR = 0.1f;
+	private static final float FACTOR = 1f;
 	float xVelocity, yVelocity;
 	float xPos, yPos;
 	float radius;
@@ -30,8 +30,8 @@ public class Marble extends Actor{
 	}
 	
 	public void act() {
-		xVelocity += FACTOR*FloatMath.cos(gg.getXSlope())*Math.signum(gg.getXSlope());
-		yVelocity += FACTOR*FloatMath.cos(gg.getYSlope())*Math.signum(gg.getYSlope());
+		xVelocity += FACTOR*FloatMath.sin(gg.getXSlope());
+		yVelocity += FACTOR*FloatMath.sin(gg.getYSlope());
 		xPos += xVelocity;
 		yPos += yVelocity;
 		setLocation(new Location(Math.round(xPos), Math.round(yPos)));
