@@ -2,14 +2,11 @@
 
 package ph.sm.balance;
 
-import java.util.Arrays;
-
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.view.Display;
 import ch.aplu.android.GGNavigationListener.ScreenOrientation;
 import ch.aplu.android.GameGrid;
 import ch.aplu.android.L;
@@ -72,8 +69,14 @@ public class Balance extends GameGrid implements SensorEventListener {
         }
         if (mLastAccelerometerSet && mLastMagnetometerSet) {
             SensorManager.getRotationMatrix(tempR, null, mLastAccelerometer, mLastMagnetometer);
-            SensorManager.remapCoordinateSystem(tempR, 
+            //the following remaping is making problems:
+            //for tablets:
+            /*SensorManager.remapCoordinateSystem(tempR, 
             		SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, mR);
+            		*/
+            //for cellphones:
+            SensorManager.remapCoordinateSystem(tempR, 
+            		SensorManager.AXIS_MINUS_X, SensorManager.AXIS_MINUS_Y, mR);
             SensorManager.getOrientation(mR, mOrientation);
             }
     }
