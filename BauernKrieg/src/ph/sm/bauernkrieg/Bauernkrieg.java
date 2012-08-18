@@ -39,8 +39,6 @@ public class Bauernkrieg extends CardGame {
 	private Hand[] bids = new Hand[nbPlayers];
 	private Hand[] stocks = new Hand[nbPlayers];
 	private int currentPlayer = 0;
-	private int nbMovesInRound = 0;
-	private int targetCount = 0;
 
 	public Bauernkrieg() {
 		super(Color.GREEN, Color.TRANSPARENT, BoardType.VERT_FULL,
@@ -49,6 +47,8 @@ public class Bauernkrieg extends CardGame {
 
 	public void main() {
 		deck = new Deck(Suit.values(), Rank.values(), "cover");
+		initBids();
+		initStocks();
 		initHands();
 		showToast("Tap to play card" + ". Starting player: "
 				+ currentPlayer);
@@ -58,8 +58,6 @@ public class Bauernkrieg extends CardGame {
 		TextActor player1 = new TextActor("player 1 ", Color.WHITE,
 				Color.TRANSPARENT, 16);
 		addActor(player1, new Location(360, 530));
-		initBids();
-		initStocks();
 		hands[0].setTouchEnabled(true);
 		while (true) {
 			Monitor.putSleep();
@@ -79,56 +77,43 @@ public class Bauernkrieg extends CardGame {
 		for (int i = 0; i < nbPlayers; i++) {
 			hands[i].setView(this, new StackLayout(handLocations[i]));
 			hands[i].setVerso(true);
-			hands[i].draw();
-		}
-	}
-
-	private void initBids() {
-		for (int i = 0; i < nbPlayers; i++) {
-			bids[i] = new Hand(deck);
-			bids[i].setView(this, new RowLayout(bidLocations[i], 130));
-			bids[i].addCardListener(new CardAdapter() {
-				public void atTarget(Card card, Location loc) {
-					targetCount++;
-					//if (targetCount == nbPlayers)
-						//Monitor.wakeUp(); // All cards in stock->continue
-				}
-			});
-
-			hands[i].setTargetArea(new TargetArea(bidLocations[i]));
 			final int k = i;
 			hands[i].addCardListener(new CardAdapter() {
-				public void clicked(Card card) {
-					setTouchEnabled(false);
+				public void pressed(Card card) {
+					hands[currentPlayer].setTouchEnabled(false);
 					card.setVerso(false);
-					card.transferNonBlocking(bids[k]);
+					card.transferNonBlocking(bids[k], true);
 					currentPlayer = (currentPlayer + 1) % nbPlayers;
-					if (nbMovesInRound % 2 == 1) // only works for two players
+					if (allPlayersLaidCard())
 					{
 						if (isSameRank()) {
 							if (hands[currentPlayer].isEmpty()) {
 								gameOver();
 								return;
 							}
-
 							for (int i = 0; i < nbPlayers; i++) {
 								Card c = hands[i].getLast();
 								c.transfer(bids[i], true);
 							}
-							nbMovesInRound++;
 						} else {
-							setStatusText("Evaluating round...");
-							nbMovesInRound = 0;
+							showToast("Evaluating round...");
 							transferToWinner();
 						}
-					} else
-						nbMovesInRound++;
+					} 
 
 					if (!hands[currentPlayer].isEmpty()) {
 						setStatusText("Current player: " + currentPlayer);
 						hands[currentPlayer].setTouchEnabled(true);
 					} else
 						gameOver();
+				}
+
+				private boolean allPlayersLaidCard() {
+					int nbCards = bids[0].getNumberOfCards();
+					for (Hand h: bids)
+						if (nbCards != h.getNumberOfCards())
+							return false;
+					return true;
 				}
 
 				private boolean isSameRank() {
@@ -138,6 +123,15 @@ public class Bauernkrieg extends CardGame {
 							.getRank();
 				}
 			});
+			hands[i].draw();
+		}
+	}
+
+	private void initBids() {
+		for (int i = 0; i < nbPlayers; i++) {
+			bids[i] = new Hand(deck);
+			bids[i].setView(this, new RowLayout(bidLocations[i], 130));
+			bids[i].draw();
 		}
 	}
 
@@ -172,18 +166,12 @@ public class Bauernkrieg extends CardGame {
 	}
 
 	private void transferToStock(int player) {
-		targetCount = 0;
 		for (int i = 0; i < nbPlayers; i++) {
 			bids[i].setTargetArea(new TargetArea(stockLocations[player]));
-			while (true) { // moves now multiple cards!
-				Card c = bids[i].getLast();
-				if (c == null)
-					break;
+			for (Card c: bids[i].getCardList()) {
 				c.setVerso(true);
-				bids[i].transferNonBlocking(c, stocks[player]);
+				bids[i].transferNonBlocking(c, stocks[player], true);
 			}
 		}
-		//Monitor.putSleep(); // Wait until all cards are transferred to stock
-		stocks[player].draw();
 	}
 }
