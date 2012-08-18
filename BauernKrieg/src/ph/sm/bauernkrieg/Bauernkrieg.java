@@ -52,24 +52,23 @@ public class Bauernkrieg extends CardGame {
 		initHands();
 		showToast("Tap to play card" + ". Starting player: "
 				+ currentPlayer);
-		TextActor player0 = new TextActor("player 0 ", Color.WHITE,
-				Color.TRANSPARENT, 16);
-		addActor(player0, new Location(182, 530));
-		TextActor player1 = new TextActor("player 1 ", Color.WHITE,
-				Color.TRANSPARENT, 16);
-		addActor(player1, new Location(360, 530));
 		hands[0].setTouchEnabled(true);
 		while (true) {
 			Monitor.putSleep();
-			delay(1000);
+			delay(2000);
 			Hand eval = new Hand(deck);
 			for (int i = 0; i < nbPlayers; i++)
 				eval.insert(bids[i].getLast(), false);
 			int nbWinner = eval.getMaxPosition(Hand.SortType.RANKPRIORITY);
 			transferToStock(nbWinner);
 			currentPlayer = nbWinner;
+			hands[otherPlayer(nbWinner)].setTouchEnabled(false);
 			hands[nbWinner].setTouchEnabled(true);
 		}
+	}
+
+	private int otherPlayer(int player) {
+		return (player + 1) % nbPlayers;
 	}
 
 	private void initHands() {
@@ -82,8 +81,8 @@ public class Bauernkrieg extends CardGame {
 				public void pressed(Card card) {
 					hands[currentPlayer].setTouchEnabled(false);
 					card.setVerso(false);
-					card.transferNonBlocking(bids[k], true);
-					currentPlayer = (currentPlayer + 1) % nbPlayers;
+					card.transfer(bids[k], true);
+					currentPlayer = otherPlayer(currentPlayer);
 					if (allPlayersLaidCard())
 					{
 						if (isSameRank()) {
@@ -94,6 +93,7 @@ public class Bauernkrieg extends CardGame {
 							for (int i = 0; i < nbPlayers; i++) {
 								Card c = hands[i].getLast();
 								c.transfer(bids[i], true);
+								showToast("Same rank! Draw another card!");
 							}
 						} else {
 							showToast("Evaluating round...");
@@ -102,7 +102,7 @@ public class Bauernkrieg extends CardGame {
 					} 
 
 					if (!hands[currentPlayer].isEmpty()) {
-						setStatusText("Current player: " + currentPlayer);
+						showToast("Current player: " + currentPlayer);
 						hands[currentPlayer].setTouchEnabled(true);
 					} else
 						gameOver();
@@ -168,9 +168,11 @@ public class Bauernkrieg extends CardGame {
 	private void transferToStock(int player) {
 		for (int i = 0; i < nbPlayers; i++) {
 			bids[i].setTargetArea(new TargetArea(stockLocations[player]));
-			for (Card c: bids[i].getCardList()) {
+			Card c = bids[i].getLast();
+			while (c != null) {
 				c.setVerso(true);
 				bids[i].transferNonBlocking(c, stocks[player], true);
+				c = bids[i].getLast();
 			}
 		}
 	}
