@@ -3,29 +3,32 @@
 package ph.sm.balance;
 
 import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import ch.aplu.android.GGNavigationListener.ScreenOrientation;
+import ch.aplu.android.GGOrientationSensor;
 import ch.aplu.android.GameGrid;
-import ch.aplu.android.L;
 import ch.aplu.android.Location;
 
-public class Balance extends GameGrid implements SensorEventListener {
+public class Balance extends GameGrid {
 	private Marble marble;
-	private Sensor mAccelerometer;
-    private Sensor mMagnetometer;
+	private GGOrientationSensor sensor;
+	private int pitch, roll;
+	
+	  private class PollThread extends Thread
+	  {
+	    public void run()
+	    {
+	      while (true)
+	      {
+	        pollSensor();
+	        delay(100);
+	      }
+	    }
+	    private void pollSensor() {
+	    	pitch = sensor.getPitch();
+	    	roll = sensor.getRoll();
+	    }
 
-    private float[] mLastAccelerometer = new float[3];
-    private float[] mLastMagnetometer = new float[3];
-    private boolean mLastAccelerometerSet = false;
-    private boolean mLastMagnetometerSet = false;
-
-    private float[] tempR = new float[16];
-    private float[] mR = new float[16];
-    private float[] mOrientation = new float[3];
-
+	  }
 	public Balance() {
 		super(true, windowZoom(600));
 		setScreenOrientation(ScreenOrientation.LANDSCAPE);
@@ -34,65 +37,24 @@ public class Balance extends GameGrid implements SensorEventListener {
 	public void main() {
 		getBg().clear(Color.BLACK);
 		setStatusText("Balance started");
-		registerSensor();
+	    if (sensor == null)
+	    {
+	      sensor = GGOrientationSensor.create(this);
+	      new PollThread().start();
+	    }
 		marble = new Marble(this);
 		addActor(marble, new Location(getNbHorzCells() / 2,
 				getNbVertCells() / 2));
 		setSimulationPeriod(30);
 		doRun();
 	}
-
-	public void act() {
-		//L.d(Arrays.toString(mOrientation));
-		L.d(""+getResources().getConfiguration().orientation);
-	}
 	
-	public void registerSensor() {
-		SensorManager mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-	    mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-	    mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_NORMAL);
-	}
-
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// nothing
-	}
-
-	public void onSensorChanged(SensorEvent event) {
-        if (event.sensor == mAccelerometer) {
-            System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
-            mLastAccelerometerSet = true;
-        } else if (event.sensor == mMagnetometer) {
-            System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
-            mLastMagnetometerSet = true;
-        }
-        if (mLastAccelerometerSet && mLastMagnetometerSet) {
-            SensorManager.getRotationMatrix(tempR, null, mLastAccelerometer, mLastMagnetometer);
-            //the following remaping is making problems:
-            //for tablets:
-            /*SensorManager.remapCoordinateSystem(tempR, 
-            		SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, mR);
-            		*/
-            //for cellphones:
-            SensorManager.remapCoordinateSystem(tempR, 
-            		SensorManager.AXIS_MINUS_X, SensorManager.AXIS_MINUS_Y, mR);
-            SensorManager.getOrientation(mR, mOrientation);
-            }
-    }
-
-	/**
-	 * Has to be adapted to specific phone type/android version
-	 */
 	public float getXSlope() {
-		return mOrientation[1];
+		return (float) Math.toRadians(-roll);
 	}
 
-	/**
-	 * Has to be adapted to specific phone type/android version
-	 */
 	public float getYSlope() {
-		return mOrientation[2];
+		return (float) Math.toRadians(pitch);
 	}
 
 	public void gameOver() {
