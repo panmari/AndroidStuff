@@ -7,7 +7,7 @@ import ch.aplu.android.Location;
 public class Marble extends Actor{
 	
 	/**
-	 * TODO: set FACTOR dependent on device setting/accuracy of sensor?
+	 * The difficulty can be varied trough this factor.
 	 */
 	private static final float FACTOR = 1f;
 	float xVelocity, yVelocity;
@@ -35,10 +35,14 @@ public class Marble extends Actor{
 		xPos += xVelocity;
 		yPos += yVelocity;
 		setLocation(new Location(Math.round(xPos), Math.round(yPos)));
-		if (	xPos < radius || 
+		if (touchingBoarder()) 
+			gg.gameOver();
+	}
+
+	private boolean touchingBoarder() {
+		return (xPos < radius || 
 				xPos > getNbHorzCells() - radius ||
 				yPos < radius ||
-				yPos > getNbVertCells() - radius) 
-			gg.gameOver();
+				yPos > getNbVertCells() - radius);
 	}
 }

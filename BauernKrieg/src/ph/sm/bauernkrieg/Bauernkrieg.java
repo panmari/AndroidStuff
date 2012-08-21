@@ -29,6 +29,7 @@ public class Bauernkrieg extends CardGame {
 	private Deck deck;
 	private final int nbPlayers = 2;
 	private final int nbCards = 18;
+	private boolean blindRound;
 	private final Location[] handLocations = { new Location(210, 440),
 			new Location(390, 440), };
 	private final Location[] bidLocations = { new Location(210, 200),
@@ -41,7 +42,7 @@ public class Bauernkrieg extends CardGame {
 	private int currentPlayer = 0;
 
 	public Bauernkrieg() {
-		super(Color.GREEN, Color.TRANSPARENT, BoardType.VERT_FULL,
+		super(Color.GREEN, Color.TRANSPARENT, BoardType.HORZ_SQUARE,
 				windowZoom(600));
 	}
 
@@ -62,6 +63,7 @@ public class Bauernkrieg extends CardGame {
 			int nbWinner = eval.getMaxPosition(Hand.SortType.RANKPRIORITY);
 			transferToStock(nbWinner);
 			currentPlayer = nbWinner;
+			setTouchEnabled(true);
 			hands[otherPlayer(nbWinner)].setTouchEnabled(false);
 			hands[nbWinner].setTouchEnabled(true);
 		}
@@ -81,18 +83,22 @@ public class Bauernkrieg extends CardGame {
 				public void pressed(Card card) {
 					hands[currentPlayer].setTouchEnabled(false);
 					card.setVerso(false);
-					card.transfer(bids[k], true);
+					card.transferNonBlocking(bids[k], true);
 					currentPlayer = otherPlayer(currentPlayer);
-					if (allPlayersLaidCard())
+					blindRound = false;
+				}
+				public void atTarget(Card card, Location loc) {
+					if (allPlayersLaidCard() && !blindRound)
 					{
 						if (isSameRank()) {
+							blindRound = true;
 							if (hands[currentPlayer].isEmpty()) {
 								gameOver();
 								return;
 							}
 							for (int i = 0; i < nbPlayers; i++) {
 								Card c = hands[i].getLast();
-								c.transfer(bids[i], true);
+								c.transferNonBlocking(bids[i], true);
 								showToast("Same rank! Draw another card!");
 							}
 						} else {
@@ -107,7 +113,6 @@ public class Bauernkrieg extends CardGame {
 					} else
 						gameOver();
 				}
-
 				private boolean allPlayersLaidCard() {
 					int nbCards = bids[0].getNumberOfCards();
 					for (Hand h: bids)
@@ -122,6 +127,7 @@ public class Bauernkrieg extends CardGame {
 					return bids[0].getLast().getRank() == bids[1].getLast()
 							.getRank();
 				}
+
 			});
 			hands[i].draw();
 		}
@@ -162,6 +168,7 @@ public class Bauernkrieg extends CardGame {
 	}
 
 	private void transferToWinner() {
+		setTouchEnabled(false);
 		Monitor.wakeUp();
 	}
 
