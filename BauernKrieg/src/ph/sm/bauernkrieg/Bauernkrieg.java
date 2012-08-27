@@ -52,8 +52,14 @@ public class Bauernkrieg extends CardGame {
 		initStocks();
 		initHands();
 		showToast("Tap to play card" + ". Starting player: "
-				+ currentPlayer);
+				+ ((currentPlayer == 0) ? "left" : "right"));
 		hands[0].setTouchEnabled(true);
+		
+		/**
+		 * This thread is used to evaluate the highest card & transfer all cards from the
+		 * bid to the winners stock. 
+		 * Additionally, it activates the touch listener for the winning player.
+		 */
 		while (true) {
 			Monitor.putSleep();
 			delay(2000);
@@ -61,8 +67,9 @@ public class Bauernkrieg extends CardGame {
 			for (int i = 0; i < nbPlayers; i++)
 				eval.insert(bids[i].getLast(), false);
 			int nbWinner = eval.getMaxPosition(Hand.SortType.RANKPRIORITY);
-			transferToStock(nbWinner);
+			transferBidsToStock(nbWinner);
 			currentPlayer = nbWinner;
+			showToast("Current player: " + ((currentPlayer == 0) ? "left" : "right"));
 			setTouchEnabled(true);
 			hands[otherPlayer(nbWinner)].setTouchEnabled(false);
 			hands[nbWinner].setTouchEnabled(true);
@@ -73,6 +80,10 @@ public class Bauernkrieg extends CardGame {
 		return (player + 1) % nbPlayers;
 	}
 
+	/**
+	 * Initializes the hands. Almost all functionality of the game is implemented
+	 * here as CardAdapter. 
+	 */
 	private void initHands() {
 		hands = deck.dealingOut(nbPlayers, nbCards);
 		for (int i = 0; i < nbPlayers; i++) {
@@ -87,6 +98,7 @@ public class Bauernkrieg extends CardGame {
 					currentPlayer = otherPlayer(currentPlayer);
 					blindRound = false;
 				}
+				
 				public void atTarget(Card card, Location loc) {
 					if (allPlayersLaidCard() && !blindRound)
 					{
@@ -106,9 +118,7 @@ public class Bauernkrieg extends CardGame {
 							transferToWinner();
 						}
 					} 
-
 					if (!hands[currentPlayer].isEmpty()) {
-						showToast("Current player: " + currentPlayer);
 						hands[currentPlayer].setTouchEnabled(true);
 					} else
 						gameOver();
@@ -122,10 +132,7 @@ public class Bauernkrieg extends CardGame {
 				}
 
 				private boolean isSameRank() {
-					if (bids[0].getLast() == null || bids[1].getLast() == null)
-						return false;
-					return bids[0].getLast().getRank() == bids[1].getLast()
-							.getRank();
+					return bids[0].getLast().getRank() == bids[1].getLast().getRank();
 				}
 
 			});
@@ -148,16 +155,16 @@ public class Bauernkrieg extends CardGame {
 				Color.TRANSPARENT, 16);
 		winnerLabel.setLocationOffset(new Point(-30, 90));
 		if (nbCard0 > nbCard1) {
-			setStatusText("Game over. Winner: player 0 (" + nbCard0
-					+ " cards), player 1 (" + nbCard1 + " cards)");
+			setStatusText("Game over. Winner: player left (" + nbCard0
+					+ " cards), player right (" + nbCard1 + " cards)");
 			addActor(winnerLabel, stockLocations[0]);
 		} else if (nbCard0 < nbCard1) {
-			setStatusText("Game over. Winner: player 1 (" + nbCard1
-					+ " cards), player 0 (" + nbCard0 + " cards)");
+			setStatusText("Game over. Winner: player right (" + nbCard1
+					+ " cards), player left (" + nbCard0 + " cards)");
 			addActor(winnerLabel, stockLocations[1]);
 		} else
-			setStatusText("Game over. Tie: player 1 (" + nbCard1
-					+ " cards), player 0 (" + nbCard0 + " cards)");
+			setStatusText("Game over. Tie: player right (" + nbCard1
+					+ " cards), player left (" + nbCard0 + " cards)");
 	}
 
 	private void initStocks() {
@@ -167,12 +174,16 @@ public class Bauernkrieg extends CardGame {
 		}
 	}
 
+	/**
+	 * Wakes up the thread in the main thread, which does all the work.
+	 * @see main
+	 */
 	private void transferToWinner() {
 		setTouchEnabled(false);
 		Monitor.wakeUp();
 	}
 
-	private void transferToStock(int player) {
+	private void transferBidsToStock(int player) {
 		for (int i = 0; i < nbPlayers; i++) {
 			bids[i].setTargetArea(new TargetArea(stockLocations[player]));
 			Card c = bids[i].getLast();
