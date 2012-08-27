@@ -3,7 +3,6 @@
 package ph.sm.bauernkrieg;
 
 import android.graphics.Color;
-import android.graphics.Point;
 import ch.aplu.android.Location;
 import ch.aplu.android.TextActor;
 import ch.aplu.jcardgame.Card;
@@ -69,10 +68,15 @@ public class Bauernkrieg extends CardGame {
 			int nbWinner = eval.getMaxPosition(Hand.SortType.RANKPRIORITY);
 			transferBidsToStock(nbWinner);
 			currentPlayer = nbWinner;
-			showToast("Current player: " + ((currentPlayer == 0) ? "left" : "right"));
-			setTouchEnabled(true);
-			hands[otherPlayer(nbWinner)].setTouchEnabled(false);
-			hands[nbWinner].setTouchEnabled(true);
+			if (hands[currentPlayer].isEmpty()) {
+				delay(2000);
+				gameOver();
+				}
+			else {
+				showToast("Current player: " + ((currentPlayer == 0) ? "left" : "right"));
+				setTouchEnabled(true);
+				hands[nbWinner].setTouchEnabled(true);
+			}
 		}
 	}
 
@@ -83,6 +87,7 @@ public class Bauernkrieg extends CardGame {
 	/**
 	 * Initializes the hands. Almost all functionality of the game is implemented
 	 * here as CardAdapter. 
+	 * TODO: refactor CardAdapter into own class
 	 */
 	private void initHands() {
 		hands = deck.dealingOut(nbPlayers, nbCards);
@@ -118,10 +123,8 @@ public class Bauernkrieg extends CardGame {
 							transferToWinner();
 						}
 					} 
-					if (!hands[currentPlayer].isEmpty()) {
+					else if (!hands[currentPlayer].isEmpty()) 
 						hands[currentPlayer].setTouchEnabled(true);
-					} else
-						gameOver();
 				}
 				private boolean allPlayersLaidCard() {
 					int nbCards = bids[0].getNumberOfCards();
@@ -153,18 +156,15 @@ public class Bauernkrieg extends CardGame {
 		int nbCard1 = stocks[1].getNumberOfCards();
 		TextActor winnerLabel = new TextActor("Winner!", Color.YELLOW,
 				Color.TRANSPARENT, 16);
-		winnerLabel.setLocationOffset(new Point(-30, 90));
 		if (nbCard0 > nbCard1) {
-			setStatusText("Game over. Winner: player left (" + nbCard0
-					+ " cards), player right (" + nbCard1 + " cards)");
-			addActor(winnerLabel, stockLocations[0]);
+			addActor(winnerLabel, (stockLocations[0]).toReal());
 		} else if (nbCard0 < nbCard1) {
-			setStatusText("Game over. Winner: player right (" + nbCard1
-					+ " cards), player left (" + nbCard0 + " cards)");
-			addActor(winnerLabel, stockLocations[1]);
+			addActor(winnerLabel, (stockLocations[1]).toReal());
 		} else
-			setStatusText("Game over. Tie: player right (" + nbCard1
-					+ " cards), player left (" + nbCard0 + " cards)");
+			addActor(new TextActor("Tie!", Color.YELLOW, Color.TRANSPARENT, 16), (new Location(0,100)).toReal());
+		addActor(new TextActor("Game over", Color.YELLOW, Color.TRANSPARENT, 20), (new Location(0, 200)).toReal());
+		addActor(new TextActor(nbCard0 + " cards"), (new Location(30, 550)).toReal());
+		addActor(new TextActor(nbCard1 + " cards"), (new Location(450, 550)).toReal());
 	}
 
 	private void initStocks() {
@@ -175,7 +175,7 @@ public class Bauernkrieg extends CardGame {
 	}
 
 	/**
-	 * Wakes up the thread in the main thread, which does all the work.
+	 * Wakes up the thread in the main, which does all the work.
 	 * @see main
 	 */
 	private void transferToWinner() {
