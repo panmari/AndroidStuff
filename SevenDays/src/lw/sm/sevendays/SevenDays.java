@@ -2,9 +2,15 @@
 
 package lw.sm.sevendays;
 
-import turtle.*;
+import java.util.Stack;
+
+import turtle.Playground;
+import turtle.Turtle;
 
 public class SevenDays extends Playground {
+	
+	private Stack<Turtle> turtlePool;
+	
 	public SevenDays() {
 		super("tako_trans");
 	}
@@ -12,24 +18,44 @@ public class SevenDays extends Playground {
 	public void main() {
 		clear(WHITE);
 		showToast("Click me");
+		turtlePool = new Stack<Turtle>();
+		for (int i = 0; i < 20; i++) {
+			Turtle poli = new Turtle();
+			poli.setPenColor(RED);
+			poli.hideTurtle();
+			turtlePool.push(poli);
+		}
 	}
 
 	public void playgroundPressed(double x, double y) {
-		Turtle poli = new Turtle(x, y);
-		poli.setPenColor(RED);
+		if (turtlePool.isEmpty()) {
+			return;
+		}
+		Turtle poli = turtlePool.pop();
+		poli.setX(x);
+		poli.setY(y);
+		poli.showTurtle();
+		poli.setSpeed(5);
 		int length = 55;
 		poli.lt(40);
 		poli.fd(length);
-		poli.rt(40);
-		poli.fd(10);
+		for (int i = 0; i < 2; i++) {
+			poli.rt(20);
+			poli.fd(5);
+		}
 		arc(poli);
 		poli.lt(180);
 		//second half:
 		arc(poli);
-		poli.fd(10);
-		poli.rt(40);
-		poli.fd(length + 5);
+		for (int i = 0; i < 2; i++) {
+			poli.fd(5);
+			poli.rt(20);
+		}
+		poli.fd(length + 3);
+		//poli.fill(poli.getX(), poli.getY() + 10); //bad idea XD
 		poli.hideTurtle();
+		poli.setHeading(0);
+		turtlePool.push(poli);
 	}
 
 	private void arc(Turtle t) {
