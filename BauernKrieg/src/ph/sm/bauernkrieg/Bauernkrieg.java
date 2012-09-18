@@ -11,7 +11,6 @@ import ch.aplu.jcardgame.CardAdapter;
 import ch.aplu.jcardgame.CardGame;
 import ch.aplu.jcardgame.Deck;
 import ch.aplu.jcardgame.Hand;
-import ch.aplu.jcardgame.Hand.SortType;
 import ch.aplu.jcardgame.RowLayout;
 import ch.aplu.jcardgame.StackLayout;
 import ch.aplu.jcardgame.TargetArea;
