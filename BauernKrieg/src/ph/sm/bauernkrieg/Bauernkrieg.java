@@ -3,6 +3,7 @@
 package ph.sm.bauernkrieg;
 
 import android.graphics.Color;
+import android.graphics.Point;
 import ch.aplu.android.Location;
 import ch.aplu.android.TextActor;
 import ch.aplu.jcardgame.Card;
@@ -10,6 +11,7 @@ import ch.aplu.jcardgame.CardAdapter;
 import ch.aplu.jcardgame.CardGame;
 import ch.aplu.jcardgame.Deck;
 import ch.aplu.jcardgame.Hand;
+import ch.aplu.jcardgame.Hand.SortType;
 import ch.aplu.jcardgame.RowLayout;
 import ch.aplu.jcardgame.StackLayout;
 import ch.aplu.jcardgame.TargetArea;
@@ -41,7 +43,7 @@ public class Bauernkrieg extends CardGame {
 	private int currentPlayer = 0;
 
 	public Bauernkrieg() {
-		super(Color.GREEN, Color.TRANSPARENT, BoardType.HORZ_SQUARE,
+		super(GREEN, TRANSPARENT, BoardType.HORZ_SQUARE,
 				windowZoom(600));
 	}
 
@@ -51,8 +53,7 @@ public class Bauernkrieg extends CardGame {
 		initStocks();
 		initHands();
 		showToast("Tap to play card" + ". Starting player: "
-				+ ((currentPlayer == 0) ? "left" : "right"));
-		hands[0].setTouchEnabled(true);
+				+ ((currentPlayer == 0) ? "left" : "right"), true);
 		
 		/**
 		 * This thread is used to evaluate the highest card & transfer all cards from the
@@ -75,7 +76,6 @@ public class Bauernkrieg extends CardGame {
 			else {
 				showToast("Current player: " + ((currentPlayer == 0) ? "left" : "right"));
 				setTouchEnabled(true);
-				hands[nbWinner].setTouchEnabled(true);
 			}
 		}
 	}
@@ -92,12 +92,15 @@ public class Bauernkrieg extends CardGame {
 	private void initHands() {
 		hands = deck.dealingOut(nbPlayers, nbCards);
 		for (int i = 0; i < nbPlayers; i++) {
+			//hands[i].sort(SortType.RANKPRIORITY, true); //for debugging "wars"
 			hands[i].setView(this, new StackLayout(handLocations[i]));
 			hands[i].setVerso(true);
+			hands[i].setTouchEnabled(true);
 			final int k = i;
 			hands[i].addCardListener(new CardAdapter() {
 				public void pressed(Card card) {
-					hands[currentPlayer].setTouchEnabled(false);
+					if (card.getHand() != hands[currentPlayer])
+						return;
 					card.setVerso(false);
 					card.transferNonBlocking(bids[k], true);
 					currentPlayer = otherPlayer(currentPlayer);
@@ -116,16 +119,16 @@ public class Bauernkrieg extends CardGame {
 							for (int i = 0; i < nbPlayers; i++) {
 								Card c = hands[i].getLast();
 								c.transferNonBlocking(bids[i], true);
-								showToast("Same rank! Draw another card!");
 							}
+							showToast("Same rank! Draw another card!");
+							setTouchEnabled(true);
 						} else {
 							showToast("Evaluating round...");
 							transferToWinner();
-						}
-					} 
-					else if (!hands[currentPlayer].isEmpty()) 
-						hands[currentPlayer].setTouchEnabled(true);
+						} 
+					} else hands[currentPlayer].setTouchEnabled(true);
 				}
+				
 				private boolean allPlayersLaidCard() {
 					int nbCards = bids[0].getNumberOfCards();
 					for (Hand h: bids)
@@ -152,17 +155,19 @@ public class Bauernkrieg extends CardGame {
 	}
 
 	private void gameOver() {
+		setTouchEnabled(false);
 		int nbCard0 = stocks[0].getNumberOfCards();
 		int nbCard1 = stocks[1].getNumberOfCards();
 		TextActor winnerLabel = new TextActor("Winner!", Color.YELLOW,
 				Color.TRANSPARENT, 16);
+		winnerLabel.setLocationOffset(new Point(0, -50));
 		if (nbCard0 > nbCard1) {
 			addActor(winnerLabel, (stockLocations[0]).toReal());
 		} else if (nbCard0 < nbCard1) {
 			addActor(winnerLabel, (stockLocations[1]).toReal());
 		} else
-			addActor(new TextActor("Tie!", Color.YELLOW, Color.TRANSPARENT, 16), (new Location(0,100)).toReal());
-		addActor(new TextActor("Game over", Color.YELLOW, Color.TRANSPARENT, 20), (new Location(0, 200)).toReal());
+			addActor(new TextActor("Tie!", Color.YELLOW, Color.TRANSPARENT, 16), (new Location(20,100)).toReal());
+		addActor(new TextActor("Game over", Color.YELLOW, Color.TRANSPARENT, 20), (new Location(20, 200)).toReal());
 		addActor(new TextActor(nbCard0 + " cards"), (new Location(30, 550)).toReal());
 		addActor(new TextActor(nbCard1 + " cards"), (new Location(450, 550)).toReal());
 	}
