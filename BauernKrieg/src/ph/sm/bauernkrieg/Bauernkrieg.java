@@ -20,7 +20,7 @@ public class Bauernkrieg extends CardGame {
 
 	public enum Suit {
 		KREUZ, HERZ, KARO, PIK
-	}
+	}	
 
 	public enum Rank {
 		ASS, KOENIG, DAME, BAUER, ZEHN, NEUN, ACHT, SIEBEN, SECHS
@@ -42,7 +42,7 @@ public class Bauernkrieg extends CardGame {
 	private int currentPlayer = 0;
 
 	public Bauernkrieg() {
-		super(GREEN, TRANSPARENT, BoardType.HORZ_SQUARE,
+		super(Color.rgb(20, 80, 0), WHITE, BoardType.HORZ_SQUARE,
 				windowZoom(600));
 	}
 
@@ -158,15 +158,15 @@ public class Bauernkrieg extends CardGame {
 		int nbCard0 = stocks[0].getNumberOfCards();
 		int nbCard1 = stocks[1].getNumberOfCards();
 		TextActor winnerLabel = new TextActor("Winner!", Color.YELLOW,
-				Color.TRANSPARENT, 16);
-		winnerLabel.setLocationOffset(new Point(0, -50));
+				Color.TRANSPARENT, 20);
+		winnerLabel.setLocationOffset(new Point(-20, -100));
 		if (nbCard0 > nbCard1) {
 			addActor(winnerLabel, (stockLocations[0]).toReal());
 		} else if (nbCard0 < nbCard1) {
 			addActor(winnerLabel, (stockLocations[1]).toReal());
 		} else
-			addActor(new TextActor("Tie!", Color.YELLOW, Color.TRANSPARENT, 16), (new Location(20,100)).toReal());
-		addActor(new TextActor("Game over", Color.YELLOW, Color.TRANSPARENT, 20), (new Location(20, 200)).toReal());
+			addActor(new TextActor("Tie!", Color.YELLOW, Color.TRANSPARENT, 20), (new Location(30,230)).toReal());
+		addActor(new TextActor("Game over", Color.YELLOW, Color.TRANSPARENT, 40), (new Location(30, 200)).toReal());
 		addActor(new TextActor(nbCard0 + " cards"), (new Location(30, 550)).toReal());
 		addActor(new TextActor(nbCard1 + " cards"), (new Location(450, 550)).toReal());
 	}
