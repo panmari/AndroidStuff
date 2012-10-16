@@ -147,13 +147,13 @@ public class Bauernkrieg extends CardGame
       Card kreuz_zehn = new Card(deck, Suit.KREUZ, Rank.ZEHN);
 
       hands[0].insert(herz_zehn, false);
-      hands[0].insert(herz_dame, false);
       hands[0].insert(herz_koenig, false);
+      hands[0].insert(herz_dame, false);
       hands[0].insert(herz_ass, false);
 
       hands[1].insert(kreuz_bauer, false);
-      hands[1].insert(kreuz_zehn, false);
       hands[1].insert(kreuz_koenig, false);
+      hands[1].insert(kreuz_zehn, false);
       hands[1].insert(kreuz_ass, false);
     }
     else
