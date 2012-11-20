@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="ph.sm.memory"
+      package="ph.sm.ship"
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="8" />
-    <application android:label="TCPMemory" android:icon="@drawable/jdroid_gglogo">
-        <activity android:name=".TCPMemory"
+    <application android:label="TCPShip" android:icon="@drawable/jdroid_gglogo">
+        <activity android:name=".TcpShip"
                   android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
