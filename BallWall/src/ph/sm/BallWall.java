@@ -7,10 +7,10 @@ import ch.aplu.android.*;
 import android.graphics.*;
 
 public class BallWall extends GameGrid implements GGActorCollisionListener {
-	protected final double boardSize = 10; // m
-	protected double edge;
-	protected GGComboSensor sensor;
-	protected GGPanel p;
+	private final double boardSize = 10; // m
+	private double edge;
+	private GGComboSensor sensor;
+	private GGPanel p;
 	private double holeSize;
 
 	public BallWall() {
@@ -20,21 +20,23 @@ public class BallWall extends GameGrid implements GGActorCollisionListener {
 	public void main() {
 		// Coordinate system in user coordinates, origin in court center
 		p = getPanel(-boardSize / 2, boardSize / 2, 0.5);
-		p.clear(GRAY);
-		p.setAutoRefreshEnabled(false);
+		p.clear(Color.LTGRAY);
 		setSimulationPeriod(30);
 		edge = 0.5;
 		sensor = GGComboSensor.init(this);
 		Ball ball = new Ball(this);
 		addActor(ball, new Location(getNbHorzCells() / 2, getNbVertCells() / 2));
-		Obstacle obstacle = new Obstacle(p, edge);
+		Wall obstacle = new Wall(p, edge);
 		addActor(obstacle, new Location(p.toPixelX(4), p.toPixelY(0)));
 		holeSize = p.toUserDx(ball.getWidth(0)/2 + 3);
+		
+		//make target area and some holes
 		makeHole(new PointD(3,4), Color.GREEN);
 		makeHole(new PointD(0, 2), Color.BLACK);
 		makeHole(new PointD(1, 2), Color.BLACK);
 		makeHole(new PointD(2, 2), Color.BLACK);
 		makeHole(new PointD(-1, -2), Color.BLACK);
+		
 		ball.addCollisionActor(obstacle);
 		ball.addActorCollisionListener(this);
 		doRun();
@@ -49,7 +51,16 @@ public class BallWall extends GameGrid implements GGActorCollisionListener {
 	public int collide(Actor ballActor, Actor obstacle) {
 		L.d("crash!");
 		Ball ball = (Ball)ballActor;
+	//	ball.
 		return 10;
+	}
+
+	public double[] getSensorValues() {
+		return sensor.getAcceleration(0);
+	}
+
+	public GGPanel getCustomizedPanel() {
+		return p;
 	}
 }
 
@@ -68,7 +79,7 @@ class Ball extends Actor {
 	}
 	
 	public void act() {
-		double[] a = app.sensor.getAcceleration(0);
+		double[] a = app.getSensorValues();
 		double gx = -a[4];
 		double gy = a[3];
 
@@ -84,14 +95,14 @@ class Ball extends Actor {
 		double xNew = x + vxNew * dt;
 		double yNew = y + vyNew * dt;
 
-		setLocation(new Location(app.p.toPixelX(xNew), app.p.toPixelY(yNew)));
+		setLocation(new Location(app.getCustomizedPanel().toPixelX(xNew), app.getCustomizedPanel().toPixelY(yNew)));
 
 		vx = vxNew;
 		vy = vyNew;
 		x = xNew;
 		y = yNew;
 		
-		switch(app.p.getColor(getLocation())) {
+		switch(app.getCustomizedPanel().getColor(this.getLocation())) {
 		case Color.BLACK:
 			app.showToast("Reset ball");
 			reset();
@@ -112,26 +123,21 @@ class Ball extends Actor {
 	}
 }
 
-class Obstacle extends Actor {
+class Wall extends Actor {
 	
 	GGPanel p;
-	private double edge;
-	public Obstacle(GGPanel p, double edge) {
-		super();
-		this.edge = edge;
+	private int edge;
+	public Wall(GGPanel p, double length) {
+		super("marble");
+		this.edge = p.toPixelDx(length);
 		this.p = p;
 	}
 	
 	public void reset() {
-		//setCollisionRectangle(new Point(0,0), p.toPixelDx(edge), p.toPixelDy(edge));
-		p.setPaintColor(Color.BLACK);
-		p.move(p.toUserX(getX()), p.toUserY(getY()));
-		p.rectangle(edge, edge, true);
-	}
-}
-
-class Hole {
-	public Hole(GGPanel p, PointD center, double radius, int color) {
-		
+		Point start = new Point(getX(), getY() - edge/2);
+		Point end = new Point(getX(), getY() + edge/2);
+		setCollisionLine(start, end);
+		p.setPaintColor(Color.DKGRAY);
+		p.line(p.toUserPoint(start), p.toUserPoint(end));
 	}
 }
