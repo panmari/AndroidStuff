@@ -1,6 +1,6 @@
 // AndroidEx18.java
 
-package app.ex18;
+package sm.phbern.basketball;
 
 import ch.aplu.android.*;
 import android.graphics.Point;
@@ -19,7 +19,7 @@ public class AndroidEx18 extends GameGrid implements GGFlingListener,
 	public AndroidEx18() {
 		super(WHITE, false, true, windowZoom(600));
 		setScreenOrientation(LANDSCAPE);
-		status = addStatusBar(20);
+		status = addStatusBar(40);
 	}
 
 	public void main() {
@@ -27,13 +27,13 @@ public class AndroidEx18 extends GameGrid implements GGFlingListener,
 		z = getZoomFactor();
 		roomWidth = toPhysical(getNbHorzCells());
 		addFlingListener(this);
-		setSimulationPeriod(50);
+		setSimulationPeriod(30);
 		basket = new Basket();
 		addActor(basket, new Location(toPix(0.5), toPix(1.8)));
 		basket.setCollisionRectangle(new Point(0, -20), 40, 20);
 		drawBg();
 		doRun();
-		status.setText("Fling the ball!");
+		//status.setText("Fling the ball!");
 	}
 
 	public boolean flingEvent(Point start, Point end, GGVector velocity) {
@@ -80,7 +80,7 @@ class Ball extends Actor {
 	private final double g = 9.81; // in m/s^2
 	private double x, y; // in m
 	private double vx, vy; // in m/s
-	private double dt = 0.05; // in s
+	private double dt = 0.025; // in s
 	private AndroidEx18 app;
 
 	public Ball(AndroidEx18 app, double vx, double vy) {
@@ -101,7 +101,8 @@ class Ball extends Actor {
 		x = x + vx * dt;
 		y = y + vy * dt;
 		setLocation(new Location(app.toPix(x), app.toPix(y)));
-
+		if (app.toPix(x) < getWidth(0))
+			vx = -vx;
 		if (!isInGrid())
 			removeSelf();
 	}

@@ -2,12 +2,13 @@
 
 package ph.sm.ship;
 
+import android.graphics.Color;
 import ch.aplu.android.*;
 import ch.aplu.tcp.*;
 import ch.aplu.util.Monitor;
 
 
-public class TcpShip extends GameGrid implements GGTouchListener,TcpNodeListener
+public class TcpShip extends GameGrid implements GGTouchListener, TcpNodeListener
 {
   private String roomID = "";
   private String sessionID = "awq";
@@ -29,14 +30,14 @@ public class TcpShip extends GameGrid implements GGTouchListener,TcpNodeListener
     
   public TcpShip()
   {
-    super(6, 6, cellZoom(60), RED, false);
+    super(6, 6, 60, RED);
+    status = addStatusBar(50);
     // setScreenOrientation(GGNavigationListener.ScreenOrientation.FIXED);    
   }
   
   public void main()
   {
     setTitle("TCP BattleShip");
-    
     init();
   }
   
@@ -47,23 +48,30 @@ public class TcpShip extends GameGrid implements GGTouchListener,TcpNodeListener
     addTouchListener(this, GGTouch.click);    
     refresh();
     node.addTcpNodeListener(this);
-    showToast("Connecting to  relay...");
-    connect();
-    Monitor.putSleep(4000);
+    status.setText("Connecting to  relay...");
+    refresh();
+    connect(10);
     if (node.getNodeState() == TcpNodeState.CONNECTED)
     {
       status.setText("Connection established.");
     }
     else
       status.setText("Connection failed");
+    refresh();
   }
   
-  private void connect()
+  private void connect(int timeout)
   {
     while (roomID.length() < 3)
       roomID = requestEntry("Enter unique game room name (more than 2 characters):");   
     sessionID = sessionID + roomID;
     node.connect(sessionID, myNodeName);
+    
+    int connectingTime = 0;
+    while (node.getNodeState() != TcpNodeState.CONNECTED && connectingTime < timeout) {
+    	connectingTime++;
+    	Monitor.putSleep(1000);
+    }
   }
   
   private String requestEntry(String prompt)

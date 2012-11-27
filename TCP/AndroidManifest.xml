@@ -3,7 +3,9 @@
       package="ph.sm.ship"
       android:versionCode="1"
       android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="8" />
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="12"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <application android:label="TCPShip" android:icon="@drawable/jdroid_gglogo">
         <activity android:name=".TcpShip"
                   android:configChanges="orientation">
@@ -16,6 +18,4 @@
            android:configChanges="keyboardHidden|orientation">
       </activity>
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.VIBRATE"/>
 </manifest> 
