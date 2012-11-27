@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:gravity="bottom"
+  	android:layout_height="fill_parent">
+
+
+<FrameLayout 
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+ 
+<ch.aplu.android.MySurfaceView
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"/>
+
+</FrameLayout>
+
+
+<TableLayout 
+	android:layout_width="fill_parent"
+	android:layout_height="50px">
+        android:layout_gravity="bottom"
+        android:stretchColums="*"
+
+
+<TableRow>
+
+<Button
+        android:id="@+id/buttonA"
+	android:text="A" />
+
+<Button
+	android:id="@+id/buttonB"
+	android:text="B" />
+
+<Button
+	android:id="@+id/buttonC"
+	android:text="C" />
+
+<Button
+	android:id="@+id/buttonD"
+	android:text="D" />
+
+
+</TableRow>
+
+</TableLayout>
+
+</LinearLayout>
