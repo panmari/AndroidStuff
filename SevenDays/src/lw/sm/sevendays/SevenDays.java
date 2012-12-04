@@ -19,7 +19,7 @@ public class SevenDays extends Playground {
 		clear(WHITE);
 		showToast("Click me");
 		turtlePool = new Stack<Turtle>();
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 30; i++) {
 			Turtle poli = new Turtle();
 			poli.setPenColor(RED);
 			poli.hideTurtle();
