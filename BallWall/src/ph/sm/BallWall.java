@@ -83,7 +83,7 @@ class Ball extends Actor {
 	private GGVector aHole = new GGVector();
 	private final double dt = 0.03; // Integration interval (s)
 	private final double f = 0.2; // Friction (s^-1)
-
+	
 	public Ball(BallWall app) {
 		super("marble");
 		this.app = app;
@@ -96,7 +96,7 @@ class Ball extends Actor {
 	protected void addHole(Hole hole) {
 		holes.add(hole);
 	}
-
+	
 	public void act() {
 		double[] acc = app.sensor.getAcceleration(0);
 		GGVector g = new GGVector(-acc[4], acc[3]);
@@ -114,27 +114,12 @@ class Ball extends Actor {
 			{
 				if (wall.line.isIntersecting(circle)) {
 					nbAct = 5;
-					if (wall.isVertical()) {
-						v.x = -v.x;
-						a.x = 0; // on vertical wall->no acceleration in x dir
-					}
-					else {
-						v.y = -v.y;
-						a.y = 0; // on horizontal wall->no acceleration in y dir
-					}
-					
+					wall.reflect(v, a);
 				}
 				if (circle.isIntersecting(wall.line.getStartVector())
 						|| circle.isIntersecting(wall.line.getEndVector())) {
 					nbAct = 5;
-					if (wall.isVertical()) {
-						v.y = -v.y;
-						a.y = 0; // on vertical wall->no acceleration in x dir
-					}
-					else {
-						v.x = -v.x;
-						a.x = 0; // on horizontal wall->no acceleration in y dir
-					}
+					wall.reflectEdge(v, a);
 				}
 			}
 		}
@@ -200,7 +185,9 @@ abstract class Wall extends Actor {
 		this.length = length;
 	}
 	
-	abstract public boolean isVertical();
+	abstract public void reflectEdge(GGVector v, GGVector a);
+
+	abstract public void reflect(GGVector v, GGVector a);
 }
 
 // -------------- class VerticalWall -------------------
@@ -222,9 +209,17 @@ class VerticalWall extends Wall {
 		Point pixEnd = p.toPixelPoint(end);
 		line = new GGLine(new GGVector(pixStart), new GGVector(pixEnd));
 	}
+
+	@Override
+	public void reflect(GGVector v, GGVector a) {
+		v.x = -v.x;
+		a.x = 0;
+	}
 	
-	public boolean isVertical() {
-		return true;
+	@Override
+	public void reflectEdge(GGVector v, GGVector a) {
+		v.y = -v.y;
+		a.y = 0;
 	}
 }
 
@@ -248,8 +243,16 @@ class HorizontalWall extends Wall {
 		line = new GGLine(new GGVector(pixStart), new GGVector(pixEnd));
 	}
 	
-	public boolean isVertical() {
-		return false;
+	@Override
+	public void reflect(GGVector v, GGVector a) {
+		v.y = -v.y;
+		a.y = 0;
+	}
+
+	@Override
+	public void reflectEdge(GGVector v, GGVector a) {
+		v.x = -v.x;
+		a.x = 0;
 	}
 
 }
@@ -281,5 +284,4 @@ class Hole extends Actor {
 
 		inner = new GGCircle(new GGVector(pixCenter), pixRadius);
 	}
-
 }
