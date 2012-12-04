@@ -108,31 +108,32 @@ class Ball extends Actor {
 			nbAct--;
 
 		GGCircle circle = new GGCircle(new GGVector(getX(), getY()),
-				app.virtualToPixel(31));
+				app.virtualToPixel(18));
 		if (nbAct == 0) {
 			for (Wall wall : walls) // Assumption: only one wall intersecting
 			{
 				if (wall.line.isIntersecting(circle)) {
 					nbAct = 5;
-					if (wall instanceof HorizontalWall) {
-						v.y = -v.y;
-						a.y = 0; // on horizontal wall->no acceleration in y dir
-					}
-					if (wall instanceof VerticalWall) {
+					if (wall.isVertical()) {
 						v.x = -v.x;
 						a.x = 0; // on vertical wall->no acceleration in x dir
 					}
+					else {
+						v.y = -v.y;
+						a.y = 0; // on horizontal wall->no acceleration in y dir
+					}
+					
 				}
 				if (circle.isIntersecting(wall.line.getStartVector())
 						|| circle.isIntersecting(wall.line.getEndVector())) {
 					nbAct = 5;
-					if (wall instanceof HorizontalWall) {
-						v.x = -v.x;
-						a.x = 0; // on horizontal wall->no acceleration in y dir
-					}
-					if (wall instanceof VerticalWall) {
+					if (wall.isVertical()) {
 						v.y = -v.y;
 						a.y = 0; // on vertical wall->no acceleration in x dir
+					}
+					else {
+						v.x = -v.x;
+						a.x = 0; // on horizontal wall->no acceleration in y dir
 					}
 				}
 			}
@@ -198,7 +199,8 @@ abstract class Wall extends Actor {
 		this.center = center;
 		this.length = length;
 	}
-
+	
+	abstract public boolean isVertical();
 }
 
 // -------------- class VerticalWall -------------------
@@ -220,7 +222,10 @@ class VerticalWall extends Wall {
 		Point pixEnd = p.toPixelPoint(end);
 		line = new GGLine(new GGVector(pixStart), new GGVector(pixEnd));
 	}
-
+	
+	public boolean isVertical() {
+		return true;
+	}
 }
 
 // -------------- class HorizontalWall -------------------
@@ -242,12 +247,15 @@ class HorizontalWall extends Wall {
 		Point pixEnd = p.toPixelPoint(end);
 		line = new GGLine(new GGVector(pixStart), new GGVector(pixEnd));
 	}
+	
+	public boolean isVertical() {
+		return false;
+	}
 
 }
 
 // -------------- class Hole -------------------
 class Hole extends Actor {
-	private BallWall app;
 	protected PointD center; // In user coordinates
 	protected double radius; // In user coordinates
 	protected int color;
@@ -256,7 +264,6 @@ class Hole extends Actor {
 
 	public Hole(BallWall app, PointD center, double radius, int color) {
 		super(new GGBitmap(1, 1).getBitmap()); // Dummy actor
-		this.app = app;
 		p = app.p;
 		this.center = center;
 		this.radius = radius;
