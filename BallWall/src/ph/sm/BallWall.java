@@ -185,6 +185,16 @@ abstract class Wall extends Actor {
 		this.length = length;
 	}
 	
+	protected void reflectX(GGVector v, GGVector a) {
+		v.x = -v.x;
+		a.x = 0;
+	}
+	
+	protected void reflectY(GGVector v, GGVector a) {
+		v.y = -v.y;
+		a.y = 0;
+	}
+	
 	abstract public void reflectEdge(GGVector v, GGVector a);
 
 	abstract public void reflect(GGVector v, GGVector a);
@@ -212,14 +222,12 @@ class VerticalWall extends Wall {
 
 	@Override
 	public void reflect(GGVector v, GGVector a) {
-		v.x = -v.x;
-		a.x = 0;
+		reflectX(v, a);
 	}
 	
 	@Override
 	public void reflectEdge(GGVector v, GGVector a) {
-		v.y = -v.y;
-		a.y = 0;
+		reflectY(v, a);
 	}
 }
 
@@ -245,14 +253,12 @@ class HorizontalWall extends Wall {
 	
 	@Override
 	public void reflect(GGVector v, GGVector a) {
-		v.y = -v.y;
-		a.y = 0;
+		reflectY(v, a);
 	}
 
 	@Override
 	public void reflectEdge(GGVector v, GGVector a) {
-		v.x = -v.x;
-		a.x = 0;
+		reflectX(v, a);
 	}
 
 }
