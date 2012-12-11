@@ -22,22 +22,29 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		addNavigationListener(this);
 
 		ball = new Ball(this);
-		addActor(ball, new Location(getNbHorzCells() / 2, getNbVertCells() / 2));
+		addActor(ball, new Location(p.toPixelX(4), p.toPixelY(-4)));
 
-		makeWall(ball, new PointD(4, 0), 5, true);
-		makeWall(ball, new PointD(-4, 0), 5, true);
-		makeWall(ball, new PointD(0, 4), 5, false);
+		makeWall(ball, new PointD(-3.5, 0), 5, true);
+		makeWall(ball, new PointD(2.2, 3), 5, false);
 		makeWall(ball, new PointD(0, -4), 5, false);
 		makeWall(ball, new PointD(0, -3), 1, true);
 
 		double holeSize = p.toUserDx(ball.getWidth(0) / 2 + 3);
-		makeHole(ball, new PointD(3, 4), holeSize, Color.YELLOW);
-		makeHole(ball, new PointD(0, 2), holeSize, Color.BLACK);
-		/*
-		 * makeHole(new PointD(1, 2), holeSize, Color.BLACK); makeHole(new
-		 * PointD(2, 2), holeSize, Color.BLACK); makeHole(new PointD(-1, -2),
-		 * holeSize, Color.BLACK);
-		 */
+		makeHole(ball, new PointD(4, 4.5), holeSize, true);
+		
+		makeHole(ball, new PointD(0, 2), holeSize, false);
+		makeHole(ball, new PointD(4, 3.5), holeSize, false);
+		makeHole(ball, new PointD(-1, 3), holeSize, false);
+		makeHole(ball, new PointD(2, 2), holeSize, false);
+		
+		makeHole(ball, new PointD(-2, -2), holeSize, false);
+		makeHole(ball, new PointD(-2, 1), holeSize, false);
+		makeHole(ball, new PointD(-2, 2), holeSize, false);
+		makeHole(ball, new PointD(-2, 3), holeSize, false);
+		
+		makeHole(ball, new PointD(-4, 4), holeSize, false);
+		makeHole(ball, new PointD(3, -1), holeSize, false);
+
 		doRun();
 	}
 
@@ -53,8 +60,11 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		ball.addWall(wall);
 	}
 
-	private void makeHole(Ball ball, PointD center, double radius, int color) {
-		Hole hole = new Hole(this, center, radius, color);
+	private void makeHole(Ball ball, PointD center, double radius, boolean finalHole) {
+		Hole hole;
+		if (finalHole)
+			hole = new FinalHole(this, center, radius);
+		else hole = new Hole(this, center, radius, Color.BLACK);
 		addActorNoRefresh(hole,
 				new Location(p.toPixelX(center.x), p.toPixelY(center.y)));
 		ball.addHole(hole);
@@ -90,7 +100,7 @@ class Ball extends Actor {
 	private final double f = 0.2; // Friction (s^-1)
 	
 	public Ball(BallWall app) {
-		super("marble");
+		super("ball");
 		this.app = app;
 	}
 
@@ -113,7 +123,7 @@ class Ball extends Actor {
 			nbAct--;
 
 		GGCircle circle = new GGCircle(new GGVector(getX(), getY()),
-				app.virtualToPixel(18));
+				app.virtualToPixel(20));
 		if (nbAct == 0) {
 			for (Wall wall : walls) // Assumption: only one wall intersecting
 			{
@@ -158,8 +168,8 @@ class Ball extends Actor {
 
 	public void reset() {
 		// Physical initial conditions:
-		r.x = 0;
-		r.y = 0;
+		r.x = app.p.toUserX(getXStart());
+		r.y = app.p.toUserY(getYStart());
 		v.x = 0;
 		v.y = 0;
 		setLocation(getLocationStart());
@@ -268,7 +278,7 @@ class Hole extends Actor {
 	protected int color;
 	private GGPanel p;
 	protected GGCircle inner; // Used for collisions
-	private BallWall app;
+	protected BallWall app;
 
 	public Hole(BallWall app, PointD center, double radius, int color) {
 		super(new GGBitmap(1, 1).getBitmap()); // Dummy actor
@@ -281,14 +291,18 @@ class Hole extends Actor {
 
 	public GGVector affectBall(GGVector ballCenter) {
 		GGVector distance = new GGVector(center).sub(ballCenter);
-		GGVector aHole = distance.mult(20);
+		GGVector aHole = distance.mult(30);
 		if (distance.magnitude() < 0.1) {
 			setPixelLocation(p.toPixelPoint(center));
-			app.gameOver("Game over. Press [BACK] to play");
+			droppedInto();
 		}
 		return aHole;
 	}
 
+	protected void droppedInto() {
+		app.gameOver("Game over. Press [BACK] to play");
+	}
+	
 	public void reset() {
 		p.setPaintColor(Color.GRAY);
 		p.circle(center, radius + 0.1, true);
@@ -299,5 +313,16 @@ class Hole extends Actor {
 		int pixRadius = p.toPixelDx(radius);
 
 		inner = new GGCircle(new GGVector(pixCenter), pixRadius);
+	}
+}
+
+class FinalHole extends Hole {
+	public FinalHole(BallWall app, PointD center, double radius) {
+		super(app, center, radius, Color.YELLOW); // Dummy actor
+	}
+	
+	@Override
+	public void droppedInto() {
+		app.gameOver("You win! Press [BACK] to play again");
 	}
 }
