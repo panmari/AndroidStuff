@@ -61,10 +61,10 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		ball.addWall(wall);
 	}
 
-	private void makeHole(Ball ball, PointD center, double radius, boolean finalHole) {
+	private void makeHole(Ball ball, PointD center, double radius, boolean isGoal) {
 		Hole hole;
-		if (finalHole)
-			hole = new FinalHole(this, center, radius);
+		if (isGoal)
+			hole = new Goal(this, center, radius);
 		else hole = new Hole(this, center, radius, Color.BLACK);
 		addActorNoRefresh(hole, new Location(p.toPixelX(center.x), p.toPixelY(center.y)));
 		ball.addHole(hole);
@@ -184,6 +184,7 @@ abstract class Wall extends Actor {
 	protected double length; // In user coordinates
 	protected GGPanel p;
 	protected GGLine line; // Used for collisions
+	private double bouncyness = 0.5;
 
 	public Wall(BallWall app, PointD center, double length) {
 		super(new GGBitmap(1, 1).getBitmap()); // Dummy actor
@@ -194,12 +195,12 @@ abstract class Wall extends Actor {
 	}
 	
 	protected void reflectX(GGVector v, GGVector a) {
-		v.x = -v.x;
+		v.x = -v.x*bouncyness;
 		a.x = 0;
 	}
 	
 	protected void reflectY(GGVector v, GGVector a) {
-		v.y = -v.y;
+		v.y = -v.y*bouncyness;
 		a.y = 0;
 	}
 	
@@ -287,7 +288,7 @@ class Hole extends Actor {
 
 	public GGVector affectBall(GGVector ballCenter) {
 		GGVector distance = new GGVector(center).sub(ballCenter);
-		GGVector aHole = distance.mult(30);
+		GGVector aHole = distance.mult(1/(distance.magnitude2()*distance.magnitude2()));
 		if (distance.magnitude() < 0.1) {
 			setPixelLocation(p.toPixelPoint(center));
 			droppedInto();
@@ -312,9 +313,9 @@ class Hole extends Actor {
 	}
 }
 
-class FinalHole extends Hole {
-	public FinalHole(BallWall app, PointD center, double radius) {
-		super(app, center, radius, Color.YELLOW); // Dummy actor
+class Goal extends Hole {
+	public Goal(BallWall app, PointD center, double radius) {
+		super(app, center, radius, Color.YELLOW);
 	}
 	
 	@Override
