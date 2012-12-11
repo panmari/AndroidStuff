@@ -28,7 +28,8 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		makeWall(ball, new PointD(2.2, 3), 5, false);
 		makeWall(ball, new PointD(0, -4), 5, false);
 		makeWall(ball, new PointD(0, -3), 1, true);
-
+		makeWall(ball, new PointD(-4.7, 0), 6, true);
+		
 		double holeSize = p.toUserDx(ball.getWidth(0) / 2 + 3);
 		makeHole(ball, new PointD(4, 4.5), holeSize, true);
 		
@@ -46,6 +47,7 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		makeHole(ball, new PointD(3, -1), holeSize, false);
 
 		doRun();
+		showToast("Get to the yellow spot by tilting the device.", true);
 	}
 
 	private void makeWall(Ball ball, PointD center, double length,
@@ -55,8 +57,7 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 			wall = new VerticalWall(this, center, length);
 		else
 			wall = new HorizontalWall(this, center, length);
-		addActorNoRefresh(wall,
-				new Location(p.toPixelX(center.x), p.toPixelY(center.y)));
+		addActorNoRefresh(wall, new Location(p.toPixelX(center.x), p.toPixelY(center.y)));
 		ball.addWall(wall);
 	}
 
@@ -65,8 +66,7 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		if (finalHole)
 			hole = new FinalHole(this, center, radius);
 		else hole = new Hole(this, center, radius, Color.BLACK);
-		addActorNoRefresh(hole,
-				new Location(p.toPixelX(center.x), p.toPixelY(center.y)));
+		addActorNoRefresh(hole, new Location(p.toPixelX(center.x), p.toPixelY(center.y)));
 		ball.addHole(hole);
 	}
 
@@ -203,6 +203,18 @@ abstract class Wall extends Actor {
 		a.y = 0;
 	}
 	
+	protected GGLine draw(PointD start, PointD end) {
+		p.setPaintColor(Color.DKGRAY);
+		p.setLineWidth(4);
+		p.line(start, end);
+		p.circle(start, 0.05, true);
+		p.circle(end, 0.05, true);
+
+		Point pixStart = p.toPixelPoint(start);
+		Point pixEnd = p.toPixelPoint(end);
+		return new GGLine(new GGVector(pixStart), new GGVector(pixEnd));
+	}
+	
 	abstract public void reflectTip(GGVector v, GGVector a);
 
 	abstract public void reflect(GGVector v, GGVector a);
@@ -215,17 +227,9 @@ class VerticalWall extends Wall {
 	}
 
 	public void reset() {
-		p.setPaintColor(Color.DKGRAY);
 		PointD start = new PointD(center.x, center.y - length / 2);
 		PointD end = new PointD(center.x, center.y + length / 2);
-		p.setLineWidth(4);
-		p.line(start, end);
-		p.circle(start, 0.05, true);
-		p.circle(end, 0.05, true);
-
-		Point pixStart = p.toPixelPoint(start);
-		Point pixEnd = p.toPixelPoint(end);
-		line = new GGLine(new GGVector(pixStart), new GGVector(pixEnd));
+		line = draw(start, end);
 	}
 
 	@Override
@@ -246,17 +250,9 @@ class HorizontalWall extends Wall {
 	}
 
 	public void reset() {
-		p.setPaintColor(Color.DKGRAY);
 		PointD start = new PointD(center.x - length / 2, center.y);
 		PointD end = new PointD(center.x + length / 2, center.y);
-		p.setLineWidth(4);
-		p.line(start, end);
-		p.circle(start, 0.05, true);
-		p.circle(end, 0.05, true);
-
-		Point pixStart = p.toPixelPoint(start);
-		Point pixEnd = p.toPixelPoint(end);
-		line = new GGLine(new GGVector(pixStart), new GGVector(pixEnd));
+		line = draw(start, end);
 	}
 	
 	@Override
