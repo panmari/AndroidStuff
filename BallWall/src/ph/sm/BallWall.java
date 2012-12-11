@@ -67,6 +67,11 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		}
 	}
 
+	public void gameOver(String reason) {
+		showToast(reason);
+		doPause();
+	}
+
 }
 
 // -------------- class Ball -------------------
@@ -137,14 +142,8 @@ class Ball extends Actor {
 		for (Hole hole : holes) // Assumption: only one wall intersecting
 		{
 			if (hole.inner.isIntersecting(circle)) {
-				GGVector distance = new GGVector(hole.center).sub(r);
-				aHole = distance.mult(10);
+				aHole = hole.affectBall(r);
 				isNearHole = true;
-				if (distance.magnitude() < 0.5) {
-					setPixelLocation(app.p.toPixelPoint(hole.center));
-					app.showToast("Game over. Press [BACK] to play");
-					app.doPause();
-				}
 			}
 		}
 		if (!isNearHole) {
@@ -153,8 +152,7 @@ class Ball extends Actor {
 		}
 
 		if (!isInGrid()) {
-			app.showToast("Out. Press [BACK] to play");
-			app.doPause();
+			app.gameOver("Out. Press [BACK] to play again");
 		}
 	}
 
@@ -270,13 +268,25 @@ class Hole extends Actor {
 	protected int color;
 	private GGPanel p;
 	protected GGCircle inner; // Used for collisions
+	private BallWall app;
 
 	public Hole(BallWall app, PointD center, double radius, int color) {
 		super(new GGBitmap(1, 1).getBitmap()); // Dummy actor
-		p = app.p;
+		this.app = app;
+		this.p = app.p;
 		this.center = center;
 		this.radius = radius;
 		this.color = color;
+	}
+
+	public GGVector affectBall(GGVector ballCenter) {
+		GGVector distance = new GGVector(center).sub(ballCenter);
+		GGVector aHole = distance.mult(20);
+		if (distance.magnitude() < 0.1) {
+			setPixelLocation(p.toPixelPoint(center));
+			app.gameOver("Game over. Press [BACK] to play");
+		}
+		return aHole;
 	}
 
 	public void reset() {
