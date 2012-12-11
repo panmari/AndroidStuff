@@ -119,7 +119,7 @@ class Ball extends Actor {
 				if (circle.isIntersecting(wall.line.getStartVector())
 						|| circle.isIntersecting(wall.line.getEndVector())) {
 					nbAct = 5;
-					wall.reflectEdge(v, a);
+					wall.reflectTip(v, a);
 				}
 			}
 		}
@@ -195,7 +195,7 @@ abstract class Wall extends Actor {
 		a.y = 0;
 	}
 	
-	abstract public void reflectEdge(GGVector v, GGVector a);
+	abstract public void reflectTip(GGVector v, GGVector a);
 
 	abstract public void reflect(GGVector v, GGVector a);
 }
@@ -226,7 +226,7 @@ class VerticalWall extends Wall {
 	}
 	
 	@Override
-	public void reflectEdge(GGVector v, GGVector a) {
+	public void reflectTip(GGVector v, GGVector a) {
 		reflectY(v, a);
 	}
 }
@@ -257,7 +257,7 @@ class HorizontalWall extends Wall {
 	}
 
 	@Override
-	public void reflectEdge(GGVector v, GGVector a) {
+	public void reflectTip(GGVector v, GGVector a) {
 		reflectX(v, a);
 	}
 
