@@ -149,7 +149,7 @@ class Ball extends Actor {
 		v = vNew;
 
 		boolean isNearHole = false;
-		for (Hole hole : holes) // Assumption: only one wall intersecting
+		for (Hole hole : holes) // Assumption: only one hole at a time affects ball 
 		{
 			if (hole.inner.isIntersecting(circle)) {
 				aHole = hole.affectBall(r);
@@ -172,6 +172,8 @@ class Ball extends Actor {
 		r.y = app.p.toUserY(getYStart());
 		v.x = 0;
 		v.y = 0;
+		aHole.x = 0;
+		aHole.y = 0;
 		setLocation(getLocationStart());
 	}
 
@@ -184,7 +186,7 @@ abstract class Wall extends Actor {
 	protected double length; // In user coordinates
 	protected GGPanel p;
 	protected GGLine line; // Used for collisions
-	private double bouncyness = 0.5;
+	private double bouncyness = 1;
 
 	public Wall(BallWall app, PointD center, double length) {
 		super(new GGBitmap(1, 1).getBitmap()); // Dummy actor
@@ -288,8 +290,8 @@ class Hole extends Actor {
 
 	public GGVector affectBall(GGVector ballCenter) {
 		GGVector distance = new GGVector(center).sub(ballCenter);
-		GGVector aHole = distance.mult(1/(distance.magnitude2()*distance.magnitude2()));
-		if (distance.magnitude() < 0.1) {
+		GGVector aHole = distance.mult(30);
+		if (distance.magnitude() < 0.2) {
 			setPixelLocation(p.toPixelPoint(center));
 			droppedInto();
 		}
