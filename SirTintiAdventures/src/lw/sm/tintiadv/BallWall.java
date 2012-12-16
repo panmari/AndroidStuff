@@ -1,8 +1,9 @@
 // BallWall.java
-package lw.sm;
+package lw.sm.tintiadv;
 
 import ch.aplu.android.*;
 import android.graphics.*;
+
 import java.util.ArrayList;
 
 public class BallWall extends GameGrid implements GGNavigationListener {
@@ -48,7 +49,7 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		TintiServant.spreadClothesRandomly(this, p, ball);
 		
 		doRun();
-		showToast("Get to the yellow spot by tilting the device.", true);
+		showToast("Get to your princess! But first, get properly dressed..", true);
 	}
 
 	private void makeWall(Ball ball, PointD center, double length,
@@ -65,7 +66,7 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 	private void makeHole(Ball ball, PointD center, double radius, boolean isGoal) {
 		Hole hole;
 		if (isGoal)
-			hole = new Goal(this, center, radius);
+			hole = new Princess(this, center, radius);
 		else hole = new Hole(this, center, radius, Color.BLACK);
 		addActorNoRefresh(hole, new Location(p.toPixelX(center.x), p.toPixelY(center.y)));
 		ball.addHole(hole);
@@ -74,6 +75,7 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 	public void navigationEvent(GGNavigationEvent event) {
 		if (event == GGNavigationEvent.BACK_DOWN && !isRunning()) {
 			ball.reset();
+			TintiServant.resetCloths();
 			doRun();
 		}
 	}
