@@ -43,6 +43,7 @@ public class TintiServant {
 			a.setLocation(a.getLocationStart());
 			a.show();
 		}
+		ball.setActorCollisionEnabled(true);
 		censorScreen.hide();
 	}
 	
