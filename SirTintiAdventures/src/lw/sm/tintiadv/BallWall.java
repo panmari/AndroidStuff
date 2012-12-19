@@ -24,7 +24,7 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 
 		ball = new Ball(this);
 		addActor(ball, new Location(p.toPixelX(4), p.toPixelY(-4)));
-
+				
 		makeWall(ball, new PointD(-3.5, 0), 5, true);
 		makeWall(ball, new PointD(2.2, 3), 5, false);
 		makeWall(ball, new PointD(0, -4), 5, false);
@@ -75,7 +75,7 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 	public void navigationEvent(GGNavigationEvent event) {
 		if (event == GGNavigationEvent.BACK_DOWN && !isRunning()) {
 			ball.reset();
-			TintiServant.resetCloths();
+			TintiServant.reset();
 			doRun();
 		}
 	}
