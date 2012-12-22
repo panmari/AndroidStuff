@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class BallWall extends GameGrid implements GGNavigationListener {
 	protected GGComboSensor sensor;
 	protected GGPanel p;
-	private Ball ball;
+	Ball ball;
 
 	public BallWall() {
 		super(windowZoom(600));
@@ -81,7 +81,7 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 	}
 
 	public void gameOver(String reason) {
-		showToast(reason);
+		showToast(reason, true);
 		doPause();
 	}
 
@@ -302,6 +302,7 @@ class Hole extends Actor {
 	}
 
 	protected void droppedInto() {
+		app.ball.setLocation(getLocation());
 		app.gameOver("Game over. Press [BACK] to play");
 	}
 	
@@ -325,6 +326,7 @@ class Goal extends Hole {
 	
 	@Override
 	public void droppedInto() {
+		app.ball.setLocation(getLocation());
 		app.gameOver("You win! Press [BACK] to play again");
 	}
 }

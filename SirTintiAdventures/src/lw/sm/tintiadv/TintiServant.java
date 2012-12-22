@@ -44,7 +44,7 @@ public class TintiServant {
 			a.show();
 		}
 		ball.setActorCollisionEnabled(true);
-		censorScreen.hide();
+		censorScreen.hide();	
 	}
 	
 	public static Location toLocation(PointD point) {
@@ -84,6 +84,7 @@ class Princess extends Goal {
 			TintiServant.ball.setLocation(TintiServant.toLocation(new PointD(2.5, 4.5)));
 			for (int i = 0; i < TintiServant.cloths.length; i++) {
 				TintiServant.cloths[i].setLocation(TintiServant.toLocation(dressedPos[i]));
+				TintiServant.cloths[i].show();
 				app.setPaintOrder(Actor.class, Ball.class);
 			}
 			break;
