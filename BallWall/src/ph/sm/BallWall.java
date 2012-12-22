@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class BallWall extends GameGrid implements GGNavigationListener {
 	protected GGComboSensor sensor;
 	protected GGPanel p;
-	private Ball ball;
+	protected Ball ball;
 
 	public BallWall() {
 		super(windowZoom(600));
@@ -275,7 +275,7 @@ class Hole extends Actor {
 	protected PointD center; // In user coordinates
 	protected double radius; // In user coordinates
 	protected int color;
-	private GGPanel p;
+	protected GGPanel p;
 	protected GGCircle inner; // Used for collisions
 	protected BallWall app;
 
@@ -299,6 +299,7 @@ class Hole extends Actor {
 	}
 
 	protected void droppedInto() {
+		app.ball.setLocation(getLocation());
 		app.gameOver("Game over. Press [BACK] to play");
 	}
 	
@@ -322,6 +323,7 @@ class Goal extends Hole {
 	
 	@Override
 	public void droppedInto() {
+		app.ball.setLocation(getLocation());
 		app.gameOver("You win! Press [BACK] to play again");
 	}
 }
