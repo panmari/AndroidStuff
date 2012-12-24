@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class BallWall extends GameGrid implements GGNavigationListener {
 	protected GGComboSensor sensor;
 	protected GGPanel p;
-	protected Ball ball;
+	private Ball ball;
 
 	public BallWall() {
 		super(windowZoom(600));
@@ -77,8 +77,9 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		}
 	}
 
-	public void gameOver(String reason) {
-		showToast(reason);
+	public void gameOver(String reason, Location gameOverLoc) {
+		ball.setLocation(gameOverLoc);
+		showToast(reason, true);
 		doPause();
 	}
 
@@ -162,7 +163,7 @@ class Ball extends Actor {
 		}
 
 		if (!isInGrid()) {
-			app.gameOver("Out. Press [BACK] to play again");
+			app.gameOver("Out. Press [BACK] to play again", getLocation());
 		}
 	}
 
@@ -275,7 +276,7 @@ class Hole extends Actor {
 	protected PointD center; // In user coordinates
 	protected double radius; // In user coordinates
 	protected int color;
-	protected GGPanel p;
+	private GGPanel p;
 	protected GGCircle inner; // Used for collisions
 	protected BallWall app;
 
@@ -299,8 +300,7 @@ class Hole extends Actor {
 	}
 
 	protected void droppedInto() {
-		app.ball.setLocation(getLocation());
-		app.gameOver("Game over. Press [BACK] to play");
+		app.gameOver("Game over. Press [BACK] to play", getLocation());
 	}
 	
 	public void reset() {
@@ -323,7 +323,6 @@ class Goal extends Hole {
 	
 	@Override
 	public void droppedInto() {
-		app.ball.setLocation(getLocation());
-		app.gameOver("You win! Press [BACK] to play again");
+		app.gameOver("You win! Press [BACK] to play again", getLocation());
 	}
 }
