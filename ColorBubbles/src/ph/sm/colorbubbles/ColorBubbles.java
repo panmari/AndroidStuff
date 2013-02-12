@@ -9,15 +9,13 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
 {
   private final double vFactor = 50;
   private double roomHeight = 5;
-  protected GGStatusBar status;
+  private GGStatusBar status;
   protected GGPanel p;
-  int nbBalls = 6;
-  Ball[] balls = new Ball[nbBalls];
+  private int nbBalls = 6;
   protected int nbBubbles = 25;
-  int flingThreshold = 2;
-  Bubble[] bubbles = new Bubble[nbBubbles];
-  protected int hits = 0;
-  protected int shots = 0;
+  private int flingThreshold = 2;
+  private int hits = 0;
+  private int shots = 0;
 
   public ColorBubbles()
   {
@@ -38,60 +36,56 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
 
     for (int i = 0; i < nbBubbles; i++)
     {
-      bubbles[i] = new Bubble();
+      int type = (int)(Math.random() * 6);
+      Bubble b = new Bubble(type);
+      b.setCollisionCircle(new Point(0, 0), 21);
       int d = (int)((double)pixelToVirtual(getNbHorzCells()) / (nbBubbles + 1));
-      addActorNoRefresh(bubbles[i], new Location(virtualToPixel((i + 1) * d ), virtualToPixel(30)));
+      addActorNoRefresh(b, new Location(virtualToPixel((i + 1) * d), virtualToPixel(30)));
     }
-    
-    for (int i = 0; i < nbBalls; i++) {
-        balls[i] = new Ball(this, i);
-        balls[i].addActorCollisionListener(this);
-        balls[i].setActEnabled(false);
-        balls[i].setActorCollisionEnabled(false);
-        Location loc = new Location(p.toPixelX(i-2.5), p.toPixelY(0.5));
-        addActorNoRefresh(balls[i], loc);
-        for (int j = 0; j < nbBubbles; j++)
-          balls[i].addCollisionActor(bubbles[j]);
+
+    for (int i = 0; i < nbBalls; i++)
+    {
+      Ball ball = new Ball(this, i);
+      Location loc = new Location(p.toPixelX(i - 2.5), p.toPixelY(0.5));
+      addActorNoRefresh(ball, loc);
     }
     doRun();
-    status.setText("Fling the ball!");
+    status.setText("Fling a ball!");
   }
 
-  
   public boolean flingEvent(Point start, Point end, GGVector velocity)
   {
     double vx = vFactor * velocity.x;
     double vy = -vFactor * velocity.y;
     if (p.toUserY(end.y) < flingThreshold)
     {
-      boolean flying = false;
-      for (Ball b: balls) {
-    	  if (new Location(start.x, start.y).getDistanceTo(b.getLocation()) < virtualToPixel(42)) {
-    		  b.init(p.toUserX(b.getXStart()), p.toUserY(b.getYStart()), vx, vy);
-    		  b.setActEnabled(true);
-    		  b.setActorCollisionEnabled(true);
-    	      shots++;
-    		  flying = true;
-    		  break;
-    	  }
+      for (Actor b : getActors(Ball.class))
+      {
+        if (new Location(start.x, start.y).getDistanceTo(b.getLocation()) < virtualToPixel(80))
+        {
+          b.addActorCollisionListener(this);
+          b.setCollisionCircle(new Point(0, 0), 21);
+          for (Actor bubble : getActors(Bubble.class))
+            b.addCollisionActor(bubble);  
+          ((Ball)b).init(p.toUserX(b.getXStart()), p.toUserY(b.getYStart()), vx, vy);
+          shots++;
+          return true;
+        }
       }
-      if (!flying)
-    	  showToast("Start on a ball");
+      showToast("Fling one of the balls");
     }
     else
-    {
-      showToast("Stay under the green line");
-    }
-
+      showToast("Stay behind the green line");
     return true;
   }
 
   public int collide(Actor actor1, Actor actor2)
   {
-    if (actor1.getIdVisible() == actor2.getIdVisible()) {
-    	playTone(1200, 20);
-    	actor2.removeSelf();
-    	hits++;
+    if (((Ball)actor1).getType() == ((Bubble)actor2).getType())
+    {
+      playTone(1200, 20);
+      actor2.removeSelf();
+      hits++;
     }
     displayResult();
     return 0;
@@ -102,33 +96,31 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
     status.setText(String.format("#shots: %d   #hits: %d   %%: %4.1f",
       shots, hits, 100.0 * hits / shots));
   }
+
 }
 
 // -----------class Ball-----------------
-class Ball extends Actor
+class Ball extends Bubble
 {
   private double x, y;  // in m 
   private double vx, vy; // in  m/s
   private double dt = 0.030;  // in s (simulation period)
   private ColorBubbles app;
 
-  public Ball(ColorBubbles app, int color) {
-	  this(app, 0, 0, 0, 0); //is later assigned by init
-	  show(color);
-  }
-  
-  public Ball(ColorBubbles app, double x, double y, double vx, double vy)
+  public Ball(ColorBubbles app, int type)
   {
-    super("peg", 6);
+    super(type);
     this.app = app;
-    init(x,y,vx,vy);
+    setActEnabled(false);
   }
-  
-  public void init(double x, double y, double vx, double vy) {
-	  this.x = x;
-      this.y = y;
-      this.vx = vx;
-      this.vy = vy;
+
+  public void init(double x, double y, double vx, double vy)
+  {
+    this.x = x;
+    this.y = y;
+    this.vx = vx;
+    this.vy = vy;
+    setActEnabled(true);
   }
 
   public void act()
@@ -143,13 +135,23 @@ class Ball extends Actor
       app.displayResult();
     }
   }
+
 }
 
+// -----------class Bubble -----------------
 class Bubble extends Actor
 {
-  public Bubble()
+  protected int type;
+  
+  public Bubble(int type)
   {
-    super("peg", 6);
-    show((int)(Math.random()*6));
+    super("peg_" + type);
+    this.type = type;
   }
+  
+  public int getType()
+  {
+    return type;
+  }  
+
 }
