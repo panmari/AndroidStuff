@@ -48,6 +48,8 @@ public class BallWall extends GameGrid implements GGNavigationListener {
 		makeHole(ball, new PointD(3, -1), holeSize, false);
 		TintiServant.spreadClothesRandomly(this, p, ball);
 		
+		setWakeLockEnabled(true); 
+		
 		doRun();
 		showToast("Get to your princess! But first, get properly dressed..", true);
 	}
