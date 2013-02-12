@@ -9,8 +9,8 @@ public class Bubble extends Actor {
 		show(type);
 	}
 
-	public int getType() {
-		return getIdVisible();
+	public boolean fits(Bubble ball) {
+		return this.getIdVisible() == ball.getIdVisible();
 	}
 
 }

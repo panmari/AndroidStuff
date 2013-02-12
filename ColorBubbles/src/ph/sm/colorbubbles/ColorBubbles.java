@@ -53,7 +53,7 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
       Location loc = new Location(p.toPixelX(i - 2.5), p.toPixelY(0.5));
       addActorNoRefresh(ball, loc);
       for (Bubble b : bubbles) {
-    	  if (b.getType() == ball.getType())
+    	  if (b.fits(ball))
     		  ball.addCollisionActor(b);
       }
     }
