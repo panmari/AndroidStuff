@@ -52,7 +52,6 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
       Ball ball = new Ball(this, i);
       Location loc = new Location(p.toPixelX(i - 2.5), p.toPixelY(0.5));
       addActorNoRefresh(ball, loc);
-      
       for (Bubble b : bubbles) {
     	  if (b.getType() == ball.getType())
     		  ball.addCollisionActor(b);
@@ -68,22 +67,28 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
     double vy = -vFactor * velocity.y;
     if (p.toUserY(end.y) < flingThreshold)
     {
-      for (Actor b : getActors(Ball.class))
-      {
-        if (new Location(start.x, start.y).getDistanceTo(b.getLocation()) < virtualToPixel(80))
-        {
+    	Ball b = getBallCloseTo(start);
+    	if (b != null) {
           b.addActorCollisionListener(this);
           b.setCollisionCircle(new Point(0, 0), 21);
-          ((Ball)b).shoot(vx, vy);
+          b.shoot(vx, vy);
           shots++;
           return true;
         }
-      }
-      showToast("Fling one of the balls");
+    	else showToast("Fling one of the balls");
     }
     else
       showToast("Stay behind the green line");
     return true;
+  }
+  
+  private Ball getBallCloseTo(Point loc) {
+	  for (Actor b: getActors(Ball.class))
+      {
+        if (new Location(loc.x, loc.y).getDistanceTo(b.getLocation()) < virtualToPixel(80))
+        	return (Ball)b;
+      }
+	  return null;
   }
 
   public int collide(Actor actor1, Actor actor2)
