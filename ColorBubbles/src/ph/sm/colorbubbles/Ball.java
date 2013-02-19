@@ -15,6 +15,7 @@ class Ball extends Bubble {
 
 	public void reset() {
 		setActEnabled(false);
+		setLocation(getLocationStart());
 		x = app.p.toUserX(getXStart());
 		y = app.p.toUserY(getYStart());
 	}
@@ -30,7 +31,7 @@ class Ball extends Bubble {
 		y = y + vy * dt;
 		setLocation(new Location(app.p.toPixelX(x), app.p.toPixelY(y)));
 		if (!isInGrid()) {
-			removeSelf();
+			reset();
 			app.displayResult();
 		}
 	}

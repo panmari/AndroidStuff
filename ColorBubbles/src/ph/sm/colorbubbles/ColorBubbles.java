@@ -2,7 +2,10 @@
 
 package ph.sm.colorbubbles;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 import ch.aplu.android.*;
 import android.graphics.Point;
@@ -19,6 +22,7 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
   private int flingThreshold = 2;
   private int hits = 0;
   private int shots = 0;
+private boolean gameOver;
 
   public ColorBubbles()
   {
@@ -47,23 +51,31 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
       addActorNoRefresh(b, new Location(virtualToPixel((i + 1) * d), virtualToPixel(30)));
     }
 
+    List<Ball> balls = new ArrayList<Ball>();
     for (int i = 0; i < nbBalls; i++)
     {
-      Ball ball = new Ball(this, i);
-      Location loc = new Location(p.toPixelX(i - 2.5), p.toPixelY(0.5));
-      addActorNoRefresh(ball, loc);
-      for (Bubble b : bubbles) {
-    	  if (b.fits(ball))
-    		  ball.addCollisionActor(b);
-      }
+      balls.add(new Ball(this, i));
     }
+    Collections.shuffle(balls);
+    for (int i = 0; i < nbBalls; i++) {
+    	Ball ball = balls.get(i);
+	    Location loc = new Location(p.toPixelX(i - 2.5), p.toPixelY(0.5));
+	    addActorNoRefresh(ball, loc);
+	    for (Bubble b : bubbles) {
+	  	  if (b.fits(ball))
+	  		  ball.addCollisionActor(b);
+	    }
+    }
+    
     doRun();
-    status.setText("Fling a ball!");
+    status.setText("Fling someone!");
   }
 
   public boolean flingEvent(Point start, Point end, GGVector velocity)
   {
-    double vx = vFactor * velocity.x;
+    if (gameOver)
+    	return true;
+	double vx = vFactor * velocity.x;
     double vy = -vFactor * velocity.y;
     if (p.toUserY(end.y) < flingThreshold)
     {
@@ -75,7 +87,7 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
           shots++;
           return true;
         }
-    	else showToast("Fling one of the balls");
+    	else showToast("Start on a head");
     }
     else
       showToast("Stay behind the green line");
@@ -94,16 +106,36 @@ public class ColorBubbles extends GameGrid implements GGFlingListener, GGActorCo
   public int collide(Actor actor1, Actor actor2)
   {
     playTone(1200, 20);
-    actor2.removeSelf();
+    addActor(new Heart(), getLocationBetween(actor1.getLocation(), actor2.getLocation()));
+    removeActor(actor2);
     hits++;
     displayResult();
     return 0;
   }
+  
+  public Location getLocationBetween(Location loc1, Location loc2) {
+	  int x = (loc1.getX() + loc2.getX()) / 2;
+	  int y = (loc1.getY() + loc2.getY()) / 2;
+	  return new Location(x, y);
+  }
 
   protected void displayResult()
   {
-    status.setText(String.format("#shots: %d   #hits: %d   %%: %4.1f",
-      shots, hits, 100.0 * hits / shots));
+	boolean gameOver = true;
+	for (Bubble b: bubbles) {
+		if (b.isVisible() && !b.isShit()) {
+			gameOver = false;
+			break;
+		}
+	}
+	String msg = String.format("#shots: %d   #hits: %d   %%: %4.1f",
+		      shots, hits, 100.0 * hits / shots);
+	if (gameOver) {
+		msg += " -- Game finished!";
+		doPause();
+		this.gameOver = true;
+	}
+    status.setText(msg);
   }
 
 }
