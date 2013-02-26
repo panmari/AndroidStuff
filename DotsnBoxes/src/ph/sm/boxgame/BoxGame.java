@@ -40,6 +40,8 @@ public class BoxGame extends GameGrid implements GGActorTouchListener{
 		players[0] = new Player(Color.BLUE, "Blue");
 		players[1] = new Player(Color.RED, "Red");
 		currentPlayer = players[0]; //blue begins;
+		getBg().clear(Color.WHITE);
+		refresh(); //so user doesn't sit in front of black screen
 		for (int x = 1; x < getNbHorzCells(); x++) {
 			for (int y = 1; y < getNbVertCells(); y++) {
 				Location loc = new Location(x, y);
@@ -57,9 +59,9 @@ public class BoxGame extends GameGrid implements GGActorTouchListener{
 				}
 			}
 		}
-		getBg().clear(Color.WHITE);
 		status.setText("Click on an edge to start");
 		setTitle("The box game -- www.java-online.ch"); 
+		refresh();
 	}
 	
 	
