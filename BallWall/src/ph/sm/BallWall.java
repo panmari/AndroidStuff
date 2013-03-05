@@ -114,7 +114,7 @@ class Ball extends Actor {
 	}
 	
 	public void act() {
-		double[] acc = app.sensor.getAcceleration(0);
+		float[] acc = app.sensor.getAcceleration(0);
 		GGVector g = new GGVector(-acc[4], acc[3]);
 
 		// New acceleration:
