@@ -24,7 +24,7 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 	}
 	public void act() {
 		float[] values = sensor.getValues();
-		vx = -values[0]*FACTOR*10;
+		vx = -values[0]*FACTOR*30;
 		x = x + vx;
 		y = y + vy;
 		vx = vx + ax;
@@ -56,9 +56,14 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 	
 
 	@Override
-	public int collide(Actor arg0, Actor arg1) {
-		if (vy > 0)
-			jump();
-		return 30;
+	public int collide(Actor jumpy, Actor colPartner) {
+		if (colPartner.getClass() == Pad.class) {
+			if (vy > 0)
+				jump();
+		} else { //must be coin
+			Coin c = (Coin) (colPartner);
+			c.reset();
+		}
+		return 1;
 	}
 }

@@ -20,6 +20,7 @@ public class JumpyGame extends GameGrid
 
   public void main()
   {
+	setWakeLockEnabled(true);
 	setSimulationPeriod(30);
     GGSensor sensor = new GGSensor(this, Sensor.TYPE_ACCELEROMETER);
     
@@ -32,9 +33,10 @@ public class JumpyGame extends GameGrid
     	jumpy.addCollisionActor(pad);
     }
     
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 3; i++) {
     	Coin c = new Coin();
     	addActorNoRefresh(c, getRandomLocation());
+    	jumpy.addCollisionActor(c);
     }
    
     doRun();
