@@ -1,5 +1,6 @@
 package ph.sm.jumpy;
 
+import android.graphics.Point;
 import ch.aplu.android.Actor;
 
 public class Pad extends Actor {
@@ -17,5 +18,9 @@ public class Pad extends Actor {
 			int x = (int)(Math.random()*(gameGrid.getNbHorzCells() - 100)) + 100;
 			setX(x);
 		}
+	}
+	
+	public void reset() {
+		setCollisionLine(new Point(-50, 1), new Point(50, 1));
 	}
 }

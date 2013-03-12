@@ -26,11 +26,17 @@ public class JumpyGame extends GameGrid
     jumpy = new Jumpy(sensor);
     jumpy.addActorCollisionListener(jumpy);
     addActor(jumpy, new Location(300, 100));
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 8; i++) {
     	Pad pad = new Pad();
-    	addActor(pad, new Location(i*200 + 100, i*200));
+    	addActorNoRefresh(pad, new Location(i*100 + 100, i*100));
     	jumpy.addCollisionActor(pad);
     }
+    
+    for (int i = 0; i < 10; i++) {
+    	Coin c = new Coin();
+    	addActorNoRefresh(c, getRandomLocation());
+    }
+   
     doRun();
   }
 }
