@@ -9,9 +9,13 @@ public class Pad extends Actor {
 	}
 	
 	public void act() {
-		if (isInGrid())
+		if (isInGrid()) {
 			setY(getY() + 1);
-		else 
+		}
+		else {  
 			setY(0);
+			int x = (int)(Math.random()*(gameGrid.getNbHorzCells() - 100)) + 100;
+			setX(x);
+		}
 	}
 }

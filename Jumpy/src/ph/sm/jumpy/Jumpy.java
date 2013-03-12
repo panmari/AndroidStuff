@@ -1,19 +1,20 @@
 package ph.sm.jumpy;
 
 import ch.aplu.android.Actor;
+import ch.aplu.android.GGActorCollisionListener;
 import ch.aplu.android.GGSensor;
 import ch.aplu.android.Location;
 
-public class Jumpy extends Actor{
+public class Jumpy extends Actor implements GGActorCollisionListener {
 	
-	private static final float JUMP_HEIGHT = -7;
-	private static final float FACTOR = 0.01f;
-	float x;
-	float y;
-	float vx;
-	float vy;
-	float ax;
-	float ay = 9.81f*FACTOR;
+	private static final float FACTOR = 0.05f;
+	private static final float JUMP_HEIGHT = -.7f/FACTOR;
+	private float x;
+	private float y;
+	private float vx;
+	private float vy;
+	private float ax;
+	private float ay = 9.81f*FACTOR;
 	private GGSensor sensor;
 	
 	
@@ -23,7 +24,7 @@ public class Jumpy extends Actor{
 	}
 	public void act() {
 		float[] values = sensor.getValues();
-		ax = -values[0]*FACTOR;
+		vx = -values[0]*FACTOR*10;
 		x = x + vx;
 		y = y + vy;
 		vx = vx + ax;
@@ -34,7 +35,10 @@ public class Jumpy extends Actor{
 	
 	private void updateLocation() {
 		Location newLoc = new Location(Math.round(x), Math.round(y));
-		setLocation(newLoc);
+		if (newLoc.y > gameGrid.getNbVertCells())
+			gameGrid.doPause();
+		else
+			setLocation(newLoc);
 	}
 	
 	public void jump() {
@@ -47,5 +51,14 @@ public class Jumpy extends Actor{
 	public void reset() {
 		x = getX();
 		y = getY();
+		//setCollisionSpot(new Point(0, -10));
+	}
+	
+
+	@Override
+	public int collide(Actor arg0, Actor arg1) {
+		if (vy > 0)
+			jump();
+		return 30;
 	}
 }
