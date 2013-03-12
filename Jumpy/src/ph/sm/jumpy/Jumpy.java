@@ -6,6 +6,7 @@ import ch.aplu.android.Actor;
 import ch.aplu.android.GGActorCollisionListener;
 import ch.aplu.android.GGSensor;
 import ch.aplu.android.GGStatusBar;
+import ch.aplu.android.L;
 import ch.aplu.android.Location;
 
 public class Jumpy extends Actor implements GGActorCollisionListener {
@@ -24,7 +25,7 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 	
 	
 	public Jumpy(GGSensor sensor, GGStatusBar status) {
-		super("ball");
+		super("sara", 4);
 		this.sensor = sensor;
 		this.status = status;
 	}
@@ -35,7 +36,9 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 		y = y + vy;
 		vx = vx + ax;
 		vy = vy + ay;
-		
+		int activeSprite = Math.max(Math.min(Math.round(-vy/8f + 1.5f), 3), 0);
+		show(activeSprite);
+		setHorzMirror(vx < 0);
 		updateLocation();
 	}
 	
@@ -55,7 +58,6 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 	 * Initialize positions
 	 */
 	public void reset() {
-		setCollisionCircle(new Point(0, 0), 20);
 		x = getX();
 		y = getY();
 	}
