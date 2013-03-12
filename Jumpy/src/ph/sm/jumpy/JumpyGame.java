@@ -2,10 +2,11 @@
 
 package ph.sm.jumpy;
 
-import ch.aplu.android.*;
-import android.graphics.Color;
 import android.hardware.Sensor;
-import static java.lang.Math.*;
+import ch.aplu.android.GGSensor;
+import ch.aplu.android.GGStatusBar;
+import ch.aplu.android.GameGrid;
+import ch.aplu.android.Location;
 
 public class JumpyGame extends GameGrid
 {
@@ -14,7 +15,7 @@ public class JumpyGame extends GameGrid
 
   public JumpyGame()
   {
-    super(WHITE, windowZoom(600));
+    super(WHITE, windowZoom(700));
     status = addStatusBar(30);
   }
 

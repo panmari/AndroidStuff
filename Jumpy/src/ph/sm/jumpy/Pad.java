@@ -21,6 +21,6 @@ public class Pad extends Actor {
 	}
 	
 	public void reset() {
-		setCollisionLine(new Point(-50, 1), new Point(50, 1));
+		setCollisionLine(new Point(-50, -8), new Point(50, -8));
 	}
 }

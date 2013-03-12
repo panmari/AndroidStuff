@@ -58,7 +58,6 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 		setCollisionCircle(new Point(0, 0), 20);
 		x = getX();
 		y = getY();
-		//setCollisionSpot(new Point(0, -10));
 	}
 
 	@Override
@@ -66,12 +65,14 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 		if (colPartner.getClass() == Pad.class) {
 			if (vy > 0)
 				jump();
-		} else { //must be coin
+		} else { 
 			Coin c = (Coin) (colPartner);
-			score++;
-			status.setText("Score: " + score);
-			c.reset();
+			if (c.isInGrid()) {
+				score++;
+				status.setText("Score: " + score);
+				c.reset();
+			}
 		}
-		return 1;
+		return 5;
 	}
 }
