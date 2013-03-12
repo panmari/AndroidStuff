@@ -5,10 +5,12 @@ package ph.sm.jumpy;
 import android.hardware.Sensor;
 import ch.aplu.android.GGSensor;
 import ch.aplu.android.GGStatusBar;
+import ch.aplu.android.GGTouch;
+import ch.aplu.android.GGTouchListener;
 import ch.aplu.android.GameGrid;
 import ch.aplu.android.Location;
 
-public class JumpyGame extends GameGrid
+public class JumpyGame extends GameGrid implements GGTouchListener
 {
   private GGStatusBar status;
   private Jumpy jumpy;
@@ -40,6 +42,19 @@ public class JumpyGame extends GameGrid
     	jumpy.addCollisionActor(c);
     }
     setActOrder(Jumpy.class, Coin.class, Pad.class);
+    status.setText("Tilt your device left/right to control the jumps direction.");
     doRun();
+    addTouchListener(this, GGTouch.click);
+    setTouchEnabled(false);
   }
+
+	@Override
+	public boolean touchEvent(GGTouch arg0) {
+		doReset();
+		status.setText("Game reset");
+		setTouchEnabled(false);
+		setActEnabled(true);
+		doRun();
+		return true;
+	}
 }

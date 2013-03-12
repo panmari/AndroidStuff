@@ -12,7 +12,7 @@ import ch.aplu.android.Location;
 public class Jumpy extends Actor implements GGActorCollisionListener {
 	
 	private static final float FACTOR = 0.05f;
-	private static final float JUMP_HEIGHT = -.7f/FACTOR;
+	private static final float JUMP_VELOCITY = -.7f/FACTOR;
 	private float x;
 	private float y;
 	private float vx;
@@ -44,22 +44,25 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 	
 	private void updateLocation() {
 		Location newLoc = new Location(Math.round(x), Math.round(y));
-		if (newLoc.y > gameGrid.getNbVertCells())
-			gameGrid.doPause();
-		else
+		if (newLoc.y > gameGrid.getNbVertCells()) {
+			status.setText("Final score: " + score + " -- Touch screen to play again");
+			gameGrid.refresh();
+			gameGrid.setActEnabled(false);
+			gameGrid.setTouchEnabled(true);
+		}
+		else {
 			setLocation(newLoc);
+		}
 	}
 	
 	public void jump() {
-		vy = JUMP_HEIGHT;
+		vy = JUMP_VELOCITY;
 	}
 	
-	/**
-	 * Initialize positions
-	 */
 	public void reset() {
 		x = getX();
 		y = getY();
+		score = 0;
 	}
 
 	@Override
