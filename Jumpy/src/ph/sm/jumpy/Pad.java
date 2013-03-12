@@ -15,7 +15,7 @@ public class Pad extends Actor {
 		}
 		else {  
 			setY(0);
-			int x = (int)(Math.random()*(gameGrid.getNbHorzCells() - 100)) + 100;
+			int x = (int)(Math.random()*(gameGrid.getNbHorzCells() - 200)) + 100;
 			setX(x);
 		}
 	}

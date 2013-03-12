@@ -1,8 +1,11 @@
 package ph.sm.jumpy;
 
+import android.graphics.Point;
+import android.hardware.Sensor;
 import ch.aplu.android.Actor;
 import ch.aplu.android.GGActorCollisionListener;
 import ch.aplu.android.GGSensor;
+import ch.aplu.android.GGStatusBar;
 import ch.aplu.android.Location;
 
 public class Jumpy extends Actor implements GGActorCollisionListener {
@@ -16,14 +19,17 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 	private float ax;
 	private float ay = 9.81f*FACTOR;
 	private GGSensor sensor;
+	private int score;
+	private GGStatusBar status;
 	
 	
-	public Jumpy(GGSensor sensor) {
+	public Jumpy(GGSensor sensor, GGStatusBar status) {
 		super("ball");
 		this.sensor = sensor;
+		this.status = status;
 	}
 	public void act() {
-		float[] values = sensor.getValues();
+		float[] values = GGSensor.toDeviceRotation(gameGrid, sensor.getValues(), Sensor.TYPE_ACCELEROMETER);
 		vx = -values[0]*FACTOR*30;
 		x = x + vx;
 		y = y + vy;
@@ -49,11 +55,11 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 	 * Initialize positions
 	 */
 	public void reset() {
+		setCollisionCircle(new Point(0, 0), 20);
 		x = getX();
 		y = getY();
 		//setCollisionSpot(new Point(0, -10));
 	}
-	
 
 	@Override
 	public int collide(Actor jumpy, Actor colPartner) {
@@ -62,6 +68,8 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 				jump();
 		} else { //must be coin
 			Coin c = (Coin) (colPartner);
+			score++;
+			status.setText("Score: " + score);
 			c.reset();
 		}
 		return 1;

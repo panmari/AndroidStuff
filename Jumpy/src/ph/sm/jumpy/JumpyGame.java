@@ -24,7 +24,7 @@ public class JumpyGame extends GameGrid
 	setSimulationPeriod(30);
     GGSensor sensor = new GGSensor(this, Sensor.TYPE_ACCELEROMETER);
     
-    jumpy = new Jumpy(sensor);
+    jumpy = new Jumpy(sensor, status);
     jumpy.addActorCollisionListener(jumpy);
     addActor(jumpy, new Location(300, 100));
     for (int i = 0; i < 8; i++) {
@@ -38,7 +38,7 @@ public class JumpyGame extends GameGrid
     	addActorNoRefresh(c, getRandomLocation());
     	jumpy.addCollisionActor(c);
     }
-   
+    setActOrder(Jumpy.class, Coin.class, Pad.class);
     doRun();
   }
 }
