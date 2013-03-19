@@ -66,6 +66,10 @@ public class JumpyGame extends GameGrid implements GGTouchListener
 		  speedUpSign.hide();
 	  }
   }
+  
+  public void reset() {
+	  counter = 0;
+  }
 
 	@Override
 	public boolean touchEvent(GGTouch arg0) {
