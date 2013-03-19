@@ -1,12 +1,10 @@
 package ph.sm.jumpy;
 
-import android.graphics.Point;
 import android.hardware.Sensor;
 import ch.aplu.android.Actor;
 import ch.aplu.android.GGActorCollisionListener;
 import ch.aplu.android.GGSensor;
 import ch.aplu.android.GGStatusBar;
-import ch.aplu.android.L;
 import ch.aplu.android.Location;
 
 public class Jumpy extends Actor implements GGActorCollisionListener {
