@@ -5,7 +5,6 @@ import ch.aplu.android.Actor;
 import ch.aplu.android.GGPanel;
 import ch.aplu.android.GGTouch;
 import ch.aplu.android.GGTouchListener;
-import ch.aplu.android.L;
 import ch.aplu.android.PointD;
 
 public class Hexagon extends Actor implements GGTouchListener {
@@ -13,19 +12,22 @@ public class Hexagon extends Actor implements GGTouchListener {
 	private GGPanel p;
 	private int angle = 0;
 	private final int PER_PERIOD_ANGLE = 10;
+	private int openMouthCountdown = 0;
 
 	public Hexagon(GGPanel p) {
 		super(true, "hexagon_pacman", 2);
-		this.p = p;		
+		this.p = p;
 	}
 	
 	public void reset() {
-		setCollisionLine(new Point(-56, 98), new Point(56, 98));
+		setCollisionLine(new Point(-56, -95), new Point(56, -95));
 	}
 
 	public void act() {
-		L.d("" + angle);
 		turn(angle);
+		if (openMouthCountdown > 0)
+			openMouthCountdown--;
+		else show(0);
 	}
 	
 	@Override
@@ -34,7 +36,7 @@ public class Hexagon extends Actor implements GGTouchListener {
 			PointD userPoint = p.toUserPoint(new Point(touch.getX(), touch.getY()));
 			if (userPoint.x > 0) //touch on the right side of display
 				angle = PER_PERIOD_ANGLE;
-			else angle = -PER_PERIOD_ANGLE;
+			else angle = - PER_PERIOD_ANGLE;
 		} // deactivate rotation on release
 		else {
 			angle = 0;
@@ -44,6 +46,7 @@ public class Hexagon extends Actor implements GGTouchListener {
 
 	public void eat() {
 		show(1);
+		openMouthCountdown  = 3;
 	}
 	
 	

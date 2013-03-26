@@ -1,14 +1,13 @@
 package ph.sm.jewels;
 
 import ch.aplu.android.Actor;
+import ch.aplu.android.L;
+import ch.aplu.android.Location;
 
 public class Jewel extends Actor {
 
-	private Hexagon hexagon;
-
-	public Jewel(Hexagon hexagon) {
+	public Jewel() {
 		super(true, "jewel", 4);
-		this.hexagon = hexagon;
 	}
 	
 	public void act() {
@@ -16,7 +15,9 @@ public class Jewel extends Actor {
 	}
 	
 	public void reset() {
+		L.d("reset");
+		setLocation(new Location(-100, -100)); //out of sight;
+		setActEnabled(false);
 		this.show((int)(Math.random()*4));
-		setDirection(getLocation().getDirectionTo(hexagon.getLocation()));
 	}
 }
