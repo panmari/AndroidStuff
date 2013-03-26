@@ -27,7 +27,6 @@ public class Hexagon extends Actor implements GGTouchListener {
 	public boolean touchEvent(GGTouch touch) {
 		if (touch.getEvent() == GGTouch.press) { // turn on rotating state
 			PointD userPoint = p.toUserPoint(new Point(touch.getX(), touch.getY()));
-			L.d(""+ userPoint);
 			if (userPoint.x > 0) //touch on the right side of display
 				angle = PER_PERIOD_ANGLE;
 			else angle = -PER_PERIOD_ANGLE;
