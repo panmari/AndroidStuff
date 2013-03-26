@@ -21,7 +21,6 @@ public class JewelsGame extends GameGrid {
 		doRun();
 		status.setText("This is how it begins");
 		addTouchListener(hexagon, GGTouch.press | GGTouch.release);
-		addActor( new GGPushButton("Test"), toLocation(p.toPixelPoint(new PointD(0,0))));
 	}
 	
 	public JewelsGame() {
