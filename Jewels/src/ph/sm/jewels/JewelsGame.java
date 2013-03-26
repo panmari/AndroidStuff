@@ -18,7 +18,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 	private GGStatusBar status;
 	private Hexagon hexagon;
 	private GGPanel p;
-	private LinkedList<Jewel> jewels = new LinkedList<Jewel>();
+	private LinkedList<Actor> jewels = new LinkedList<Actor>();
 	private int score;
 
 	public void main() {
@@ -27,7 +27,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 		hexagon = new Hexagon(p);
 		addActorNoRefresh(hexagon, toLocation(p.toPixelPoint(new PointD(0,0))));
 		for (int i = 1; i < 10; i++) {
-			Jewel j = new Jewel();
+			Jewel j = new Jewel(jewels);
 			jewels.add(j);
 			addActorNoRefresh(j, new Location(-100, -100)); //out of sight
 			hexagon.addCollisionActor(j);
@@ -41,14 +41,14 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 	}
 	
 	public void act() {
-		if (Math.random() < 0.01 && !jewels.isEmpty()) {
+		if (Math.random() < 0.05 && !jewels.isEmpty()) {
 			GGVector v = new GGVector(10, 10);
 			v.rotate(Math.random()*Math.PI*2);
 			PointD spawnPoint = new PointD(v);
-			Jewel spawnJewel = jewels.pollFirst();
-			spawnJewel.setLocation(toLocation(p.toPixelPoint(spawnPoint)));
-			spawnJewel.setDirection(spawnJewel.getLocation().getDirectionTo(hexagon.getLocation()));
-			spawnJewel.setActEnabled(true);
+			Actor spawningJewel = jewels.pollFirst();
+			spawningJewel.setLocation(toLocation(p.toPixelPoint(spawnPoint)));
+			spawningJewel.setDirection(spawningJewel.getLocation().getDirectionTo(hexagon.getLocation()));
+			spawningJewel.setActEnabled(true);
 		}
 	}
 	
