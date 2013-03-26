@@ -66,7 +66,8 @@ public class Jumpy extends Actor implements GGActorCollisionListener {
 	@Override
 	public int collide(Actor jumpy, Actor colPartner) {
 		if (colPartner.getClass() == Pad.class) {
-			if (vy > 0)
+			// only jump if jumpy was falling and not at the top of screen
+			if (vy > 0 && y > 50)
 				jump();
 		} else { 
 			Coin c = (Coin) (colPartner);
