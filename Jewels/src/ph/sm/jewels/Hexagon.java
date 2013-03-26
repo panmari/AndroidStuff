@@ -15,11 +15,16 @@ public class Hexagon extends Actor implements GGTouchListener {
 	private final int PER_PERIOD_ANGLE = 10;
 
 	public Hexagon(GGPanel p) {
-		super(true, "hexagon_transparent");
+		super(true, "hexagon_pacman", 2);
 		this.p = p;		
+	}
+	
+	public void reset() {
+		setCollisionLine(new Point(-56, 98), new Point(56, 98));
 	}
 
 	public void act() {
+		L.d("" + angle);
 		turn(angle);
 	}
 	
@@ -35,6 +40,10 @@ public class Hexagon extends Actor implements GGTouchListener {
 			angle = 0;
 		}
 		return true;
+	}
+
+	public void eat() {
+		show(1);
 	}
 	
 	
