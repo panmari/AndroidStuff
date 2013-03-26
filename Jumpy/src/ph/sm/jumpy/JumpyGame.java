@@ -17,7 +17,7 @@ public class JumpyGame extends GameGrid implements GGTouchListener
   private GGStatusBar status;
   private Jumpy jumpy;
   private TextActor speedUpSign;
-  private static long counter = 0;
+  private static final int LEVEL_UP_TIME = 300;
 
   public JumpyGame()
   {
@@ -57,20 +57,16 @@ public class JumpyGame extends GameGrid implements GGTouchListener
   }
   
   public void act() {
-	  counter++;
-	  if (counter % 300 == 0) {
+	  int cycles = getNbCycles();
+	  if (cycles % LEVEL_UP_TIME == 0 && cycles != 0) {
 			Pad.speedUp(1);
 			speedUpSign.show();
 	  }
-	  if (counter % 300 == 50) {
+	  if (cycles % LEVEL_UP_TIME == 50) {
 		  speedUpSign.hide();
 	  }
   }
   
-  public void reset() {
-	  counter = 0;
-  }
-
 	@Override
 	public boolean touchEvent(GGTouch arg0) {
 		doReset();
