@@ -25,9 +25,10 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 		getBg().clear(WHITE);
 		p = getPanel(-10, 10, 0.5);
 		hexagon = new Hexagon(p);
-		addActorNoRefresh(hexagon, toLocation(p.toPixelPoint(new PointD(0,0))));
+		PointD hexagonSpawnPoint = new PointD(0,0);
+		addActorNoRefresh(hexagon, toLocation(p.toPixelPoint(hexagonSpawnPoint)));
 		for (int i = 1; i < 10; i++) {
-			Jewel j = new Jewel(jewels);
+			Jewel j = new Jewel(jewels, p, hexagonSpawnPoint);
 			jewels.add(j);
 			addActorNoRefresh(j, new Location(-100, -100)); //out of sight
 			hexagon.addCollisionActor(j);
