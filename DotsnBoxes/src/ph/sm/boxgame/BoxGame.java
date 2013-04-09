@@ -30,9 +30,10 @@ public class BoxGame extends GameGrid implements GGActorTouchListener{
 	private Player[] players = new Player[2];
 	private GGStatusBar status;
 	private static int playerCounter = 0;
+	public static final int INIT_CELL_SIZE = 75;
 	
 	public BoxGame() {
-		super(3 + 2, 3 + 2, cellZoom(75), Color.WHITE);
+		super(3 + 2, 3 + 2, cellZoom(INIT_CELL_SIZE), Color.WHITE);
 		status = addStatusBar(30);
 	}
 		

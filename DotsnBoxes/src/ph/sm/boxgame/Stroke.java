@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import android.graphics.Point;
 import ch.aplu.android.Actor;
 import ch.aplu.android.GGVector;
+import ch.aplu.android.L;
 import ch.aplu.android.Location;
 
 
@@ -33,7 +34,8 @@ public class Stroke extends Actor {
 	public void reset() {
 		this.turn(direction.ordinal()*90);
 		this.setLocationOffset(scaleOffset(direction.getOffset()));
-		this.setActorTouchCircle(new Point(0,0), gg.getCellSize()/3);
+		L.d("Cell size: " + gg.getCellSize());
+		this.setActorTouchCircle(new Point(0,0), BoxGame.INIT_CELL_SIZE/3);
 	}
 
 	private Point scaleOffset(GGVector offset) {
