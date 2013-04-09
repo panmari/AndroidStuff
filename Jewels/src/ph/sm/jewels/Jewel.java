@@ -12,35 +12,42 @@ import ch.aplu.android.PointD;
 public class Jewel extends Actor {
 
 	private LinkedList<Actor> jewels;
-	private GGPanel p;
-	private PointD hexagonSpawnPoint;
+	private int resetCounter;
 
-	public Jewel(LinkedList<Actor> jewels, GGPanel p, PointD hexagonSpawnPoint) {
-		super(true, "jewel", 4);
+	/**
+	 * The fifth sprite is a special explosion-sprite!
+	 * @param jewels
+	 * @param p
+	 * @param hexagonSpawnPoint
+	 */
+	public Jewel(LinkedList<Actor> jewels) {
+		super(true, "jewel", 5);
 		this.jewels = jewels;
-		this.p = p;
-		this.hexagonSpawnPoint = hexagonSpawnPoint;
 	}
 	
 	public void act() {
-		move();
-		//reset jewel if it's to close to center (and was not eaten)
-		double dist = distanceToHexagon(p.toUserX(getX()), p.toUserY(getY()));
-		L.d("" + dist);
-		if (dist < 1)
+		//this is quite a bit hacky:
+		if (resetCounter == 1)
 			reset();
-			
+		if (exploding())
+			resetCounter--;
+		else move();
 	}
 	
 	public void reset() {
+		resetCounter = 0;
 		jewels.addLast(this);
 		setLocation(new Location(-100, -100)); //out of sight;
 		setActEnabled(false);
-		this.show((int)(Math.random()*4));
+		show((int)(Math.random()*4));
 	}
-	
-	private double distanceToHexagon(double x, double y) {
-		double distSquare = Math.pow(hexagonSpawnPoint.x - x, 2) + Math.pow(hexagonSpawnPoint.y - y, 2);
-		return Math.sqrt(distSquare);
+
+	public void explode() {
+		show(4);
+		resetCounter = 6;
+	}
+
+	public boolean exploding() {
+		return resetCounter > 0;
 	}
 }

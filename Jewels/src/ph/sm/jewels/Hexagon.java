@@ -20,7 +20,7 @@ public class Hexagon extends Actor implements GGTouchListener {
 	}
 	
 	public void reset() {
-		setCollisionLine(new Point(-56, -95), new Point(56, -95));
+		setCollisionCircle(new Point(0, 0), 100);
 	}
 
 	public void act() {

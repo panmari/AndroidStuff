@@ -2,6 +2,8 @@ package ph.sm.jewels;
 
 import java.util.LinkedList;
 
+import android.graphics.Color;
+
 import ch.aplu.android.Actor;
 import ch.aplu.android.GGActorCollisionListener;
 import ch.aplu.android.GGPanel;
@@ -19,17 +21,19 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 	private Hexagon hexagon;
 	private GGPanel p;
 	private LinkedList<Actor> jewels = new LinkedList<Actor>();
+	private HealthPointBar hpBar;
 	private int score;
 
 	public void main() {
 		getBg().clear(WHITE);
 		p = getPanel(-10, 10, 0.5);
+		p.setAutoRefreshEnabled(false);
 		hexagon = new Hexagon(p);
 		PointD hexagonSpawnPoint = new PointD(0,0);
 		addActorNoRefresh(hexagon, toLocation(p.toPixelPoint(hexagonSpawnPoint)));
 		for (int i = 1; i < 10; i++) {
-			Jewel j = new Jewel(jewels, p, hexagonSpawnPoint);
-			jewels.add(j);
+			Jewel j = new Jewel(jewels);
+			//jewel is added to the jewels list in reset() when added to gamegrid
 			addActorNoRefresh(j, new Location(-100, -100)); //out of sight
 			hexagon.addCollisionActor(j);
 		}
@@ -37,12 +41,13 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 		setSimulationPeriod(30);
 		doRun();
 		setPaintOrder(Hexagon.class, Jewel.class);
-		status.setText("This is how it begins");
+		status.setText("Tap the screen to the right/left to turn Hexa-Pacman!");
 		addTouchListener(hexagon, GGTouch.press | GGTouch.release);
+		hpBar = new HealthPointBar(p, 50);
 	}
 	
 	public void act() {
-		if (Math.random() < 0.05 && !jewels.isEmpty()) {
+		if (!jewels.isEmpty() && Math.random() < 0.05 ) {
 			GGVector v = new GGVector(10, 10);
 			v.rotate(Math.random()*Math.PI*2);
 			PointD spawnPoint = new PointD(v);
@@ -59,11 +64,20 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 	}
 
 	@Override
-	public int collide(Actor arg0, Actor jewel) {
-		L.d("collision!");
-		hexagon.eat();
-		jewel.reset();
-		score++;
+	public int collide(Actor arg1, Actor collisionPartner) {
+		Jewel jewel = (Jewel) collisionPartner;
+		double flyingDirection = hexagon.getLocation().getDirectionTo(jewel.getLocation());
+		L.d("collision! " + flyingDirection);
+		L.d("hexagon dir: " + hexagon.getDirection());
+		if (Math.abs(hexagon.getDirection() - flyingDirection) < 30) {
+			hexagon.eat();
+			hpBar.update(10);
+			score++;
+			jewel.reset();
+		} else if (!jewel.exploding()) {
+			hpBar.update(-10);
+			jewel.explode();
+		}
 		return 0;
 	}
 }
