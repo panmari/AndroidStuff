@@ -66,18 +66,21 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 	@Override
 	public int collide(Actor arg1, Actor collisionPartner) {
 		Jewel jewel = (Jewel) collisionPartner;
-		double flyingDirection = hexagon.getLocation().getDirectionTo(jewel.getLocation());
-		L.d("collision! " + flyingDirection);
-		L.d("hexagon dir: " + hexagon.getDirection());
-		if (Math.abs(hexagon.getDirection() - flyingDirection) < 30) {
+		if (headedTowardsHexagonsMouth(jewel)) {
 			hexagon.eat();
 			hpBar.update(10);
 			score++;
 			jewel.reset();
-		} else if (!jewel.exploding()) {
+		} else 
+			if (!jewel.exploding()) { //only explode if not already exploding
 			hpBar.update(-10);
 			jewel.explode();
 		}
 		return 0;
+	}
+	
+	private boolean headedTowardsHexagonsMouth(Jewel jewel) {
+		double flyingDirection = hexagon.getLocation().getDirectionTo(jewel.getLocation());
+		return Math.abs(hexagon.getDirection() - flyingDirection) < 30;
 	}
 }
