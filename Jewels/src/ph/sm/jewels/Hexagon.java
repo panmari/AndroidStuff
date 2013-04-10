@@ -32,6 +32,9 @@ public class Hexagon extends Actor implements GGTouchListener {
 	
 	@Override
 	public boolean touchEvent(GGTouch touch) {
+		if (!gameGrid.isRunning())
+			gameGrid.doReset();
+		
 		if (touch.getEvent() == GGTouch.press) { // turn on rotating state
 			PointD userPoint = p.toUserPoint(new Point(touch.getX(), touch.getY()));
 			if (userPoint.x > 0) //touch on the right side of display

@@ -17,16 +17,9 @@ public class HealthPointBar {
 	 */
 	public HealthPointBar(GGPanel p, double initLengthPercent) {
 		this.p = p;
-		length = MAX_LENGTH*initLengthPercent/100;
-		update(0);
+		setHealth(initLengthPercent);
 	}
 	
-	
-	public void act() {
-		p.clear();
-		
-		
-	}
 	/**
 	 * Percent of @MAX_LENGTH gained/lost, depending
 	 * if percent is positive or negative.
@@ -44,5 +37,13 @@ public class HealthPointBar {
 		p.rectangle(-9.9, -9.9, length, -9.2, true);
 	}
 	
+	public boolean isGameOver(){
+		return length <= MIN;
+	}
+
+	public void setHealth(double percent) {
+		length = MAX_LENGTH*percent/100 + MIN;
+		update(0);
+	}
 	
 }

@@ -11,7 +11,7 @@ import ch.aplu.android.PointD;
 
 public class Jewel extends Actor {
 
-	private LinkedList<Actor> jewels;
+	private LinkedList<Jewel> jewels;
 	private int resetCounter;
 
 	/**
@@ -20,7 +20,7 @@ public class Jewel extends Actor {
 	 * @param p
 	 * @param hexagonSpawnPoint
 	 */
-	public Jewel(LinkedList<Actor> jewels) {
+	public Jewel(LinkedList<Jewel> jewels) {
 		super(true, "jewel", 5);
 		this.jewels = jewels;
 	}
