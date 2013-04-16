@@ -7,14 +7,14 @@ import ch.aplu.android.GGTouch;
 import ch.aplu.android.GGTouchListener;
 import ch.aplu.android.PointD;
 
-public class Hexagon extends Actor implements GGTouchListener {
+public class HexaPacman extends Actor implements GGTouchListener {
 	
 	private GGPanel p;
 	private int angle = 0;
 	private final int PER_PERIOD_ANGLE = 10;
 	private int openMouthCountdown = 0;
 
-	public Hexagon(GGPanel p) {
+	public HexaPacman(GGPanel p) {
 		super(true, "hexagon_pacman", 2);
 		this.p = p;
 	}

@@ -12,10 +12,10 @@ import ch.aplu.android.GameGrid;
 import ch.aplu.android.Location;
 import ch.aplu.android.PointD;
 
-public class JewelsGame extends GameGrid implements GGActorCollisionListener {
+public class HexaPacmanGame extends GameGrid implements GGActorCollisionListener {
 	
 	private GGStatusBar status;
-	private Hexagon hexagon;
+	private HexaPacman hexaPacman;
 	private GGPanel p;
 	private LinkedList<Jewel> availableJewels = new LinkedList<Jewel>();
 	private LinkedList<Jewel> allJewels = new LinkedList<Jewel>();
@@ -24,7 +24,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 	private final int initialHealth = 50;
 
 	
-	public JewelsGame() {
+	public HexaPacmanGame() {
 		super(WHITE, windowZoom(700));
 	    status = addStatusBar(30);
 	}
@@ -33,20 +33,20 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 		getBg().clear(WHITE);
 		p = getPanel(-10, 10, 0.5);
 		p.setAutoRefreshEnabled(false);
-		hexagon = new Hexagon(p);
+		hexaPacman = new HexaPacman(p);
 		PointD hexagonSpawnPoint = new PointD(0,0);
-		addActorNoRefresh(hexagon, toLocation(p.toPixelPoint(hexagonSpawnPoint)));
+		addActorNoRefresh(hexaPacman, toLocation(p.toPixelPoint(hexagonSpawnPoint)));
 		for (int i = 1; i < 10; i++) {
 			Jewel j = new Jewel(availableJewels);
 			allJewels.add(j);
 			//jewel is added to the jewels list in reset() when added to gamegrid
 			addActorNoRefresh(j, new Location(-100, -100)); //out of sight
-			hexagon.addCollisionActor(j);
+			hexaPacman.addCollisionActor(j);
 		}
-		hexagon.addActorCollisionListener(this);
+		hexaPacman.addActorCollisionListener(this);
 		setSimulationPeriod(30);
-		setPaintOrder(Hexagon.class, Jewel.class);
-		addTouchListener(hexagon, GGTouch.press | GGTouch.release);
+		setPaintOrder(HexaPacman.class, Jewel.class);
+		addTouchListener(hexaPacman, GGTouch.press | GGTouch.release);
 		hpBar = new HealthPointBar(p, initialHealth);
 		status.setText("Tap the screen to the right/left to turn Hexa-Pacman!");
 		doRun();
@@ -75,7 +75,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 			PointD spawnPoint = new PointD(v);
 			Actor spawningJewel = availableJewels.pollFirst();
 			spawningJewel.setLocation(toLocation(p.toPixelPoint(spawnPoint)));
-			spawningJewel.setDirection(spawningJewel.getLocation().getDirectionTo(hexagon.getLocation()));
+			spawningJewel.setDirection(spawningJewel.getLocation().getDirectionTo(hexaPacman.getLocation()));
 			spawningJewel.setActEnabled(true);
 		}
 	}
@@ -101,7 +101,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 			return 0;
 		
 		if (headedTowardsHexagonsMouth(jewel)) {
-			hexagon.eat();
+			hexaPacman.eat();
 			hpBar.update(10);
 			score++;
 			status.setText("Number of jewels eaten: " + score);
@@ -115,7 +115,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 	}
 	
 	private boolean headedTowardsHexagonsMouth(Jewel jewel) {
-		double flyingDirection = hexagon.getLocation().getDirectionTo(jewel.getLocation());
-		return Math.abs(hexagon.getDirection() - flyingDirection) < 30;
+		double flyingDirection = hexaPacman.getLocation().getDirectionTo(jewel.getLocation());
+		return Math.abs(hexaPacman.getDirection() - flyingDirection) < 30;
 	}
 }
