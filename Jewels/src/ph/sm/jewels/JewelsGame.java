@@ -21,6 +21,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 	private LinkedList<Jewel> allJewels = new LinkedList<Jewel>();
 	private HealthPointBar hpBar;
 	private int score;
+	private final int initialHealth = 50;
 
 	
 	public JewelsGame() {
@@ -46,7 +47,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 		setSimulationPeriod(30);
 		setPaintOrder(Hexagon.class, Jewel.class);
 		addTouchListener(hexagon, GGTouch.press | GGTouch.release);
-		hpBar = new HealthPointBar(p, 50);
+		hpBar = new HealthPointBar(p, initialHealth);
 		status.setText("Tap the screen to the right/left to turn Hexa-Pacman!");
 		doRun();
 	}
@@ -60,6 +61,14 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 			delay(1000);
 			setTouchEnabled(true);
 		}
+		launchJewel();
+	}
+	
+	/**
+	 * Launches a jewel from a random direction towards hexa-pacman.
+	 * If a jewel is actually launched or not is decided randomly.
+	 */
+	private void launchJewel() {
 		if (!availableJewels.isEmpty() && Math.random() < 0.05 ) {
 			GGVector v = new GGVector(10, 10);
 			v.rotate(Math.random()*Math.PI*2);
@@ -70,7 +79,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 			spawningJewel.setActEnabled(true);
 		}
 	}
-	
+
 	/**
 	 * Since this is called last by @doReset() (after actors @reset()), we need
 	 * to painfully refill the @available_jewels manually, so no jewels turns up
@@ -81,13 +90,16 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 		availableJewels.clear();
 		availableJewels.addAll(allJewels);
 		score = 0;
-		hpBar.setHealth(50);
+		hpBar.setHealth(initialHealth);
 		doRun();
 	}
 
 	@Override
 	public int collide(Actor arg1, Actor collisionPartner) {
 		Jewel jewel = (Jewel) collisionPartner;
+		if (jewel.isExploding()) 
+			return 0;
+		
 		if (headedTowardsHexagonsMouth(jewel)) {
 			hexagon.eat();
 			hpBar.update(10);
@@ -95,7 +107,7 @@ public class JewelsGame extends GameGrid implements GGActorCollisionListener {
 			status.setText("Number of jewels eaten: " + score);
 			jewel.reset();
 		} else 
-			if (!jewel.exploding()) { //only explode if not already exploding
+			{ 
 			hpBar.update(-7);
 			jewel.explode();
 		}

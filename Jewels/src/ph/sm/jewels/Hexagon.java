@@ -49,7 +49,7 @@ public class Hexagon extends Actor implements GGTouchListener {
 
 	public void eat() {
 		show(1);
-		openMouthCountdown  = 3;
+		openMouthCountdown  = 4;
 	}
 	
 	

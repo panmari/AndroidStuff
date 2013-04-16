@@ -29,7 +29,7 @@ public class Jewel extends Actor {
 		//this is quite a bit hacky:
 		if (resetCounter == 1)
 			reset();
-		if (exploding())
+		if (isExploding())
 			resetCounter--;
 		else move();
 	}
@@ -37,6 +37,7 @@ public class Jewel extends Actor {
 	public void reset() {
 		resetCounter = 0;
 		jewels.addLast(this);
+		setCollisionCircle(new Point(0, 0), 15);
 		setLocation(new Location(-100, -100)); //out of sight;
 		setActEnabled(false);
 		show((int)(Math.random()*4));
@@ -47,7 +48,7 @@ public class Jewel extends Actor {
 		resetCounter = 6;
 	}
 
-	public boolean exploding() {
+	public boolean isExploding() {
 		return resetCounter > 0;
 	}
 }
