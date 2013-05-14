@@ -27,7 +27,7 @@ public class Reversi extends GameGrid implements GGTouchListener {
 		getBg().clear(Color.argb(255, 245, 245, 220));
 		status.setText("Reversi - White plays first");
 
-		addActor(new PlayStone(0), new Location(3, 3));
+		addActor(new PlayStone(0), new Location(3, 3));	
 		addActor(new PlayStone(0), new Location(4, 4));
 		addActor(new PlayStone(1), new Location(4, 3));
 		addActor(new PlayStone(1), new Location(3, 4));
@@ -47,31 +47,8 @@ public class Reversi extends GameGrid implements GGTouchListener {
 		if (getActorsAt(location).isEmpty() && hasNeighbours(location)) {
 			// ...set stone
 			PlayStone newStone = new PlayStone(currentPlayer);
-			addActor(newStone, location);
-
-			// Check for stones in all 8 directions and if they can be turned
-			for (int c = 0; c <= 315; c += 45) {
-				ArrayList<Actor> stonesInLine = new ArrayList<Actor>();
-				Location inspectedLoc = location.getNeighbourLocation(c);
-				Actor inspectedStone = getOneActorAt(inspectedLoc);
-				boolean hasSamePlayerId = false;
-
-				while (inspectedStone != null && !hasSamePlayerId) {
-					if (inspectedStone.getIdVisible() != currentPlayer) {
-						stonesInLine.add(inspectedStone);
-						inspectedLoc = inspectedLoc.getNeighbourLocation(c);
-						inspectedStone = getOneActorAt(inspectedLoc);
-					} else {
-						hasSamePlayerId = true;
-					}
-				}
-
-				// Turn stones along this line
-				if (hasSamePlayerId) {
-					for (Actor s : stonesInLine)
-						s.show(currentPlayer);
-				}
-			}
+			addActor(newStone, location);			
+			turnCorneredStones(newStone);
 
 			//check if game has ended
 			if (!endOfGame()) {
@@ -83,6 +60,33 @@ public class Reversi extends GameGrid implements GGTouchListener {
 			refresh();
 		}
 		return true;
+	}
+
+	private void turnCorneredStones(PlayStone newStone) {
+		// Check for stones in all 8 directions and if they can be turned
+		Location newStoneLoc = newStone.getLocation();
+		for (int c = 0; c <= 315; c += 45) {
+			ArrayList<Actor> stonesInLine = new ArrayList<Actor>();
+			Location inspectedLoc = newStoneLoc.getNeighbourLocation(c);
+			Actor inspectedStone = getOneActorAt(inspectedLoc);
+			boolean hasSamePlayerId = false;
+
+			while (inspectedStone != null && !hasSamePlayerId) {
+				if (inspectedStone.getIdVisible() != currentPlayer) {
+					stonesInLine.add(inspectedStone);
+					inspectedLoc = inspectedLoc.getNeighbourLocation(c);
+					inspectedStone = getOneActorAt(inspectedLoc);
+				} else {
+					hasSamePlayerId = true;
+				}
+			}
+
+			// Turn stones along this line
+			if (hasSamePlayerId) {
+				for (Actor s : stonesInLine)
+					s.show(currentPlayer);
+			}
+		}
 	}
 
 	/**
