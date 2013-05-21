@@ -47,7 +47,8 @@ class Dart extends Actor implements GGTouchListener {
 
 	public boolean touchEvent(GGTouch touch) {
 		Location loc = gameGrid.toLocationInGrid(touch.getX(), touch.getY());
-		if(loc.x < 100 && this.getX() > getNbHorzCells())
+		// only if left of line and previous arrow is out of visible grid
+		if(loc.x < 100 && !this.isInGrid())
 			setLocation(loc);
 		return true;
 	}
