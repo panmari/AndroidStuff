@@ -22,8 +22,9 @@ public Pong()
     addActor(ball, new Location(500, 100), Math.random()*360);
     barRight = new Bar();
     barLeft = new Bar();
-    addActor(barRight, new Location(getNbHorzCells() - 80, getNbVertCells()/2));
-    addActor(barLeft, new Location(80, getNbVertCells()/2));
+    int offset = getNbHorzCells()/10;
+    addActor(barRight, new Location(getNbHorzCells() - offset, getNbVertCells()/2));
+    addActor(barLeft, new Location(offset, getNbVertCells()/2));
     addMultiTouchListener(this, GGTouch.drag);
     barLeft.addCollisionActor(ball);
     barRight.addCollisionActor(ball);
@@ -77,6 +78,9 @@ class Ball extends Actor
    */
   public void reset() {
 	  radius = this.getHeight(0)/2;
+	  /**
+	   * Stepsize s is dependant on zoomfactor z: s = z^2 * 5
+	   */
 	  stepSize = (int) (Math.pow(gameGrid.getZoomFactor(), 2)*5);
 	  L.d("Stepsize: " + stepSize);
   }
