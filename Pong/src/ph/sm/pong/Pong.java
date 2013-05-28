@@ -7,6 +7,7 @@ import android.graphics.Point;
 public class Pong extends GameGrid implements GGActorCollisionListener, GGMultiTouchListener
 {
   private Bar barLeft, barRight;
+  private int offset;
 
 public Pong()
   {
@@ -22,14 +23,16 @@ public Pong()
     addActor(ball, new Location(500, 100), Math.random()*360);
     barRight = new Bar();
     barLeft = new Bar();
-    int offset = getNbHorzCells()/10;
+    offset = getNbHorzCells()/10;
     addActor(barRight, new Location(getNbHorzCells() - offset, getNbVertCells()/2));
     addActor(barLeft, new Location(offset, getNbVertCells()/2));
-    addMultiTouchListener(this, GGTouch.drag);
+    
     barLeft.addCollisionActor(ball);
     barRight.addCollisionActor(ball);
     barLeft.addActorCollisionListener(this);
     barRight.addActorCollisionListener(this);
+    
+    addMultiTouchListener(this, GGTouch.drag);
     
     doRun();
   }
@@ -45,9 +48,9 @@ public Pong()
   @Override
   public boolean multiTouchEvent(GGMultiTouch touch) {
   	Location loc = toLocation(touch.getX(), touch.getY());
-  	if (loc.x < 100)
+  	if (loc.x < offset + 20)
   		barLeft.setY(loc.y);
-  	if (loc.x > getNbHorzCells() - 100) 
+  	if (loc.x > getNbHorzCells() - offset - 20) 
   		barRight.setY(loc.y);
   	return true;
   }
@@ -79,9 +82,10 @@ class Ball extends Actor
   public void reset() {
 	  radius = this.getHeight(0)/2;
 	  /**
-	   * Stepsize s is dependant on zoomfactor z: s = z^2 * 5
+	   * Stepsize s is dependant on zoomfactor z: s = z^2 * 10
+	   * This probably doesn't work for every device equally well...
 	   */
-	  stepSize = (int) (Math.pow(gameGrid.getZoomFactor(), 2)*5);
+	  stepSize = (int) (Math.pow(gameGrid.getZoomFactor(), 2)*10);
 	  L.d("Stepsize: " + stepSize);
   }
   
