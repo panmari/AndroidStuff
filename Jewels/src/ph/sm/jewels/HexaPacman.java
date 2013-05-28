@@ -2,12 +2,13 @@ package ph.sm.jewels;
 
 import android.graphics.Point;
 import ch.aplu.android.Actor;
+import ch.aplu.android.GGMultiTouch;
+import ch.aplu.android.GGMultiTouchListener;
 import ch.aplu.android.GGPanel;
 import ch.aplu.android.GGTouch;
-import ch.aplu.android.GGTouchListener;
 import ch.aplu.android.PointD;
 
-public class HexaPacman extends Actor implements GGTouchListener {
+public class HexaPacman extends Actor implements GGMultiTouchListener {
 	
 	private GGPanel p;
 	private int angle = 0;
@@ -31,11 +32,12 @@ public class HexaPacman extends Actor implements GGTouchListener {
 	}
 	
 	@Override
-	public boolean touchEvent(GGTouch touch) {
+	public boolean multiTouchEvent(GGMultiTouch touch) {
 		if (!gameGrid.isRunning())
 			gameGrid.doReset();
 		
-		if (touch.getEvent() == GGTouch.press) { // turn on rotating state
+		if (touch.getEvent() == GGMultiTouch.pointerPress || 
+				touch.getEvent() == GGMultiTouch.press) { // turn on rotating state
 			PointD userPoint = p.toUserPoint(new Point(touch.getX(), touch.getY()));
 			if (userPoint.x > 0) //touch on the right side of display
 				angle = PER_PERIOD_ANGLE;
@@ -51,6 +53,5 @@ public class HexaPacman extends Actor implements GGTouchListener {
 		show(1);
 		openMouthCountdown  = 4;
 	}
-	
 	
 }

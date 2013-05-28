@@ -2,15 +2,7 @@ package ph.sm.jewels;
 
 import java.util.LinkedList;
 
-import ch.aplu.android.Actor;
-import ch.aplu.android.GGActorCollisionListener;
-import ch.aplu.android.GGPanel;
-import ch.aplu.android.GGStatusBar;
-import ch.aplu.android.GGTouch;
-import ch.aplu.android.GGVector;
-import ch.aplu.android.GameGrid;
-import ch.aplu.android.Location;
-import ch.aplu.android.PointD;
+import ch.aplu.android.*;
 
 public class HexaPacmanGame extends GameGrid implements GGActorCollisionListener {
 	
@@ -46,7 +38,7 @@ public class HexaPacmanGame extends GameGrid implements GGActorCollisionListener
 		hexaPacman.addActorCollisionListener(this);
 		setSimulationPeriod(30);
 		setPaintOrder(HexaPacman.class, Jewel.class);
-		addTouchListener(hexaPacman, GGTouch.press | GGTouch.release);
+		addMultiTouchListener(hexaPacman, GGMultiTouch.press | GGMultiTouch.pointerPress | GGMultiTouch.release);
 		hpBar = new HealthPointBar(p, initialHealth);
 		status.setText("Tap the screen to the right/left to turn Hexa-Pacman!");
 		doRun();
@@ -73,7 +65,7 @@ public class HexaPacmanGame extends GameGrid implements GGActorCollisionListener
 			GGVector v = new GGVector(10, 10);
 			v.rotate(Math.random()*Math.PI*2);
 			PointD spawnPoint = new PointD(v);
-			Actor spawningJewel = availableJewels.pollFirst();
+			Actor spawningJewel = availableJewels.poll();
 			spawningJewel.setLocation(toLocation(p.toPixelPoint(spawnPoint)));
 			spawningJewel.setDirection(spawningJewel.getLocation().getDirectionTo(hexaPacman.getLocation()));
 			spawningJewel.setActEnabled(true);
