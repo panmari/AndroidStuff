@@ -80,6 +80,10 @@ class Ball extends Actor
    * Gets called when ball is added to GameGrid
    */
   public void reset() {
+	  /** 
+	   * Through windowZoom() the radius of the ball is set dynamically, depending on the screen size. 
+	   * This can be used to retrieve it.
+	   */
 	  radius = this.getHeight(0)/2;
 	  /**
 	   * Stepsize s is dependant on zoomfactor z: s = z^2 * 10
@@ -93,8 +97,6 @@ class Ball extends Actor
   {
     Location loc = getLocation();
     double dir = getDirection();
-    // through windowZoom() the radius of the ball is set dynamically, depending on the screen size. 
-    // This can be used to retrieve it.
     
     if (loc.x < radius)
     {
