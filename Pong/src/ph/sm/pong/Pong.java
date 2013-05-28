@@ -29,8 +29,10 @@ public Pong()
     barRight.addCollisionActor(ball);
     barLeft.addActorCollisionListener(this);
     barRight.addActorCollisionListener(this);
+    
     doRun();
   }
+  
 
   public int collide(Actor actor1, Actor actor2)
   {
@@ -61,39 +63,51 @@ class Bar extends Actor
 // ---------class Ball ---------------
 class Ball extends Actor
 {
-
+  int radius;
+  int stepSize;
+  
   public Ball()
   {
     super("ball");
     setCollisionCircle(new Point(0, 0), 20);
   }
-
+  
+  /**
+   * Gets called when ball is added to GameGrid
+   */
+  public void reset() {
+	  radius = this.getHeight(0)/2;
+	  stepSize = (int) (Math.pow(gameGrid.getZoomFactor(), 2)*5);
+	  L.d("Stepsize: " + stepSize);
+  }
+  
   public void act()
   {
     Location loc = getLocation();
     double dir = getDirection();
     // through windowZoom() the radius of the ball is set dynamically, depending on the screen size. 
     // This can be used to retrieve it.
-    int radius = this.getHeight(0)/2;
+    
     if (loc.x < radius)
     {
     	// out to the left -> game over
     	gameGrid.doPause();
     }
-    if (loc.x > getNbHorzCells() - radius)
+    else if (loc.x > getNbHorzCells() - radius)
     {
       // out to the right -> game over
       gameGrid.doPause();
     }
-    if (loc.y < radius)
+    else if (loc.y < radius)
     {
       dir = 360 - dir;
     }
-    if (loc.y > getNbVertCells() - radius)
+    else if (loc.y > getNbVertCells() - radius)
     {
       dir = 360 - dir;
     }
     setDirection(dir);
-    move();
+    
+    move(stepSize);
   }
 }
