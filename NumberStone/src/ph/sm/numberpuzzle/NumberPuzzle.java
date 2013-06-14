@@ -47,33 +47,30 @@ public class NumberPuzzle extends GameGrid implements GGActorTouchListener {
 	 * @param loc, the location checked for validity
 	 * @return
 	 */
-	private boolean invalidMoveLocation(Location loc) {
-		return getNumberOfActorsAt(loc) > 1 || //only the dragged NumberStone is there
-				!initialLoc.getNeighbourLocations(0.5).contains(loc); 
+	private boolean isMoveValid(Location loc) {
+		if (!isInGrid(loc))
+			return false;
+		else if (getNumberOfActorsAt(loc) > 1)
+			return false;
+		else return initialLoc.getNeighbourLocations(0.5).contains(loc); 
 	}
 
 	@Override
 	public void actorTouched(Actor actor, GGTouch touch, Point spot) {
 		switch (touch.getEvent()) {
-			case GGTouch.press:
-				initialLoc = actor.getLocation();
-				dragActor = actor;
-				dragActor.setOnTop();
-				break;
-			case GGTouch.drag:
-				dragActor.setPixelLocation(new Point(touch.getX(), touch.getY()));
-				break;
-			case GGTouch.release:
-				// When finger moves out of screen, two release events get spawned 
-				// => need to ignore second one 
-				if (dragActor != null) { 
-					if (invalidMoveLocation(dragActor.getLocation()))
-						dragActor.setLocation(initialLoc);
-					dragActor.setLocationOffset(new Point(0,0));
-					dragActor = null;
-					initialLoc = null;
-				} else L.d("A second release event was spawned!");
-				break;
+		case GGTouch.press:
+			initialLoc = actor.getLocation();
+			dragActor = actor;
+			dragActor.setOnTop();
+			break;
+		case GGTouch.drag:
+			dragActor.setPixelLocation(new Point(touch.getX(), touch.getY()));
+			break;
+		case GGTouch.release:
+			if (!isMoveValid(dragActor.getLocation()))
+				dragActor.setLocation(initialLoc);
+			dragActor.setLocationOffset(new Point(0,0));
+			break;
 		}	
 	}
 	
