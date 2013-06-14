@@ -2,6 +2,9 @@
 
 package ph.sm.numberpuzzle;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import android.graphics.Point;
 import ch.aplu.android.Actor;
 import ch.aplu.android.GGActorTouchListener;
@@ -27,17 +30,25 @@ public class NumberPuzzle extends GameGrid implements GGActorTouchListener {
 			stones[i] = new NumberStone(i);
 			stones[i].addActorTouchListener(this, GGTouch.drag
 					| GGTouch.release | GGTouch.press);
-			addActorNoRefresh(stones[i], getRandomEmptyLocation());
+			//addActorNoRefresh(stones[i], new Location(i % 4, i / 4)); //for sorted arrangement
+			addActorNoRefresh(stones[i],getRandomEmptyLocation()); //for random arrangement
 		}
+		while (computeParity() % 2 == 0) {
+			L.d("Game is not solvable, doing some random shuffling..." );
+			NumberStone randomStone = stones[(int)(Math.random()*stones.length)];
+			randomStone.setLocation(getRandomEmptyLocation());
+		}
+		L.d("" + computeParity());
 		doRun();
 	}
 	/**
-	 * Only (before) empty locations in a 4-neighbourhood of the initial location 
-	 * @param loc
+	 * Only empty locations in a 4-neighborhood of the initial location
+	 * are valid move locations. 
+	 * @param loc, the location checked for validity
 	 * @return
 	 */
 	private boolean invalidMoveLocation(Location loc) {
-		return getNumberOfActorsAt(loc) > 1 || //only the dragged Number is there
+		return getNumberOfActorsAt(loc) > 1 || //only the dragged NumberStone is there
 				!initialLoc.getNeighbourLocations(0.5).contains(loc); 
 	}
 
@@ -65,11 +76,76 @@ public class NumberPuzzle extends GameGrid implements GGActorTouchListener {
 				break;
 		}	
 	}
+	
+	/**
+	 * To check if an arrangement of NumberStones is solvable, its parity has
+	 * to be computed. See http://de.wikipedia.org/wiki/15-Puzzle.
+	 * In two lines:
+	 * - If the parity is odd, the arrangement can be rearranged to 1-2-3-4 ... 14-15-[ ].
+	 * - If the parity is even, this can not be done.
+	 * @return the parity, that has to be checked for oddity.
+	 */
+	private int computeParity() {
+		int parity = 0;
+		for (int y = 0; y < getNbVertCells(); y++) {
+			for (int x = 0; x < getNbHorzCells(); x++) {
+				NumberStone check = (NumberStone)getOneActorAt(new Location(x, y));
+				if (check == null) //don't do this for gap
+					continue;
+				NumberStone next = check.getNextStone();
+				while (next != null) {
+				   if (next.getId() < check.getId())
+					   parity++;
+				   next = next.getNextStone();
+				}
+			}
+		}
+		// add row of gap to parity
+		parity += getEmptyLocations().get(0).getY();
+		return parity;
+	}
+	
 }
 
 class NumberStone extends Actor {
 	public NumberStone(int id) {
 		super("stone", 15);
 		show(id);
+	}
+	
+	/**
+	 * @return the number printed on this numberStone
+	 */
+	public int getId() {
+		return this.getIdVisible();
+	}
+	/**
+	 * Returns the NumberStone that comes next when going first 
+	 * horizontally, then vertically through the grid. 
+	 * Does also handle the gap correctly (skips it)
+	 * @return null, if last stone
+	 */
+	public NumberStone getNextStone() {
+		NumberStone nextStone = null;
+		int nextX = getX();
+		int nextY = getY();
+		// loop is necessary to handle gap (iterates twice if at gap)
+		while (nextStone == null) {
+			nextX++;
+			// switch to next row this stone is last of row
+			if (nextX >= gameGrid.getNbHorzCells()) {
+				nextX = 0;
+				nextY += 1;
+			}
+			// return null if we were at last position
+			if (nextY >= gameGrid.getNbHorzCells())
+				return null;
+			nextStone = (NumberStone) gameGrid.getOneActorAt(new Location(nextX, nextY));
+		}
+		return nextStone;
+	}
+	
+	public String toString() {
+		return "NS " + getId() + " at: " + getLocation();
 	}
 }
