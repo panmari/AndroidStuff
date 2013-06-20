@@ -59,7 +59,6 @@ public class NumberPuzzle extends GameGrid implements GGActorTouchListener {
 	public void actorTouched(Actor actor, GGTouch touch, Point spot) {
 		switch (touch.getEvent()) {
 		case GGTouch.press:
-			L.d("Press event spawned");
 			initialLoc = actor.getLocation();
 			dragActor = actor;
 			dragActor.setOnTop();
@@ -68,10 +67,6 @@ public class NumberPuzzle extends GameGrid implements GGActorTouchListener {
 			dragActor.setPixelLocation(new Point(touch.getX(), touch.getY()));
 			break;
 		case GGTouch.release:
-			// even though the "OnTopOnly" flag is set when registering the listener,
-			// once in a while an actor from the bottom spawns an event. 
-			// setPixelLocation could cause this issue.
-			L.d("Release event spawned from " + actor);
 			if (!isMoveValid(dragActor.getLocation()))
 				dragActor.setLocation(initialLoc);
 			dragActor.setLocationOffset(new Point(0,0));
