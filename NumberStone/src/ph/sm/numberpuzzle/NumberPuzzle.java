@@ -2,9 +2,6 @@
 
 package ph.sm.numberpuzzle;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 import android.graphics.Point;
 import ch.aplu.android.Actor;
 import ch.aplu.android.GGActorTouchListener;
@@ -33,14 +30,14 @@ public class NumberPuzzle extends GameGrid implements GGActorTouchListener {
 			//addActorNoRefresh(stones[i], new Location(i % 4, i / 4)); //for sorted arrangement
 			addActorNoRefresh(stones[i],getRandomEmptyLocation()); //for random arrangement
 		}
-		while (computeParity() % 2 == 0) {
+		while (!isSolvable()) {
 			L.d("Game is not solvable, doing some random shuffling..." );
 			NumberStone randomStone = stones[(int)(Math.random()*stones.length)];
 			randomStone.setLocation(getRandomEmptyLocation());
 		}
-		L.d("" + computeParity());
 		doRun();
 	}
+	
 	/**
 	 * Only empty locations in a 4-neighborhood of the initial location
 	 * are valid move locations. 
@@ -70,19 +67,53 @@ public class NumberPuzzle extends GameGrid implements GGActorTouchListener {
 			if (!isMoveValid(dragActor.getLocation()))
 				dragActor.setLocation(initialLoc);
 			dragActor.setLocationOffset(new Point(0,0));
+			if (isSolved()) {
+				cleanupGame();
+			}
 			break;
 		}	
 	}
-	
+
+	/**
+	 * Supposed to be called when game is won. Disables touch events and shows
+	 * a "you win" banner in the middle of the screen.
+	 */
+	private void cleanupGame() {
+		Actor win = new Actor("youwin");
+		addActorNoRefresh(win, new Location(0,0));
+		win.setPixelLocation(new Point(getNbHorzPix()/2, getNbVertPix()/2));
+		refresh();
+		setTouchEnabled(false);
+		doPause();
+	}
+
+	private boolean isSolved() {
+		int expectedId = 1;
+		for (int y = 0; y < getNbVertCells(); y++) {
+			for (int x = 0; x < getNbHorzCells(); x++) {
+				NumberStone stone = (NumberStone) getOneActorAt(new Location(x, y));
+				// gap has to be bottom right
+				if (stone == null)
+					if (expectedId == 16)
+						return true;
+					else return false;
+				if (stone.getId() != expectedId)
+					return false;
+				expectedId++;
+			}
+		}
+		return true; //should never be reached
+	}
+
 	/**
 	 * To check if an arrangement of NumberStones is solvable, its parity has
 	 * to be computed. See http://de.wikipedia.org/wiki/15-Puzzle.
 	 * In two lines:
 	 * - If the parity is odd, the arrangement can be rearranged to 1-2-3-4 ... 14-15-[ ].
 	 * - If the parity is even, this can not be done.
-	 * @return the parity, that has to be checked for oddity.
+	 * @return true, if the parity is odd, so solvable
 	 */
-	private int computeParity() {
+	private boolean isSolvable() {
 		int parity = 0;
 		for (int y = 0; y < getNbVertCells(); y++) {
 			for (int x = 0; x < getNbHorzCells(); x++) {
@@ -99,7 +130,7 @@ public class NumberPuzzle extends GameGrid implements GGActorTouchListener {
 		}
 		// add row of gap to parity
 		parity += getEmptyLocations().get(0).getY();
-		return parity;
+		return parity % 2 != 0;
 	}
 	
 }
