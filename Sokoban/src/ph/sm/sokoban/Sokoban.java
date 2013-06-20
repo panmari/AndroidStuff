@@ -68,16 +68,13 @@ public class Sokoban extends GameGrid implements GGTouchListener {
 		setPaintOrder(SokobanTarget.class);
 		refresh();
 	}
-
-	private boolean canMove(Location location) {
-		// Test if try to move into border
-		int c = getBg().getColor(location);
-		if (c == borderColor)
+	
+	private boolean canMove(Location nextLocation) {
+		if (isBorder(nextLocation))
 			return false;
 		else // Test if there is a stone
 		{
-			SokobanStone stone = (SokobanStone) getOneActorAt(location,
-					SokobanStone.class);
+			SokobanStone stone = getStoneAt(nextLocation);
 			if (stone != null) {
 				// Try to move the stone
 				stone.setDirection(sok.getDirection());
@@ -92,26 +89,30 @@ public class Sokoban extends GameGrid implements GGTouchListener {
 
 	private boolean moveStone(SokobanStone stone) {
 		Location next = stone.getNextMoveLocation();
-		// Test if try to move into border
-		int c = getBg().getColor(next);
-		if (c == borderColor)
+		if (isBorder(next))
 			return false;
 
 		// Test if there is another stone
-		SokobanStone neighbourStone = (SokobanStone) getOneActorAt(next,
-				SokobanStone.class);
+		SokobanStone neighbourStone = getStoneAt(next);
 		if (neighbourStone != null)
 			return false;
 
 		// Move the stone
 		stone.setLocation(next);
 
-		// Check if we are at a target
-		if (getOneActorAt(next, SokobanTarget.class) != null)
-			stone.show(1);
-		else
-			stone.show(0);
+		stone.updateSprite();
 		return true;
+	}
+	
+	private boolean isBorder(Location loc) {
+		int c = getBg().getColor(loc);
+		return c == borderColor;
+	}
+	/**
+	 * @return null, if there is no stone at loc
+	 */
+	private SokobanStone getStoneAt(Location loc) {
+		return (SokobanStone) getOneActorAt(loc, SokobanStone.class);
 	}
 
 	@Override
@@ -146,5 +147,15 @@ class SokobanTarget extends Actor {
 class SokobanStone extends Actor {
 	public SokobanStone() {
 		super("sokobanstone", 2);
+	}
+	
+	/**
+	 * Changes appearance, if located at a target location.
+	 */
+	public void updateSprite() {
+		if (gameGrid.getOneActorAt(getLocation(), SokobanTarget.class) != null)
+			show(1);
+		else
+			show(0);
 	}
 }
