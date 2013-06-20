@@ -22,14 +22,16 @@ public class Sokoban extends GameGrid implements GGTouchListener {
 	}
 
 	public void main() {
-		GGBackground bg = getBg();
-		drawBoard(bg);
-		drawActors();
+		initializeBord();
 		addTouchListener(this, GGTouch.press);
 		showToast("Click next to Sokoban to move it into the desired direction.");
 	}
 
-	private void drawActors() {
+	private void initializeBord() {
+		GGBackground bg = getBg();
+		bg.clear(Color.WHITE);
+		bg.setPaintColor(Color.DKGRAY);
+		
 		int stoneIndex = 0;
 		int targetIndex = 0;
 
@@ -39,46 +41,32 @@ public class Sokoban extends GameGrid implements GGTouchListener {
 				switch(grid.getCellTypeAt(location)) {
 					case SOKOBAN:
 						sok = new SokobanActor();
-						addActor(sok, location);
+						addActorNoRefresh(sok, location);
 						break;
 					case STONE:
 						stones[stoneIndex] = new SokobanStone();
-						addActor(stones[stoneIndex], location);
+						addActorNoRefresh(stones[stoneIndex], location);
 						stoneIndex++;
 						break;
 					case TARGET_POSITION:	
 						targets[targetIndex] = new SokobanTarget();
-						addActor(targets[targetIndex], location);
+						addActorNoRefresh(targets[targetIndex], location);
 						targetIndex++;
 						break;
-					default:
-						// other stuff is painted in method drawBoard
+					case EMPTY_OUTSIDE:
+						bg.fillCell(location, Color.LTGRAY);
+						break;
+					case BORDER:
+						bg.fillCell(location, borderColor);
+						break;
+					case EMPTY_INSIDE:
+						// leave it white
 						break;
 				}
 			}
 		}
 		setPaintOrder(SokobanTarget.class);
-	}
-
-	private void drawBoard(GGBackground bg) {
-		bg.clear(Color.WHITE);
-		bg.setPaintColor(Color.DKGRAY);
-		for (int y = 0; y < nbVertCells; y++) {
-			for (int x = 0; x < nbHorzCells; x++) {
-				Location location = new Location(x, y);
-				switch(grid.getCellTypeAt(location)) {
-				case EMPTY_OUTSIDE:
-					bg.fillCell(location, Color.LTGRAY);
-					break;
-				case BORDER:
-					bg.fillCell(location, borderColor);
-					break;
-				default:
-					// other stuff is added in method drawActors;
-					break;
-				}
-			}
-		}
+		refresh();
 	}
 
 	private boolean canMove(Location location) {
