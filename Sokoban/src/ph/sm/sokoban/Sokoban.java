@@ -108,6 +108,7 @@ public class Sokoban extends GameGrid implements GGTouchListener {
 		int c = getBg().getColor(loc);
 		return c == borderColor;
 	}
+	
 	/**
 	 * @return null, if there is no stone at loc
 	 */
