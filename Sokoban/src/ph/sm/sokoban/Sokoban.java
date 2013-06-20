@@ -26,6 +26,7 @@ public class Sokoban extends GameGrid implements GGTouchListener {
 		drawBoard(bg);
 		drawActors();
 		addTouchListener(this, GGTouch.press);
+		showToast("Click next to Sokoban to move it into the desired direction.");
 	}
 
 	private void drawActors() {
@@ -35,23 +36,24 @@ public class Sokoban extends GameGrid implements GGTouchListener {
 		for (int y = 0; y < nbVertCells; y++) {
 			for (int x = 0; x < nbHorzCells; x++) {
 				Location location = new Location(x, y);
-				int a = grid.getCell(location);
-				if (a == 5) // Sokoban actor
-				{
-					sok = new SokobanActor();
-					addActor(sok, location);
-				}
-				if (a == 3) // Stones
-				{
-					stones[stoneIndex] = new SokobanStone();
-					addActor(stones[stoneIndex], location);
-					stoneIndex++;
-				}
-				if (a == 4) // Targets
-				{
-					targets[targetIndex] = new SokobanTarget();
-					addActor(targets[targetIndex], location);
-					targetIndex++;
+				switch(grid.getCellTypeAt(location)) {
+					case SOKOBAN:
+						sok = new SokobanActor();
+						addActor(sok, location);
+						break;
+					case STONE:
+						stones[stoneIndex] = new SokobanStone();
+						addActor(stones[stoneIndex], location);
+						stoneIndex++;
+						break;
+					case TARGET_POSITION:	
+						targets[targetIndex] = new SokobanTarget();
+						addActor(targets[targetIndex], location);
+						targetIndex++;
+						break;
+					default:
+						// other stuff is painted in method drawBoard
+						break;
 				}
 			}
 		}
@@ -64,11 +66,17 @@ public class Sokoban extends GameGrid implements GGTouchListener {
 		for (int y = 0; y < nbVertCells; y++) {
 			for (int x = 0; x < nbHorzCells; x++) {
 				Location location = new Location(x, y);
-				int a = grid.getCell(location);
-				if (a == 0) // outside
+				switch(grid.getCellTypeAt(location)) {
+				case EMPTY_OUTSIDE:
 					bg.fillCell(location, Color.LTGRAY);
-				if (a == 2) // Border
+					break;
+				case BORDER:
 					bg.fillCell(location, borderColor);
+					break;
+				default:
+					// other stuff is added in method drawActors;
+					break;
+				}
 			}
 		}
 	}

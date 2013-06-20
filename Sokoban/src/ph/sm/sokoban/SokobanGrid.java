@@ -6,7 +6,7 @@ import ch.aplu.android.Location;
 class SokobanGrid {
 	private final static int nbHorzCells = 19;
 	private final static int nbVertCells = 11;
-	private int[][] a = new int[nbHorzCells][nbVertCells];
+	private CellType[][] a = new CellType[nbHorzCells][nbVertCells];
 	private int nbStones = 0;
 
 	private final static String soko_0 = "    xxxxx          " + // 0 (19)
@@ -68,23 +68,23 @@ class SokobanGrid {
 				switch (sokoModel[model]
 						.charAt(nbHorzCellsModel[model] * k + i)) {
 				case ' ':
-					a[i][k] = 0; // Empty outside
+					a[i][k] = CellType.EMPTY_OUTSIDE;
 					break;
 				case '.':
-					a[i][k] = 1; // Empty inside
+					a[i][k] = CellType.EMPTY_INSIDE;
 					break;
 				case 'x':
-					a[i][k] = 2; // Border
+					a[i][k] = CellType.BORDER;
 					break;
 				case '*':
-					a[i][k] = 3; // Stones
+					a[i][k] = CellType.STONE;
 					nbStones++;
 					break;
 				case 'o':
-					a[i][k] = 4; // Target positions
+					a[i][k] = CellType.TARGET_POSITION;
 					break;
 				case 'A':
-					a[i][k] = 5; // Sokoban actor
+					a[i][k] = CellType.SOKOBAN;
 					break;
 				}
 			}
@@ -103,7 +103,7 @@ class SokobanGrid {
 		return nbStones;
 	}
 
-	public int getCell(Location location) {
+	public CellType getCellTypeAt(Location location) {
 		return a[location.x][location.y];
 	}
 }
