@@ -1,6 +1,6 @@
 // MinimalPong.java
 
-package ph.sm.carsim;
+package ph.sm.touchstick;
 
 import java.util.LinkedList;
 
@@ -13,25 +13,24 @@ import ch.aplu.android.GameGrid;
 import ch.aplu.android.L;
 import ch.aplu.android.Location;
 
-public class CarSim extends GameGrid implements GGActorCollisionListener{
+public class TouchStickDemo extends GameGrid implements GGActorCollisionListener{
 	
-	private Car car;
+	private Balloon balloon;
 	
-	public CarSim() {
+	public TouchStickDemo() {
 		super("town", windowZoom(500));
 	}
 
 	public void main() {
 		setSimulationPeriod(30);
-		car = new Car();
-		addActor(car, new Location(100, 100));
-		addTouchListener(car, GGTouch.drag | GGTouch.press | GGTouch.release);
-		car.addActorCollisionListener(this);
-		car.setActEnabled(false);
-		car.setCollisionCircle(new Point(0,0), 20);
+		balloon = new Balloon();
+		addActor(balloon, new Location(100, 100));
+		addTouchListener(balloon, GGTouch.drag | GGTouch.press | GGTouch.release);
+		balloon.addActorCollisionListener(this);
+		balloon.setCollisionCircle(new Point(0,0), 20);
 		for (int i = 0; i < 50; i++) {
 			Dart d = new Dart();
-			car.addCollisionActor(d);
+			balloon.addCollisionActor(d);
 			addActorNoRefresh(d, new Location(-10, -10)); //out of sight
 		}
 		doRun();
@@ -47,7 +46,6 @@ public class CarSim extends GameGrid implements GGActorCollisionListener{
 
 	public void act() {
 		int spawnRate = Math.max(getNbCycles()/-50 + 40, 5);
-		L.d("" + spawnRate + " " + getNbCycles());
 		if (getNbCycles() % spawnRate == 0) {
 			Dart.launchNext();
 		}
@@ -83,20 +81,22 @@ class Dart extends Actor {
 			setActEnabled(false);
 			if (!dartPool.contains(this)) //be reallyreally sure, that its only inserted once
 				dartPool.add(this);
+			else L.d("There was some timing issue, act was called once too often.");
 		}
 	}
 }
 
-class Car extends Actor implements GGTouchListener {
+class Balloon extends Actor implements GGTouchListener {
 	
 	private Location initialLoc;
+	private boolean moving = false;
 	
-	public Car() {
+	public Balloon() {
 		super("balloon", "crash");
 	}
 	
 	public void act() {
-		if (isMoveValid())
+		if (isMoveValid() && moving)
 			move();
 	}
 
@@ -106,16 +106,16 @@ class Car extends Actor implements GGTouchListener {
 		switch (touch.getEvent()) {
 		case GGTouch.press:
 			initialLoc = loc;
-			setActEnabled(true);
+			moving = true;
 			break;
 		case GGTouch.drag:
-			{//if (initialLoc.getDistanceTo(loc) < 50) { //somehow make this not pixel dependent
+			{//if (initialLoc.getDistanceTo(loc) < 50) { 
 				double dir = initialLoc.getDirectionTo(loc);
 				setDirection(dir);
 			}
 			break;
 		case GGTouch.release:
-			setActEnabled(false);
+			moving = false;
 			break;
 		}
 		return true;

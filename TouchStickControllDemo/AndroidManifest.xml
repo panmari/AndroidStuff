@@ -4,8 +4,8 @@
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="8" />
-    <application android:label="CarSim" android:icon="@drawable/jdroid_gglogo">
-        <activity android:name="ph.sm.carsim.CarSim"
+    <application android:label="TouchStick Demo" android:icon="@drawable/jdroid_gglogo">
+        <activity android:name="ph.sm.touchstick.TouchStickDemo"
                   android:configChanges="orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
