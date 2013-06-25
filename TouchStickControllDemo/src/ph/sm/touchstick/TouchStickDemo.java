@@ -2,8 +2,6 @@
 
 package ph.sm.touchstick;
 
-import java.util.LinkedList;
-
 import android.graphics.Point;
 import ch.aplu.android.Actor;
 import ch.aplu.android.GGActorCollisionListener;
@@ -43,45 +41,33 @@ public class TouchStickDemo extends GameGrid implements GGActorCollisionListener
 		doPause();
 		return 0;
 	}
-
-	public void act() {
-		int spawnRate = Math.max(getNbCycles()/-50 + 40, 5);
-		if (getNbCycles() % spawnRate == 0) {
-			Dart.launchNext();
-		}
-	}
 }
 
 class Dart extends Actor {
 	
-	static private LinkedList<Dart> dartPool =  new LinkedList<Dart>();
+	private int launchCountdown;
+	private int numberPasses = 0;
+	
 	public Dart() {
 		super("dart");
-		dartPool.add(this);
 	}
 	
 	public void reset() {
 		setCollisionSpot(new Point(40, 0));
-	}
-	
-	public static void launchNext() {
-		dartPool.poll().launch();
-	}
-	
-	public void launch() {
+		launchCountdown = (int) (Math.max(100, (10 - numberPasses)*100)*Math.random() + 50);
+		L.d("Lc " + launchCountdown + " np " + numberPasses);
 		int y = (int)(Math.random()*getNbVertCells());
-		setLocation(new Location(-10, y));
-		setActEnabled(true);
+		setLocation(new Location(-70, y));
 	}
 	
 	public void act() {
-		if (getX() < getNbHorzCells() + 60) //as long as in sight -> fly
-			move();
-		else {
-			setActEnabled(false);
-			if (!dartPool.contains(this)) //be reallyreally sure, that its only inserted once
-				dartPool.add(this);
-			else L.d("There was some timing issue, act was called once too often.");
+		launchCountdown--;
+		if (getX() < getNbHorzCells() + 60) {
+			if (launchCountdown < 0)
+				move();
+		} else {
+			reset();
+			numberPasses++;
 		}
 	}
 }
