@@ -54,6 +54,7 @@ class Dart extends Actor {
 	
 	public void reset() {
 		setCollisionSpot(new Point(40, 0));
+		// at first in [50, 1050], gradually increasing, maxing in [50, 150]
 		launchCountdown = (int) (Math.max(100, (10 - numberPasses)*100)*Math.random() + 50);
 		L.d("Lc " + launchCountdown + " np " + numberPasses);
 		int y = (int)(Math.random()*getNbVertCells());
@@ -61,10 +62,10 @@ class Dart extends Actor {
 	}
 	
 	public void act() {
-		launchCountdown--;
 		if (getX() < getNbHorzCells() + 60) {
 			if (launchCountdown < 0)
 				move();
+			else launchCountdown--;
 		} else {
 			reset();
 			numberPasses++;
