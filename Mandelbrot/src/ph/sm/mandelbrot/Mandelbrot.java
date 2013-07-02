@@ -17,6 +17,7 @@ public class Mandelbrot extends GameGrid implements GGTouchListener{
 	
 	public Mandelbrot() {
 		super(true, windowZoom(600));
+		setScreenOrientation(LANDSCAPE);
 	}
 	
 	public void main() {
