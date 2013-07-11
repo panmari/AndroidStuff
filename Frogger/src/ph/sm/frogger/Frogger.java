@@ -11,7 +11,7 @@ public class Frogger extends GameGrid
 	paintBg();
     setSimulationPeriod(80);
     Frog frog = new Frog();
-    addActor(frog, new Location(400, 560), Location.NORTH);
+    addActor(frog, new Location(400, 590), Location.NORTH);
     frog.setCollisionRectangle(new Point(0, 0), 30, 30);
 
     Car[] cars = new Car[20];
@@ -27,14 +27,15 @@ public class Frogger extends GameGrid
       frog.addCollisionActor(cars[10 + i]);
     }
 
+    
     for (int i = 0; i < 5; i++)
-      addActor(cars[i], new Location(350 * i, 90), Location.WEST);
+      addActor(cars[i], new Location(350 * i, 120), Location.WEST);
     for (int i = 5; i < 10; i++)
-      addActor(cars[i], new Location(350 * (i - 5), 340), Location.WEST);
+      addActor(cars[i], new Location(350 * (i - 5), 370), Location.WEST);
     for (int i = 10; i < 15; i++)
-      addActor(cars[i], new Location(350 * (i - 10), 220), Location.EAST);
+      addActor(cars[i], new Location(350 * (i - 10), 250), Location.EAST);
     for (int i = 15; i < 20; i++)
-      addActor(cars[i], new Location(350 * (i - 15), 470), Location.EAST);
+      addActor(cars[i], new Location(350 * (i - 15), 500), Location.EAST);
 
     addTouchListener(frog, GGTouch.press);
     setTitle("Frogger");
@@ -44,11 +45,11 @@ public class Frogger extends GameGrid
   
   private void paintBg() {
 	getBg().clear(GRAY);
-	paintStreet(45, 220);
-	paintStreet(295, 220);
+	paintStreet(75, 220);
+	paintStreet(325, 220);
 	//make lake at top?
 	getBg().setPaintColor(Color.BLUE);
-	getBg().fillCircle(new Point(300, -20), 30);
+	getBg().fillCircle(new Point(300, -200), 235);
 }
   
 private void paintStreet(int height, int size) {
@@ -63,8 +64,7 @@ private void paintStreet(int height, int size) {
 
 public Frogger()
   {
-    super(windowZoom(600));
-    setScreenOrientation(LANDSCAPE);
+    super(600,600, 1);
   }
 
   public static void main(String[] args)
@@ -106,16 +106,18 @@ class Frog extends Actor implements GGTouchListener
 
   public void act()
   {
-    if (getLocation().y < 25)
+    if (getY() < 25 && getX() < 380 && getX() > 220)
     {
       if (!isFinished)
       {
         isFinished = true;
-        //gameGrid.playSound(GGSound.FROG);
+        gameGrid.showToast("You safely reached the lake!");
+        gameGrid.playSound("ping");
       }
     }
-    else
+    else {
       isFinished = false;
+    }
   }
 
   public boolean touchEvent(GGTouch touch)
@@ -131,7 +133,7 @@ class Frog extends Actor implements GGTouchListener
 
   public int collide(Actor actor1, Actor actor2)
   {
-    gameGrid.playSound("BOING");
+    gameGrid.playSound("boing");
     setLocation(new Location(400, 560));
     setDirection(Location.NORTH);
     return 0;
