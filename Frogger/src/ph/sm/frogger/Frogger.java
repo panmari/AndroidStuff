@@ -47,7 +47,6 @@ public class Frogger extends GameGrid
 	getBg().clear(GRAY);
 	paintStreet(75, 220);
 	paintStreet(325, 220);
-	//make lake at top?
 	getBg().setPaintColor(Color.BLUE);
 	getBg().fillCircle(new Point(300, -200), 235);
 }
@@ -57,7 +56,6 @@ private void paintStreet(int height, int size) {
 	bg.setPaintColor(Color.BLACK);
 	bg.fillRectangle(new Point(0, height), new Point(1000, height + size));
 	bg.setPaintColor(Color.YELLOW);
-	//bg.setLineWidth(2);
 	bg.drawLine(new Point(0,height + size/2 - 2), new Point(1000,height + size/2 - 2));
 	bg.drawLine(new Point(0,height + size/2 + 2), new Point(1000,height + size/2 + 2));
 }
@@ -65,6 +63,7 @@ private void paintStreet(int height, int size) {
 public Frogger()
   {
     super(600,600, 1);
+    setScreenOrientation(PORTRAIT);
   }
 
   public static void main(String[] args)
